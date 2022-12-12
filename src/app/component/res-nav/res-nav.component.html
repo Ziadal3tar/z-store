@@ -1,8 +1,9 @@
 <div [ngClass]="[s0]" class="main w-25 h-100 bg-white position-fixed top-0 m-0 "
   style="z-index: 99; scrollbar-gutter: stable; overflow-y: auto; transition: 1s; left: -80%; ">
 
-<div (click)="back()" class=" w-100 position-relative d-flex fs-4 justify-content-end p-3 ">  <i class="fa-solid fa-xmark"></i>
-</div>
+  <div (click)="back()" class=" w-100 position-relative d-flex fs-4 justify-content-end p-3 "> <i
+      class="fa-solid fa-xmark"></i>
+  </div>
 
   <ul class=" text-decoration-none list-unstyled">
     <li><a>HOME</a>
@@ -10,9 +11,10 @@
     </li>
 
 
-    <li (click)="cc('shop')" class=" w-100 "><a class="d-flex justify-content-between w-100">SHOP <i class="fa-solid fa-chevron-left "></i></a>
+    <li (click)="cc('shop')" class=" w-100 "><a class="d-flex justify-content-between w-100">SHOP <i
+          class="fa-solid fa-chevron-left "></i></a>
 
-      <ul class="ul overflow-hidden" [ngClass]="[shop]"  >
+      <ul class="ul overflow-hidden" [ngClass]="[shop]">
 
         <li><a routerLink="/male">MALE</a></li>
         <li><a routerLink="/female">FEMALE </a></li>
@@ -26,7 +28,8 @@
     <li><a>PLOG</a>
 
     </li>
-    <li (click)="cc('page')" class=" w-100  "><a class="d-flex justify-content-between w-100">PAGE <i class="fa-solid fa-chevron-left "></i></a>
+    <li (click)="cc('page')" class=" w-100  "><a class="d-flex justify-content-between w-100">PAGE <i
+          class="fa-solid fa-chevron-left "></i></a>
 
       <ul class="ul overflow-hidden" [ngClass]="[page]">
         <li><a routerLink="/login">LOGIN</a></li>

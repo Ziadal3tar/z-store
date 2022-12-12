@@ -91,7 +91,7 @@ import { ChatsComponent } from './component/chats/chats.component';
     MatCardModule,
     MatFormFieldModule,
     MaterialFileInputModule,
-    DragDropModule,
+    DragDropModule
 
 
   ],

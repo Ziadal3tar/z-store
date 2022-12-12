@@ -8,16 +8,17 @@ import { UserService } from './services/user.service';
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
-  cartlength:any;
-userdata:any
-  constructor(private UserService:UserService,private ChatService:ChatService) {
-
-
+  cartlength: any;
+  userdata: any;
+  constructor(
+    private UserService: UserService,
+    private ChatService: ChatService,
+  ) {
   }
 
   ngOnInit(): void {
-    if (localStorage.getItem("userToken")) {
-      this.getdata()
+    if (localStorage.getItem('userToken')) {
+      this.getdata();
     }
   }
 
@@ -25,12 +26,11 @@ userdata:any
     const token = localStorage.getItem('userToken');
     this.UserService.getUserData(token).subscribe((data: any) => {
       this.cartlength = data.userData?.cart.length;
-      this.userdata = data.userData
-this.updateSocketId()
+      this.userdata = data.userData;
+      this.updateSocketId();
     });
   }
-  updateSocketId(){
-    this.ChatService.emit("updateSocketId",this.userdata?._id)
-
+  updateSocketId() {
+    this.ChatService.emit('updateSocketId', this.userdata?._id);
   }
 }
