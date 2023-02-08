@@ -1,0 +1,114 @@
+<app-loading *ngIf="loading"></app-loading>
+
+<div class=" container d-flex row p-3">
+  <p class=" m-0 p-0 fa my-4 d-flex align-items-center justify-content-center fs-4 ">subCategory</p>
+
+  <div class="col-md-6 col-sm-12">
+    <p class="fa col-12">add subCategory</p>
+    <div class=" d-flex  col-12">
+
+
+
+
+      <input type="text" class="border-0 col-9  p-2  rounded-2 border-bottom" placeholder="Sub Category"  [(ngModel)]="subCategoryName">
+      <label for="subCaregoryImg" class=" col-1 offset-1">
+        <div class=" cursorPointer bg-danger h-100 p-0 d-flex align-items-center justify-content-center rounded-5"><i
+            class="bi bi-image text-white fs-5"></i></div>
+      </label>
+      <input type="file" class=" d-none" id="subCaregoryImg" (change)="upload($event)">
+    </div>
+
+
+    <div class=" position-relative d-flex col-12 mt-4">
+
+
+
+      <button class=" btn col-1 offset-10 p-0" (click)="addSubCategory()">ADD
+        <i class="bi bi-arrow-right"></i></button>
+    </div>
+  </div>
+
+
+
+  <div class="col-md-6 col-sm-12 mt-sm-3 scrollStyle" style="height: 80vh; ">
+    <div class="col-12 d-flex align-items-center justify-content-between">
+      <p class="fa w-100">all subcategories</p>
+    <div class=" col-6">
+      <select class=" w-100 p-2 rounded-3 border-0 border-bottom" id="categoryId" (change)="selectCategory()" >
+        <option selected >Select category:</option>
+        <option *ngFor="let item of allCategories let i = index" [ngClass]="{'bg-light': ((i % 2) == 0) }" value="{{item._id}}"  >{{item.name}}</option>
+      </select>
+      <p class=" text-danger position-absolute ms-2 p-0">{{errMessage}}</p>
+    </div>
+    </div>
+<div *ngIf="!categoryId || categoryId=='Select category:'" class=" d-flex justify-content-center h-50 align-items-center fa">select category</div>
+    <table class="table" *ngIf="categoryId && categoryId!='Select category:'">
+      <thead>
+        <tr>
+          <th scope="col" class=" text-center">#</th>
+          <th scope="col" class=" text-center">Name</th>
+          <th scope="col" class=" text-center">Category</th>
+          <th scope="col" class=" text-center">Created By</th>
+          <th scope="col" class=" text-center">Image</th>
+          <th scope="col" class=" text-center">Delete</th>
+          <th scope="col" class=" text-center">Update</th>
+
+        </tr>
+      </thead>
+      <tbody>
+        <tr  *ngFor="let item of allSubCategories let i = index"  [ngClass]="{'d-none': item.categoryId?._id != categoryId ,'bg-light': ((i % 2) == 0) }">
+          <th class="text-center" scope="row">{{i+1}}</th>
+          <th class="text-center" scope="row">{{item.name}}</th>
+          <td class="text-center">
+            <div class=" my-auto">{{item?.categoryId?.name}}</div>
+          </td>
+          <td class="text-center">{{item?.createdBy?.userName}}</td>
+
+          <td class="text-center">
+            <div class="img rounded-3 m-auto "
+              style="background-size: cover; background-position: center center; background-image: url({{item.image}});">
+            </div>
+          </td>
+
+          <td class="text-center">
+            <div class="d-flex align-items-center justify-content-center cursorPointer" (click)="removeSubCategory(item._id)"><i
+                class="bi bi-trash2-fill bgbtns p-1 py-2 text-danger rounded-3"></i></div>
+          </td>
+          <td class="text-center">
+            <div (click)="openEdit = !openEdit" (click)="subCategoryId = item._id" class="d-flex align-items-center justify-content-center cursorPointer" >
+              <i class="bi bi-pen-fill bgbtns p-1 py-2 text-black rounded-3"></i>
+            </div>
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+
+
+</div>
+
+<div [ngClass]="{'d-none': openEdit}"
+  class=" position-absolute vw-100 vh-100 row bg-black bg-opacity-50 top-0 start-0  d-flex align-items-center justify-content-center">
+
+  <div
+    class=" position-relative py-3 col-lg-4 col-sm-6 h-auto bg-light rounded-3 d-flex align-items-center justify-content-around flex-column row position-relative">
+    <p class=" fa">edit category</p>
+    <div class="position-absolute top-0 end-0 p-0 w-auto m-2 cursorPointer " (click)="openEdit = !openEdit"><i
+        class="bi bi-x fs-5"></i></div>
+    <div class=" d-flex ">
+      <input type="text" class="border-0 col-9  p-2 mx-1 rounded-2 border-bottom" placeholder="category" [(ngModel)]="newSubCategoryName">
+      <label for="subCaregoryImg" class=" col-1 offset-1">
+        <div class=" cursorPointer bg-danger h-100 p-0 d-flex align-items-center justify-content-center rounded-5"><i
+            class="bi bi-image text-white fs-5"></i></div>
+      </label>
+
+
+      <input type="file" class="col-12 d-none" id="subCaregoryImg" (change)="upload($event)">
+    </div>
+
+    <button class=" btn col-3 btn-primary w-25 mt-3 position-static end-0" (click)="editSubCategory()">Edit</button>
+  </div>
+
+</div>

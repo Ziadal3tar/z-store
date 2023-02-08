@@ -1,3 +1,5 @@
+import { SharedService } from 'src/app/services/shared.service';
+import { Router } from '@angular/router';
 import { UserService } from './../../services/user.service';
 import {
   Component, OnInit, Input, Output, EventEmitter,
@@ -9,50 +11,24 @@ import {
   styleUrls: ['./res-nav.component.css'],
 })
 export class ResNavComponent implements OnInit {
-  page = '';
 
-  shop = '';
 userdata:any
-  @Input() role :any;
 
-@Input() s0 = 'before';
-
+@Input() sideNav = 'close';
 @Output() backNav: EventEmitter<any> = new EventEmitter<any>();
-
-constructor(private UserService:UserService) {}
+constructor(private UserService:UserService,private router:Router,private SharedService:SharedService) {}
 
 ngOnInit(): void {
-
+this.SharedService.currentUserData.subscribe((data:any)=>{
+  this.userdata = data
+})
 }
-getdata() {
-  const token = localStorage.getItem('userToken');
-  this.UserService.getUserData(token).subscribe((data: any) => {
-    this.userdata = data.userData;
-
-
-  });
-
-
-}
-
 back() {
-  this.s0 = 'before';
-  this.backNav.emit(this.s0);
+  this.sideNav = 'close';
+  this.backNav.emit(this.sideNav);
 }
-
-cc(type: any) {
-  if (type == 'page') {
-    if (this.page == '') {
-      this.page = 'h-auto';
-    } else {
-      this.page = '';
-    }
-  } else if (type == 'shop') {
-    if (this.shop == '') {
-      this.shop = 'h-auto';
-    } else {
-      this.shop = '';
-    }
-  }
+logout(){
+  localStorage.removeItem("userToken")
+  this.router.navigate([`/login`]);
 }
 }

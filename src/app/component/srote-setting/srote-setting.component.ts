@@ -46,22 +46,13 @@ export class SroteSettingComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.userData();
   }
   choseColor(d:any){
 this.color = d
 this.cc()
 
   }
-  userData() {
-    this.UserService.getUserData(localStorage.getItem('userToken')).subscribe(
-      (data: any) => {
-        this.userdata = data.userData;
-        this.storeId = data.userData.storeId;
-        this.storeData();
-      }
-    );
-  }
+ 
   storeData() {
     this.StoresService.getStore(this.storeId).subscribe((data: any) => {
       this.storedata = data.store;
@@ -124,75 +115,11 @@ this.cc()
       this.categoriesArr = cc;
     }
   }
-  addCategories() {
-    if (this.num != 0 && this.icon == 'fa-solid fa-check text-success') {
-      this.Hint();
-    } else if (
-      this.num != 0 &&
-      this.icon != 'fa-solid fa-check text-success' &&
-      this.categoriesArr.length == 0
-    ) {
-      this.message = 'You did not enter any category';
-    } else if (this.num != this.categoriesArr.length) {
-      this.num2 = this.num - this.categoriesArr.length;
-    } else if (this.num == 0) {
-      this.style1 = 'opacity-100';
-    } else {
-      this.StoresService.addCategories(
-        this.storeId,
-        this.categoriesArr
-      ).subscribe((data: any) => {
-        this.Setting.emit('');
-        this.Products.emit('active');
-        this.btnstyle = 'btnstyle';
-        this.ifMore0 = 'style';
-        location.reload();
-      });
-    }
-  }
-  updateCategories() {
-    const ll: any = [];
-    this.StoresService.addCategories(this.storeId, ll).subscribe(
-      (data: any) => {
 
-        this.disabled = '';
-        this.btnstyle = '';
-        this.ifMore0 = '';
-        this.btnstyle = '';
-        this.thenum = 0;
-        this.num = 0;
-      }
-    );
-  }
   validation(event: any) {
     return /[a-z]/i.test(event.key);
   }
-  Hint(): void {
-    setTimeout(() => {
-      this.icon = 'fa-solid fa-check text-success hint slow';
-      this.hint2 = 'opacity-100 slow';
-    }, 500);
-    setTimeout(() => {
-      this.icon = 'fa-solid fa-check text-success slow';
-      this.hint2 = 'opacity-0 slow';
-    }, 1000);
-    setTimeout(() => {
-      this.icon = 'fa-solid fa-check text-success hint slow';
-      this.hint2 = 'opacity-100 slow';
-    }, 1500);
-    setTimeout(() => {
-      this.icon = 'fa-solid fa-check text-success slow';
-      this.hint2 = 'opacity-0 slow';
-    }, 2000);
-    setTimeout(() => {
-      this.icon = 'fa-solid fa-check text-success hint slow';
-      this.hint2 = 'opacity-100 slow';
-    }, 2500);
-    setTimeout(() => {
-      this.icon = 'fa-solid fa-check text-success slow';
-      this.hint2 = 'opacity-0 slow';
-    }, 3000);
-  }
+
   upload(event: any) {
     const file = event.target.files[0];
     this.updatedImg = file;
@@ -215,13 +142,12 @@ formdata.append('id', this.storedata?._id);
 
 
 
-this.StoresService.editStoreData(formdata).subscribe((data:any)=>{
+// this.StoresService.editStoreData(formdata).subscribe((data:any)=>{
   // if(data.message == "updated"){
   //   this.userData()
   // }
-console.log(data);
 
-})
+// })
 
 
   }

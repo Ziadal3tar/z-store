@@ -17,21 +17,21 @@ export class UserinfoComponent implements OnInit {
   ordersStyle = '';
   favoritesStyle = '';
   personalStyle = '';
-  userdata: any;
-  storDetails = 'd-none';
+  userData: any;
+  storDetails = false;
   image: any;
   storeName = '';
   storeCategory = '';
   storeTitle = '';
   removeTitle = '';
-  edit = '';
   url: any;
   page: any;
   updatedImg: any;
   name = 'mohammed';
-  favcount:any;
-  ordersCount:any
-
+  errMessage: any;
+  favcount: any;
+  ordersCount: any;
+  loading=false
   constructor(
     private SharedService: SharedService,
     private _activatedRoute: ActivatedRoute,
@@ -41,57 +41,12 @@ export class UserinfoComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.pageNavigation(this._activatedRoute.snapshot.url[1].path);
-    this.userData();
-  }
+    this.SharedService.currentUserData.subscribe((data: any) => {
+      this.userData = data;
 
-  pageNavigation(page: any) {
-    this.page = page;
-
-    if (page == 'orders') {
-      this.ordersStyle = 'ifClick';
-      this.personalStyle = '';
-      this.favoritesStyle = '';
-      this.orders = '';
-      this.settings = 'd-none';
-      this.favorites = 'd-none';
-      this.personal = 'd-none';
-    } else if (page == 'settings') {
-      this.settings = '';
-      this.orders = 'd-none';
-      this.favorites = 'd-none';
-      this.personal = 'd-none';
-    } else if (page == 'favorites') {
-      this.ordersStyle = '';
-      this.personalStyle = '';
-      this.favoritesStyle = 'ifClick';
-
-      this.settings = 'd-none';
-      this.orders = 'd-none';
-      this.favorites = '';
-      this.personal = 'd-none';
-    } else if (page == 'personal') {
-      this.ordersStyle = '';
-      this.personalStyle = 'ifClick';
-      this.favoritesStyle = '';
-      this.settings = 'd-none';
-      this.orders = 'd-none';
-      this.favorites = 'd-none';
-      this.personal = '';
-    }
-  }
-
-  userData() {
-    this.UserService.getUserData(localStorage.getItem('userToken')).subscribe(
-      (data: any) => {
-        this.userdata = data.userData;
-this.favcount= this.userdata.favoriteProducts.length
-this.ordersCount= this.userdata.cart.length
-
-        this.url = this.userdata.profilePic[0];
-        this.storeBtnTitle();
-      }
-    );
+      this.url = data.profilePic;
+      this.storeBtnTitle();
+    });
   }
 
   upload(event: any) {
@@ -99,23 +54,25 @@ this.ordersCount= this.userdata.cart.length
     this.image = file;
   }
   addStore() {
-
+    this.errMessage = '';
     const formdata = new FormData();
-    formdata.append('file', this.image);
-
-    formdata.append('storeCategory', this.storeCategory);
-    formdata.append('storeName', this.storeName);
-    formdata.append('createdBy', this.userdata._id);
+    formdata.append('image', this.image);
+    formdata.append('name', this.storeName);
 
     this.StoresService.addStores(formdata).subscribe((data: any) => {
-      this.storeTitle = 'Open Your Store';
-      this.removeTitle = 'delete-store';
-      this.Router.navigate([`/yourStore/${data.addedStores._id}`]);
+
+      if (data.message == 'added') {
+        this.storeTitle = 'Open Your Store';
+        this.removeTitle = 'delete-store';
+        this.Router.navigate([`/yourStore/${data.newStore._id}`]);
+      } else if (data.err) {
+        this.errMessage = 'You cannot own a store while you are a Admin';
+      }
     });
   }
 
   storeBtnTitle() {
-    if (!this.userdata.store) {
+    if (!this.userData.storeId) {
       this.storeTitle = 'Add your store';
       this.removeTitle = '';
     } else {
@@ -124,22 +81,17 @@ this.ordersCount= this.userdata.cart.length
     }
   }
   storeBtn() {
-    if (this.storeTitle == 'Add your store') {
-      if (this.storDetails == 'd-none') {
-        this.storDetails = '';
-      } else {
-        this.storDetails = 'd-none';
-      }
+    if (!this.userData.storeId) {
+      this.storDetails = !this.storDetails;
     } else {
-      this.Router.navigate(['/yourStore/' + this.userdata.storeId]);
-
-      this.storDetails = 'd-none';
+      this.Router.navigate(['/yourStore/' + this.userData.storeId._id]);
+      this.storDetails = false;
     }
   }
 
   deleteStore() {
-    const id = this.userdata._id;
-    if (this.userdata.store) {
+    const id = this.userData._id;
+    if (this.userData.store) {
       this.StoresService.deleteStore(id).subscribe((data: any) => {
         if (data.message == 'removed') {
           this.storeTitle = 'Add your store';
@@ -149,8 +101,7 @@ this.ordersCount= this.userdata.cart.length
     }
   }
 
-  uploads(event: any) {
-    this.edit = 'edit';
+  updateUserImg(event: any) {
     const file = event.target.files[0];
     this.updatedImg = file;
     const reader = new FileReader();
@@ -160,17 +111,20 @@ this.ordersCount= this.userdata.cart.length
     };
   }
   save() {
-    this.edit = '';
+
+    this.loading=true
     const formdata = new FormData();
+    formdata.append('image', this.updatedImg);
+    formdata.append('id', this.userData?._id);
+    this.UserService.editProfilePic(formdata).subscribe((data: any) => {
+      if (data.message == 'created') {
+        this.updatedImg = '';
+        this.loading=false
 
-    formdata.append('file', this.updatedImg);
-    formdata.append('id', this.userdata._id);
-
-    this.UserService.editProfilePic(formdata).subscribe((data: any) => {});
+      }
+    });
   }
   cancel() {
-    this.edit = '';
-
-    this.url = this.userdata.profilePic[0];
+    this.url = this.userData.profilePic[0];
   }
 }

@@ -18,12 +18,14 @@ export class LogingurdGuard implements CanActivate {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot,
   ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    if (localStorage.length > 0) {
-      // this.UserService.saveData(localStorage.getItem("userToken"))
+
+    if (localStorage.getItem("userToken") == null) {
+      this.Router.navigate(['/login']);
+
+      return false;
+    }else{
 
       return true;
     }
-    this.Router.navigate(['login']);
-    return false;
   }
 }

@@ -1,0 +1,12 @@
+
+.filter li:hover{
+  color:#dc3545;
+  width:auto !important;
+  cursor: pointer;
+  transition: 0.5s;
+  text-decoration: underline;
+  }
+  .filter button:hover{
+  border:#dc3545 solid 1px !important;
+  color: #dc3545;
+  }

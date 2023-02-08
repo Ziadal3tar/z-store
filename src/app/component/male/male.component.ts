@@ -1,12 +1,13 @@
+import { NavbarComponent } from './../navbar/navbar.component';
 import { OwlOptions } from 'ngx-owl-carousel-o';
 import { Component, OnInit, Output } from '@angular/core';
 import { Options, LabelType } from 'ng5-slider';
 import { SharedService } from '../../services/shared.service';
 import { UserService } from '../../services/user.service';
 import { ProductsService } from '../../services/products.service';
-import {  Router } from '@angular/router';
-
-
+import { Router } from '@angular/router';
+import { CartService } from 'src/app/services/cart.service';
+import { WishListService } from 'src/app/services/wish-list.service';
 @Component({
   selector: 'app-male',
   templateUrl: './male.component.html',
@@ -22,11 +23,37 @@ export class MaleComponent implements OnInit {
 
   searchingFor: any;
 
-  malecategory = this.ProductsService.maleCategory;
 
   specifiedCategory: any;
 
+  productDetails:any
+  openProductDetails=false
   filters = '';
+  allData: any;
+  categoryId: any;
+  subCategoryId: any;
+  brandId: any;
+  userData:any
+  sizes = ['sm', 'md', 'lg', 'xl', 'free'];
+  status = 'Dead';
+  colors = [
+    'red',
+    'yellow',
+    'green',
+    'white',
+    'black',
+    'gray',
+    'blue',
+    'brown',
+    'orange',
+    'gold',
+    'Purple',
+    'Silver',
+    'Pink',
+    'Teal',
+    'Beige',
+    'navy',
+  ];
 
   imgProduct: OwlOptions = {
     loop: true,
@@ -77,75 +104,45 @@ export class MaleComponent implements OnInit {
     private ProductsService: ProductsService,
     private UserService: UserService,
     private SharedService: SharedService,
-
+    private CartService: CartService,
+    private WishListService: WishListService
   ) {}
 
   ngOnInit(): void {
 
-    this.getProduct();
-    this.getdata();
+    this.SharedService.currentUserData.subscribe((data=>{
+this.userData = data
+
+
+    }))
+    this.SharedService.currentAllProduct.subscribe((data:any)=>{
+this.products = data
+    })
   }
 
-  getdata() {
-    const token = localStorage.getItem('userToken');
-    this.UserService.getUserData(token).subscribe((data: any) => {
-      this.cartlength = data.userData.cart.length;
-    });
+  onProductsChange(products: any) {
+    this.products = products;
   }
 
-  getProduct() {
-    this.products = [];
-    this.ProductsService.getProduct().subscribe((data: any) => {
-      for (let i = 0; i < data.allproduct.length; i++) {
-        const element = data.allproduct[i];
-        if (element.forWhom === 'male') {
-          this.products.push(element);
-        }
-        this.specifiedCategory = 0;
-      }
-    });
-  }
-
-  filter(i: any) {
-    if (i === 0) {
-      this.specifiedCategory = i;
-
-      this.ProductsService.getProduct().subscribe((data: any) => {
-        this.products = data.allproduct.filter(
-          (item: any) => item.forWhom === 'male'
-            && item.price >= this.minValue
-            && item.price <= this.maxValue,
-        );
-      });
-    } else {
-      this.specifiedCategory = i;
-      const category = this.malecategory[i];
-      this.ProductsService.getProduct().subscribe((data: any) => {
-        this.products = data.allproduct.filter(
-          (item: any) => item.forWhom === 'male'
-            && item.category === category
-            && item.price >= this.minValue
-            && item.price <= this.maxValue,
-        );
-      });
+ifInWishlist(item:any):any{
+  for (let i = 0; i < this.userData?.wishlist?.length; i++) {
+    const element = this.userData.wishlist[i];
+    if (element._id == item._id) {
+      return true
     }
   }
-
-  filterPrice() {
-    const category = this.malecategory[this.specifiedCategory];
-    this.ProductsService.getProduct().subscribe((data: any) => {
-      this.products = data.allproduct.filter(
-        (item: any) => item.forWhom === 'male'
-          && item.category === category
-          && item.price >= this.minValue
-          && item.price <= this.maxValue,
-      );
-    });
-  }
-
-  getIndex(i: number) {
-    this.index = i;
-    this.filter(i);
+  return false
+}
+  select() {
+    this.categoryId = (<HTMLInputElement>(
+      document.getElementById('categoryId_AP')
+    )).value;
+    this.subCategoryId = (<HTMLInputElement>(
+      document.getElementById('subCategoryId_AP')
+    )).value;
+    this.brandId = (<HTMLInputElement>(
+      document.getElementById('brandId_AP')
+    )).value;
   }
 
   addToCart(id: any) {
@@ -153,15 +150,36 @@ export class MaleComponent implements OnInit {
       productId: id,
       quantity: 1,
     };
-    const token = localStorage.getItem('userToken');
 
-    this.UserService.addToCart(product, token).subscribe((data: any) => {
+    this.CartService.addToCart(product).subscribe((data: any) => {
+      this.SharedService.updateUserData()
       this.SharedService.sendClickEvent();
-      this.getdata();
     });
   }
 
-  addToFavorites(id: any) {
-    this.SharedService.addFavorites(id);
+  addToFavorites(id: any,event:any) {
+    let data = {
+      productId: id,
+    };
+    for (let i = 0; i < this.userData?.wishlist?.length; i++) {
+      const element = this.userData.wishlist[i];
+      if (element._id == id) {
+         this.WishListService.removeToFavorites(data.productId).subscribe((data:any)=>{
+          if (data.message == 'Done') {
+            event.target.classList.remove("bi-heart-fill","text-danger")
+            event.target.classList.add("bi-heart")
+            return
+          }
+        })
+      }
+    }
+    this.WishListService.addToFavorites(data).subscribe((data: any) => {
+      if (data.message == 'Done') {
+        event.target.classList.add("bi-heart-fill","text-danger")
+        event.target.classList.remove("bi-heart")
+        this.SharedService.updateUserData()
+
+      }
+    });
   }
 }

@@ -1,8 +1,9 @@
 .maincolor{color: hsl(26, 100%, 55%);;}
 .maincolorbg{background-color: hsla(26, 100%, 55% ,0.3);;}
-.bg-orange{background-color:  hsl(26, 100%, 55%);;}
+.bg-orange{background-color:  hsl(26, 100%, 55%);}
 
-input:focus {
+
+/* input:focus {
   outline: none !important;
   box-shadow:none;
   border: 0;
@@ -13,4 +14,4 @@ input:focus {
     box-shadow:none;
     border: 0;
     border-left: 3px solid #dc3545;
-    border-radius: 0;}
+    border-radius: 0;} */

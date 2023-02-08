@@ -1,10 +1,10 @@
-import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { CarouselModule } from 'ngx-owl-carousel-o';
 import { SwiperModule } from 'swiper/angular';
 import { Ng5SliderModule } from 'ng5-slider';
-import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
@@ -24,10 +24,8 @@ import { ProductsDetailsComponent } from './component/products-details/products-
 import { AdminComponent } from './component/admin/admin.component';
 import { FrontBageComponent } from './component/front-bage/front-bage.component';
 import { UserService } from './services/user.service';
-import { FemaleComponent } from './component/female/female.component';
 import { CartComponent } from './component/cart/cart.component';
 import { AllproductComponent } from './component/allproduct/allproduct.component';
-import { KidsComponent } from './component/kids/kids.component';
 import { CartOnAllComponent } from './component/cart-on-all/cart-on-all.component';
 import { ProductsService } from './services/products.service';
 import { SharedService } from './services/shared.service';
@@ -44,7 +42,17 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SroteSettingComponent } from './component/srote-setting/srote-setting.component';
 import { AddProductComponent } from './component/add-product/add-product.component';
 import { ChatsComponent } from './component/chats/chats.component';
-
+import { NgwWowModule } from 'ngx-wow';
+import { CouponsComponent } from './component/coupons/coupons.component';
+import { CategoryComponent } from './component/category/category.component';
+import { SupCategoryComponent } from './component/sup-category/sup-category.component';
+import { BrandComponent } from './component/brand/brand.component';
+import { AdminsControlComponent } from './component/admins-control/admins-control.component';
+import { LoadingComponent } from './component/loading/loading.component';
+import { FilterBtnComponent } from './component/btn/filter-btn/filter-btn.component';
+import { SearchBtnComponent } from './component/btn/search-btn/search-btn.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 @NgModule({
   declarations: [
     AppComponent,
@@ -56,10 +64,8 @@ import { ChatsComponent } from './component/chats/chats.component';
     ProductsDetailsComponent,
     AdminComponent,
     FrontBageComponent,
-    FemaleComponent,
     CartComponent,
     AllproductComponent,
-    KidsComponent,
     CartOnAllComponent,
     OrdersComponent,
     PersonalComponent,
@@ -72,16 +78,25 @@ import { ChatsComponent } from './component/chats/chats.component';
     YourStoreComponent,
     SroteSettingComponent,
     AddProductComponent,
-    ChatsComponent,
-
+    CouponsComponent,
+    CategoryComponent,
+    SupCategoryComponent,
+    BrandComponent,
+    AdminsControlComponent,
+    LoadingComponent,
+    FilterBtnComponent,
+    SearchBtnComponent,
+    ChatsComponent
   ],
   imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
     BrowserModule,
     AppRoutingModule,
     CarouselModule,
     Ng5SliderModule,
     SwiperModule,
-    FormsModule,
     HttpClientModule,
     BrowserAnimationsModule,
     MatInputModule,
@@ -91,11 +106,11 @@ import { ChatsComponent } from './component/chats/chats.component';
     MatCardModule,
     MatFormFieldModule,
     MaterialFileInputModule,
-    DragDropModule
-
-
+    DragDropModule,
+    NgwWowModule,
   ],
+
   providers: [UserService, ProductsService, SharedService],
   bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

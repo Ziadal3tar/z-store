@@ -1,86 +1,82 @@
-import { ChatService } from './../../services/chat.service';
-import { Component, OnInit, HostListener, ElementRef } from '@angular/core';
+import { SharedService } from 'src/app/services/shared.service';
 import { Router } from '@angular/router';
-import { NavbarComponent } from '../navbar/navbar.component';
-import { UserService } from '../../services/user.service';
-import { NgwWowService } from 'ngx-wow';
-
+import { UserService } from './../../services/user.service';
+import { Component, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
-  providers: [UserService, NavbarComponent, ChatService],
 })
 export class LoginComponent implements OnInit {
   hello: any;
-  loginArabic = 'd-none';
-  loginEnglish = 'd-none';
-  dir: any;
-  colorValue: any;
-  mood = 'morning';
-  emailOrPhone: any;
+  login = 'd-none';
+  email: any;
   password: any;
-  passErr = '';
-  emailErr = '';
-  message: any;
-  morning = 'url(./assets/img/white-abstract-background_23-2148817571.jpg)';
-  night = 'url(./assets/img/6222603.jpg)';
-  language = 'العربية';
-  constructor(
-    private wowService: NgwWowService,
-    private elem: ElementRef,
-  ) {
-    this.wowService.init();
-  }
+
+  errs = {
+    emailErr: '',
+    passwordErr: '',
+    message: '',
+  };
+
+  constructor(private UserService: UserService, private router: Router,private SharedService:SharedService) {}
 
   ngOnInit(): void {
-    console.log(localStorage.getItem('token'));
-    this.elem.nativeElement.style.setProperty('--bg', this.morning);
-    this.elem.nativeElement.style.setProperty('--bgline', 'rgb(0 0 0 / 20%)');
-
-
+    setTimeout(() => {
+      this.hello = 'opacity-0 transition';
       setTimeout(() => {
-        this.hello = 'opacity-0 transition';
+        this.hello = 'd-none';
         setTimeout(() => {
-          this.hello = 'd-none';
-
+          this.login = ' opacity-0';
           setTimeout(() => {
-            this.loginArabic = 'opacity-0 ';
-            setTimeout(() => {
-              this.loginArabic = 'opacity-100 transition  ';
-            }, 100);
-          }, 10);
-        }, 501);
-      }, 2000);
-    }
+            this.login = 'transition opacity-100';
+          }, 100);
+        }, 10);
+      }, 500);
+    }, 2000);
   }
 
-  // changeMood() {
-  //   if (this.mood == 'night') {
-  //     this.mood = 'morning';
-  //     this.elem.nativeElement.style.setProperty('--bg', this.morning);
-  //     this.elem.nativeElement.style.setProperty('--bgline', 'rgb(0 0 0 / 20%)');
-  //   } else {
-  //     this.mood = 'night';
-  //     this.elem.nativeElement.style.setProperty('--bg', this.night);
-  //     this.elem.nativeElement.style.setProperty(
-  //       '--bgline',
-  //       'rgb(255, 255, 255)'
-  //     );
-  //   }
-  // }
-  // changeLang() {
-  //   if (this.loginArabic == 'd-none') {
-  //     this.loginArabic = '';
-  //     this.language = 'English';
-  //     this.dir = 'rtl';
-  //     this.loginEnglish = 'd-none';
-  //   } else {
-  //     this.loginArabic = 'd-none';
-  //     this.language = 'العربية';
-  //     this.dir = 'ltr';
+  logIn() {
 
-  //     this.loginEnglish = '';
-  //   }
-  // }
+    const data = {
+      email: this.email,
+      password: this.password,
+    };
+
+    this.UserService.login(data).subscribe(
+      (data: any) => {
+
+        this.errs.emailErr = '';
+        this.errs.passwordErr = '';
+        if (data) {
+          if (data.message == 'welcome') {
+
+            localStorage.setItem('userToken', data.token);
+            this.router.navigate([`/home`]);
+          }
+        }
+      }
+      ,
+      (err: HttpErrorResponse) => {
+
+        if (err.error.validationArr) {
+          let arr = err.error.validationArr[0];
+
+          for (let i = 0; i < arr.length; i++) {
+            const element = arr[i];
+            if (element.message.split(' ')[0].slice(1, -1) == 'email') {
+              this.errs.emailErr = element.message;
+            } else if (
+              element.message.split(' ')[0].slice(1, -1) == 'password'
+            ) {
+              this.errs.passwordErr = element.message;
+            }
+          }
+        } else {
+          this.errs.message = err.error.message;
+        }
+      }
+    );
+  }
 }

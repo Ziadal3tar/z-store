@@ -4,41 +4,30 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class StoresService {
-  // private baseUrl = 'http://localhost:3000';
-  private baseUrl = 'https://z-store-api-zaa.herokuapp.com';
+  // private baseUrl = 'http://localhost:3000/store';
+  private baseUrl = 'https://apis-z-store.vercel.app/store';
 
   constructor(private http: HttpClient) {}
   addStores(formdata: any): any {
-    return this.http.post(`${this.baseUrl}/addStores`, formdata);
+
+    return this.http.post(`${this.baseUrl}/addStore`, formdata,{headers:{authorization: `Bearer__${localStorage.getItem("userToken")}`}});
   }
-
   getStore(storeId:any){
-    return this.http.get(`${this.baseUrl}/getStore/${storeId}`);
-
+    return this.http.get(`${this.baseUrl}/getStore/${storeId}`,{headers:{authorization: `Bearer__${localStorage.getItem("userToken")}`}});
   }
   deleteStore(createdBy:any){
     return this.http.get(`${this.baseUrl}/deleteStore/${createdBy}`);
-
   }
   searchStore(data:any){
-    return this.http.post(`${this.baseUrl}/searchStore`, data);
-
+    return this.http.post(`${this.baseUrl}/searchStores`, data,{headers:{authorization: `Bearer__${localStorage.getItem("userToken")}`}});
   }
   storDeleted(id:any){
     return this.http.post(`${this.baseUrl}/storDeleted`, id);
-
   }
   removeStore(id:any){
     return this.http.delete(`${this.baseUrl}/removeStore/${id}`);
-
   }
-  addCategories(storeId:any, data:any){
-    return this.http.patch(`${this.baseUrl}/addCategories/${storeId}`,data);
-
+  editStoreImg(formdata:any){
+    return this.http.put(`${this.baseUrl}/editStoreImg`,formdata,{headers:{authorization: `Bearer__${localStorage.getItem("userToken")}`}});
   }
-  editStoreData(formdata:any){
-    return this.http.patch(`${this.baseUrl}/editStoreData`,formdata);
-
-  }
-
 }

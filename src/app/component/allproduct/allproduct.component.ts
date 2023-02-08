@@ -1,3 +1,5 @@
+import { CartService } from './../../services/cart.service';
+import { WishListService } from './../../services/wish-list.service';
 import { ActivatedRoute } from '@angular/router';
 import { SharedService } from './../../services/shared.service';
 import { StoresService } from './../../services/stores.service';
@@ -12,58 +14,14 @@ import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
   styleUrls: ['./allproduct.component.css'],
 })
 export class AllproductComponent implements OnInit {
-  products: any = [];
-  userdata: any;
-  storeData: any;
+  @Input() products: any;
+  @Input() userData: any;
   storeId:any
+  productDetails:any
+  openProductDetails=false
 
-  @Output() Setting: EventEmitter<any> = new EventEmitter<any>();
-  @Output() Products: EventEmitter<any> = new EventEmitter<any>();
 
-  minValue: number = 2000;
 
-  maxValue: number = 8000;
-
-  options: Options = {
-    floor: 100,
-    ceil: 10000,
-    translate: (value: number, label: LabelType): string => {
-      switch (label) {
-        case LabelType.Low:
-          return `<b>Min price:</b> $${value}`;
-        case LabelType.High:
-          return `<b>Max price:</b> $${value}`;
-        default:
-          return `$${value}`;
-      }
-    },
-  };
-
-  imgProduct: OwlOptions = {
-    loop: true,
-    mouseDrag: true,
-    touchDrag: true,
-    pullDrag: false,
-    dots: false,
-    nav: false,
-    autoplay: true,
-    autoplayTimeout: 5000,
-    navSpeed: 700,
-    responsive: {
-      0: {
-        items: 1,
-      },
-      400: {
-        items: 2,
-      },
-      740: {
-        items: 3,
-      },
-      940: {
-        items: 4,
-      },
-    },
-  };
 
   constructor(
     private ProductsService: ProductsService,
@@ -71,63 +29,73 @@ export class AllproductComponent implements OnInit {
     private StoresService: StoresService,
     private SharedService:SharedService,
     private _activatedRoute: ActivatedRoute,
+    private WishListService:WishListService,
+    private CartService:CartService
+
 
   ) {    this.storeId = _activatedRoute.snapshot.params['id'];
 }
 
   ngOnInit(): void {
-    this.getUser();
-  }
-  getUser() {
-    this.UserService.getUserData(localStorage.getItem('userToken')).subscribe(
-      (data: any) => {
-        this.userdata = data.userData;
-        this.getStore();
-      }
-    );
-  }
-  getStore() {
-    this.StoresService.getStore(this.storeId).subscribe(
-      (data: any) => {
-        this.storeData = data.store;
-        this.getProduct();
-      }
-    );
+//     this.ProductsService.getStoresProducts(this.storeId).subscribe((data:any)=>{
+// this.products = data.products
+// console.log(this.products);
+
+//     })
+this.SharedService.currentUserData.subscribe((data:any)=>{
+  this.userData = data
+
+})
   }
 
-  getProduct() {
-    for (let i = 0; i < this.storeData.storeProduct.length; i++) {
-      const element = this.storeData.storeProduct[i];
-      this.ProductsService.getProductById(element.productId).subscribe(
-        (data: any) => {
-          this.products.push(data.product);
-        }
-      );
+
+  ifInWishlist(item:any):any{
+    for (let i = 0; i < this.userData?.wishlist?.length; i++) {
+      const element = this.userData.wishlist[i];
+      if (element._id == item._id) {
+        return true
+      }
     }
+    return false
   }
-  toSettings() {
-    this.Setting.emit('active');
-    this.Products.emit('');
-  }
-  // filter(type:any){
-  //   this.getProduct()
-  //   this.products = this.products.filter((item:any)=>item.category == type)
-  // }
+
+
 
   addToCart(id: any) {
     const product = {
       productId: id,
       quantity: 1,
     };
-    const token = localStorage.getItem('userToken');
 
-    this.UserService.addToCart(product, token).subscribe((data: any) => {
+    this.CartService.addToCart(product).subscribe((data: any) => {
+      this.SharedService.updateUserData()
       this.SharedService.sendClickEvent();
-      this.getUser();
     });
   }
 
-  addToFavorites(id: any) {
-    this.SharedService.addFavorites(id);
+  addToFavorites(id: any,event:any) {
+    let data = {
+      productId: id,
+    };
+    for (let i = 0; i < this.userData?.wishlist?.length; i++) {
+      const element = this.userData.wishlist[i];
+      if (element._id == id) {
+         this.WishListService.removeToFavorites(data.productId).subscribe((data:any)=>{
+          if (data.message == 'Done') {
+            event.target.classList.remove("bi-heart-fill","text-danger")
+            event.target.classList.add("bi-heart")
+            return
+          }
+        })
+      }
+    }
+    this.WishListService.addToFavorites(data).subscribe((data: any) => {
+      if (data.message == 'Done') {
+        event.target.classList.add("bi-heart-fill","text-danger")
+        event.target.classList.remove("bi-heart")
+        this.SharedService.updateUserData()
+
+      }
+    });
   }
 }

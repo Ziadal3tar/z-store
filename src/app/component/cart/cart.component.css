@@ -12,6 +12,16 @@ body{
 .product:not(:last-child) {
   margin-bottom: 50px;
 }
+p{
+  margin: 0;
+}
+.couponInput{
+  border: 0;
+  border-left: solid 2px #dc3545 !important;
+}
+button:focus{
+border: 0 !important;
+}
 @media (min-width: 0px) and (max-width: 991px) {
   .sum{
 margin-bottom: 30px!important;

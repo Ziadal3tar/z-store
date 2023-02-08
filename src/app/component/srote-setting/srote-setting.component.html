@@ -2,10 +2,10 @@
   <p class=" border-bottom w-100 fs-2 p-3 fa ">settings</p>
   <div class=" container ">
     <div class="row ">
-      <div class="  d-flex flex-column justify-content-between col-lg-6 col-sm-12 py-3  " style="height: auto;">
+      <div class="  d-flex flex-column justify-content-between col-lg-6 col-sm-12 py-3  disabled" style="height: auto;">
         <div class=" d-flex align-items-center justify-content-between col-12">
           <p class="fa col-10">categoris</p>
-          <p (click)="updateCategories()" style=" cursor: pointer;" class=" opacity-100 col-2 text-center">Update</p>
+          <p  style=" cursor: pointer;" class=" opacity-100 col-2 text-center">Update</p>
         </div>
         <div class=" mt-2  py-2 " [ngClass]="ifMore0">
           <div class="  d-flex align-items-center justify-content-center col-12 flex-wrap">
@@ -34,7 +34,7 @@
           <p [ngClass]="message2" class=" text-danger">stell {{num2}} inputs</p>
         </div>
         <div class="my-5">
-          <button [ngClass]="btnstyle" (click)="addCategories()" class="  btn btn-primary fa col-6 py-2 ">Add
+          <button [ngClass]="btnstyle"  class="  btn btn-primary fa col-6 py-2 ">Add
             Categoris</button>
           <p class=" text-danger">{{message}}</p>
         </div>

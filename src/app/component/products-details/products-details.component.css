@@ -4,15 +4,18 @@
 }
 
 .activeImg {
-  border: #dc3545 solid 4px !important;
+  border: #dc3545 solid 2px !important;
   opacity: 0.6;
 }
-
-@media (min-width: 530px) and (max-width: 768px) {
-  .main {
-    margin-bottom: 60% !important;
+@media  (max-width: 768px) {
+  .half1 {
+    height: 50% !important;
+  }
+  .half2 {
+    height: 50% !important;
   }
 }
+/*
 
 @media (min-width: 400px) and (max-width: 530px) {
   .main {
@@ -30,4 +33,14 @@
   .main {
     margin-bottom: 120% !important;
   }
+} */
+
+.half1 .mainImg {
+  width: 240px !important;
+}
+.half2{
+  width: 240px !important;
+}
+.h-15{
+  height: 15%;
 }

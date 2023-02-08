@@ -1,191 +1,119 @@
-import { StoresService } from './../../services/stores.service';
+import { Subscriber, Observable } from 'rxjs';
+import { BrandsService } from 'src/app/services/brands.service';
+import { SubCategoriesService } from './../../services/sub-categories.service';
+import { CategoryService } from './../../services/category.service';
 import { UserService } from './../../services/user.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ProductsService } from '../../services/products.service';
-
+import { HttpErrorResponse } from '@angular/common/http';
+import { SharedService } from 'src/app/services/shared.service';
 @Component({
   selector: 'app-add-product',
   templateUrl: './add-product.component.html',
-  styleUrls: ['./add-product.component.css']
+  styleUrls: ['./add-product.component.css'],
 })
 export class AddProductComponent implements OnInit {
-  productadded: any
-  productImg:any
+  productadded: any;
+  productImg: any;
   mainimg: any;
-
-  title: any;
-
+  name: any;
   description: any;
-
   price: any;
-
   sale: any;
-
   category: any;
-
   forWhom: any;
-
   files: any;
-
   quantity: any;
-
-  S = false;
-
-  M = false;
-
-  L = false;
-
-  IXL = false;
-
-  IIXL = false;
-
-  IIIXL = false;
-
-  IVXL = false;
-
-  VXL = false;
-
   hide = 'd-none';
-  added="added1"
-  userdata:any
-  storeData:any
+  added = 'added1';
+  categoryId: any;
+  subCategoryId: any;
+  brandId: any;
+  gender: any;
+  allCategories: any;
+  allSubCategories: any;
+  allBrands: any;
+  @Input() allData: any;
+  loading=false
+  add=false
+  constructor(
+    private ProductsService: ProductsService,
+    private SharedService: SharedService
+  ) {}
+  ngOnInit() {
 
-
-
-  constructor(private ProductsService: ProductsService,private UserService:UserService, private StoresService:StoresService) {}
-
-  ngOnInit(): void {
-this.getdata()
-  }
-
-
-
-
-  getdata() {
-    const token = localStorage.getItem('userToken');
-    this.UserService.getUserData(token).subscribe((data: any) => {
-      this.userdata = data.userData;
-      this.getStore()
+    this.SharedService.currentAllCategories.subscribe((data: any) => {
+      this.allCategories = data;
+      this.SharedService.currentAllSubCategories.subscribe((data: any) => {
+        this.allSubCategories = data;
+        this.SharedService.currentAllBrands.subscribe((data: any) => {
+          this.allBrands = data;
         });
-  }
-  getStore() {
-    this.StoresService.getStore(this.userdata.storeId).subscribe((data: any) => {
-      this.storeData = data.store;
+      });
     });
   }
-
-
-  forwhom(type: string) {
-    this.forWhom = type;
+  select() {
+    this.categoryId = (<HTMLInputElement>(
+      document.getElementById('categoryId_AP')
+    )).value;
+    this.subCategoryId = (<HTMLInputElement>(
+      document.getElementById('subCategoryId_AP')
+    )).value;
+    this.brandId = (<HTMLInputElement>(
+      document.getElementById('brandId_AP')
+    )).value;
+    this.gender = (<HTMLInputElement>document.getElementById('gender')).value;
   }
-
-  getcategory(category: any) {
-console.log("bdfvx");
-
-    this.category = category;
-    console.log(category,this.category);
-
-  }
-
   uploads(event: any) {
     this.hide = '';
-
     const { files } = event.target;
     this.files = files;
-    // ------------
     const imgs: any[] = [];
-    for (let i = 0; i < this.files.length; i++) {
-      if (i == 0) {
-        const element = this.files[i];
-        const reader = new FileReader();
-        reader.readAsDataURL(element);
-        reader.onload = (event: any) => {
-          this.mainimg = event.target.result
-
-        };
-      }
-
-
-    }
     for (let i = 0; i < this.files.length; i++) {
       const element = this.files[i];
       const reader = new FileReader();
       reader.readAsDataURL(element);
       reader.onload = (event: any) => {
+        if (i==0) {
+          this.mainimg = event.target.result;
+        }
         imgs.push(event.target.result);
-
       };
-
     }
-
     this.productImg = imgs;
-
-  }
-  imgs(imgs: any) {
-    throw new Error('Method not implemented.');
   }
 
-  addProduct():void {
-
-    if (this.files != undefined) {
-      this.hide = '';
-    }
-    // const productdetails: any = {
-    //   title: this.title,
-    //   description: this.description,
-    //   price: this.price,
-    //   sale: this.sale,
-    //   category: this.category,
-    //   forWhom: this.forWhom,
-    //   quantity: this.quantity,
-    // };
-
-    const Sizes: any = {
-      S: this.S,
-      M: this.M,
-      L: this.L,
-      IXL: this.IXL,
-      IIXL: this.IIXL,
-      IIIXL: this.IIIXL,
-      IVXL: this.IVXL,
-      VXL: this.VXL,
-    };
+  addProduct(): void {
+    this.loading = !this.loading
     const formdata = new FormData();
     for (let i = 0; i < this.files?.length; i++) {
       const element: any = this.files[i];
-      formdata.append('file', element);
+      formdata.append('image', element);
     }
-    formdata.append('storeId', this.userdata.storeId);
-    formdata.append('title', this.title);
+    formdata.append('name', this.name);
     formdata.append('description', this.description);
     formdata.append('price', this.price);
-    formdata.append('sale', this.sale);
-    formdata.append('category', this.category);
-    formdata.append('forWhom', this.forWhom);
-    formdata.append('quantity', this.quantity);
-    formdata.append('S', Sizes.S);
-    formdata.append('M', Sizes.M);
-    formdata.append('L', Sizes.L);
-    formdata.append('IXL', Sizes.IXL);
-    formdata.append('IIXL', Sizes.IIXL);
-    formdata.append('IIIXL', Sizes.IIIXL);
-    formdata.append('IVXL', Sizes.IVXL);
-    formdata.append('VXL', Sizes.VXL);
+    formdata.append('discount', this.sale);
+    formdata.append('totalItems', this.quantity);
+    formdata.append('gender', this.gender);
+    this.ProductsService.addproduct(
+      formdata,
+      this.categoryId,
+      this.subCategoryId,
+      this.brandId
+    ).subscribe((data: any) => {
 
-    this.ProductsService.addproduct(formdata).subscribe((data: any) => {
-      if(data.message == "added"){
-        this.added="added"
-      setTimeout(() => {
-        this.added = "added1  opacity-0"
-    }, 2000);
+      if (data.message == 'Created') {
+        this.added = 'added';
+        setTimeout(() => {
+          this.added = 'added1  opacity-0';
+        }, 1000);
+        this.loading = !this.loading
+        this.add=true
+
+      }else{
+        this.loading = false
       }
-      console.log(data);
-
-      this.productadded = data.addedProduct;
-      this.mainimg = data.addedProduct.productImg[0];
-
     });
   }
-
 }
-

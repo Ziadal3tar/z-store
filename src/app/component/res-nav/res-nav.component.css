@@ -27,35 +27,6 @@ ul li ul{
   transition: 1s !important;
 }
 
-/*
-@media (min-width: 768px) {
-  .before{
-    left: -30% !important;
-  }
-  .after{
-    left: 0% !important;
-    border-radius: 0 0 500px 0 !important;
-
-
-  }
-}
-
-@media (max-width: 768px) {
-  .before{
-    left: -40% !important;
-  }
-  .after{
-    left: 0% !important;
-    border-radius: 0 0 500px 0 !important;
-
-
-  }
-.main {
-  width: 35% !important;
-}
-}
- */
-
 
 
 
@@ -65,12 +36,11 @@ ul li ul{
 
 
 @media (min-width: 0px) and (max-width: 640px){
-  .before{
+  .close{
     right: -60% !important;
   }
-  .after{
+  .open{
     left: 0% !important;
-    border-radius: 0 0 500px 0 !important;
 
 
   }
@@ -79,12 +49,11 @@ ul li ul{
 }
 }
 @media (min-width: 640px) and (max-width: 768px) {
-  .before{
+  .close{
     left: -50% !important;
   }
-  .after{
+  .open{
     left: 0% !important;
-    border-radius: 0 0 500px 0 !important;
 
 
   }
@@ -94,12 +63,11 @@ ul li ul{
 
 }
 @media (min-width: 768px) and (max-width: 1082px) {
-  .before{
+  .close{
     left: -35% !important;
   }
-  .after{
+  .open{
     left: 0% !important;
-    border-radius: 0 0 500px 0 !important;
 
 
   }
@@ -109,12 +77,11 @@ ul li ul{
 
 }
 @media (min-width: 1083px) and (max-width: 999999999px){
-  .before{
+  .close{
     left: -35% !important;
   }
-  .after{
+  .open{
     left: 0% !important;
-    border-radius: 0 0 500px 0 !important;
 
 
   }

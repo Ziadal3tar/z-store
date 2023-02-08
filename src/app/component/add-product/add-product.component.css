@@ -14,8 +14,15 @@ opacity: 0 !important;
 transition: 1s !important;
 }
 .added{
-  opacity: 1;
+  opacity: 1 !important;
   transition: 1s !important;
-
 }
 
+.right{
+    border-radius: 0px 5px 5px 0px !important;
+    border-left: 0;
+}
+.left{
+  border-radius: 5px 0px 0px 5px !important;
+    border-right: 0;
+}

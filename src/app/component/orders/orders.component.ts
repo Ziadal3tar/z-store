@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { SharedService } from 'src/app/services/shared.service';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -13,6 +13,7 @@ export class OrdersComponent implements OnInit {
   favorites = '';
 
   personal = '';
+  @Input() userData: any;
 
   constructor(private SharedService:SharedService, private _activatedRoute: ActivatedRoute) {
   }

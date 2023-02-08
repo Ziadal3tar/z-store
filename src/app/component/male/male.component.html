@@ -1,68 +1,55 @@
-<app-navbar [cartlength]="cartlength" ></app-navbar>
-<!-- <button (click)="hh()"  class="btn btn-danger ">vd</button> -->
-
- <div class="row m-0 ">
-
-  <div class=" col-lg-3 col-md-4 col-sm-12  position-relative  overflow-hidden " style="transition: 1s !important;" [ngClass]="[filters]" >
-    <div class="row m-0 mt-5 ">
-      <div
-        style="height: 350px !important; overflow-y: auto; scrollbar-gutter: stable; border-radius: 10px; background-color: rgb(235, 235, 235);">
-        <div class=" text-center mt-3 text-danger fw-bold fs-4 ">
-          <p> MEN'S FASHION</p>
-
-        </div>
-        <div  class=" ms-5 fw-bolder h-100  py-1  d-flex align-items-start flex-column " >
-          <a class="s-itm my-2" role="menuitem" [ngClass]="{' bg-opacity-50 bg-danger px-3 rounded-3': specifiedCategory  === i }" (click)="getIndex(i)" *ngFor="let item of malecategory let i = index" >{{item}}</a>
-        </div>
-      </div>
-
-
-      <div class=" mt-5" >
-        <ng5-slider (click)="filterPrice()" [(value)]="minValue"  [(highValue)]="maxValue" [options]="options"></ng5-slider>
-      </div>
-      <div class=" my-3">
-        <h4 class=" text-center mb-3">Size</h4>
-        <div class=" d-flex flex-row align-items-center justify-content-around">
-          <button class=" sizesbtn btn text-white fs-5">S</button>
-          <button class="sizesbtn btn text-white fs-5 ">M</button>
-          <button class="sizesbtn btn text-white fs-5">L</button>
-          <button class="sizesbtn btn text-white fs-5">Xl</button>
-          <button class="sizesbtn btn text-white fs-5">All</button>
-
-        </div>
-      </div>
-    </div>
+<app-navbar [cartlength]="cartlength"></app-navbar>
+<div class=" w-100 h-100 bg-black position-fixed top-0 bg-opacity-75 p-5 " [ngClass]="{'d-none': !openProductDetails}"
+  style="z-index: 99;">
+  <div class="container bg-white position-relative ">
+    <div class=" position-absolute top-0 end-0 m-3 cursorPointer" (click)="productdetails.indexx = 0"><i (click)="openProductDetails = !openProductDetails"
+        class="bi bi-x-circle-fill"></i></div>
+    <app-products-details #productdetails style="z-index: 99;" [productDetails]="productDetails"></app-products-details>
   </div>
 
-
-
-  <div class=" col-lg-9 col-md-8 col-sm-12 row" >
-    <div class=" col-lg-4 col-md-6 col-sm-6 mb-2" *ngFor="let slide of products let i = index" >
-      <owl-carousel-o [options]="imgProduct">
-        <ng-container>
-          <ng-template carouselSlide *ngFor="let img of slide.productImg ">
-            <a [routerLink]="['/productDetails',slide._id]">
-              <div class=" position-relative w-100  d-flex align-items-start justify-content-center"
-              style="height: 300px;">
-              <div class=" w-75 h-100  d-flex align-items-center justify-content-center">
-                <img class="w-100 position-relative " style="border-radius: 20px; cursor: pointer;" [src]="img" >
-              </div>
-            </div>
-            </a>
-          </ng-template>
-        </ng-container>
-      </owl-carousel-o>
-
-      <div class=" w-100 d-flex align-items-center justify-content-around flex-column mt-2">
-        <p class="  text-danger fw-bold  fs-4">{{slide.price}}$ </p>
-        <p class="  text-black fw-bolder  fs-5"> {{slide.title}}</p>
-<div class=" d-flex justify-content-evenly align-items-center w-50">
-  <button (click)="addToCart(slide._id)" class=" btn btn-danger me-2">AddToCart </button>
-  <button (click)="addToFavorites(slide._id)" style="width: 30px; height: 30px;" class=" btn btn-danger rounded-circle d-flex align-items-center justify-content-center"><i class="fa-solid fa-heart text-white "></i> </button>
 </div>
+
+<div class=" col-12 row mt-5 px-md-5 d-flex ">
+  <div class=" d-flex position-relative px-5">
+    <app-filter-btn [products]="products" (productsChanged)="onProductsChange($event)"></app-filter-btn>
+    <app-search-btn class="ms-2"></app-search-btn>
+  </div>
+</div>
+
+<div class="row m-0  mt-5 p-5">
+  <div
+    class=" col-xl-3 col-lg-3  col-md-4 col-sm-6 mb-2 d-flex align-items-center justify-content-center justify-content-md-start flex-column"
+    *ngFor="let slide of products let i = index">
+    <div style="width: 225px; height: 300px;" class="  position-relative">
+      <div class="rounded-3 position-relative rounded-3 overflow-hidden product" style=" width: 225px; height: 300px; ">
+        <div (click)="productDetails = slide" (click)="openProductDetails = !openProductDetails"
+          class="cursorPointer imgCenter  w-100 h-100 position-absolute mainImg transition"
+          style="background-image: url({{slide.images[0]}});"></div>
+        <div
+          class="layer position-absolute w-100 h-25 bg-black bg-opacity-50 d-lg-flex align-items-center justify-content-center d-none "
+          style="bottom: -25%; ">
+          <i (click)="addToCart(slide._id)" class="mood fab fa-opencart text-white fs-4 cursorPointer"></i>
+        </div>
+
+
+
+
       </div>
+
+    </div>
+    <div class="mt-1" style="width: 225px;">
+      <div class=" w-100 d-flex align-items-center justify-content-between">
+        <p class=" m-0 text-gray fs-6"> {{slide.name}}</p>
+        <i class="bi cursorPointer " [ngClass]="ifInWishlist(slide)?'bi-heart-fill text-danger':'bi-heart'"
+          (click)="addToFavorites(slide._id,$event)"></i>
+      </div>
+      <div class=" w-100 d-flex align-items-center justify-content-between">
+        <p class=" m-0 text-gray">{{slide.finalPrice}}$ </p>
+        <i (click)="addToCart(slide._id)" class="fab fa-opencart text-black cursorPointer d-block d-lg-none"></i>
+
+      </div>
+
 
     </div>
   </div>
 </div>
-

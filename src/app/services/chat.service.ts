@@ -7,27 +7,16 @@ import {io,Socket} from 'socket.io-client'
 })
 export class ChatService {
 
-  // private baseUrl = 'http://localhost:3000';
-  private baseUrl = 'https://z-store-api-zaa.herokuapp.com';
-  socket:any
+  // private baseUrl = 'http://localhost:3000/chat';
+  private baseUrl = 'https://apis-z-store.vercel.app/chat';
+
   constructor(private http: HttpClient) {
-      this.socket = io(this.baseUrl)
 
     }
-listen(eventName:any){
-  return new Observable((Subscriber)=>{
-    this.socket.on(eventName,(data:any)=>{
-      Subscriber.next(data)
-    })
 
-  })
-}
-emit(eventName:any,data:any){
-  this.socket.emit(eventName,data)
-}
 
-initChat(Data:any){
-  return this.http.post(`${this.baseUrl}/initChat`,Data);
+sendMessage(data:any){
+  return this.http.post(`${this.baseUrl}/sendMessage`,data);
 }
 getChat(id:any){
   return this.http.get(`${this.baseUrl}/getChat/${id}`);

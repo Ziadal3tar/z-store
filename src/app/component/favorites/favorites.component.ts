@@ -1,8 +1,10 @@
+import { CartService } from 'src/app/services/cart.service';
 import { SharedService } from 'src/app/services/shared.service';
 import { Component, Input, OnInit } from '@angular/core';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ProductsService } from '../../services/products.service';
 import { UserService } from '../../services/user.service';
+import { WishListService } from 'src/app/services/wish-list.service';
 
 @Component({
   selector: 'app-favorites',
@@ -20,59 +22,51 @@ export class FavoritesComponent implements OnInit {
 
   cc = 'text-danger';
 
+  @Input() userData: any;
+
   constructor(
     private UserService: UserService,
     private ProductsService: ProductsService,
     private SharedService: SharedService,
+    private WishListService: WishListService,
+    private CartService: CartService
   ) {}
 
   ngOnInit(): void {
-    this.getFavoriteProduct();
-  }
-
-  getFavoriteProduct() {
-    const token = localStorage.getItem('userToken');
-    this.UserService.getUserData(token).subscribe((data: any) => {
-      this.allIds = data.userData.favoriteProducts;
-      for (let i = 0; i < this.allIds.length; i++) {
-        const element = this.allIds[i];
-        this.ProductsService.getProductById(element.productId).subscribe(
-          (data: any) => {
-            this.favoriteProducts.push(data.product);
-          },
-        );
-      }
-    });
   }
 
   addToCart(id: any) {
     this.SharedService.addToCart(id);
   }
 
-  AddToFavorites(id: any, i: any) {
-    const token = localStorage.getItem('userToken');
-    this.UserService.getUserData(token).subscribe((data: any) => {
-      this.allIds = data.userData.favoriteProducts;
+  color(event: any, id: any):any {
 
-      const num1 = this.allIds.length;
-      const num2 = this.allIds.filter(
-        (item: any) => item.productId != id,
-      ).length;
-      if (num1 == num2) {
-        this.SharedService.addFavorites(id);
-        this.index = '0.1';
-      } else {
-        this.SharedService.deleteFromFavorites(id);
-        this.index = i;
+    for (let i = 0; i < event.target.classList.length; i++) {
+      const element = event.target.classList[i];
+
+      if (element == 'text-danger') {
+        event.target.classList.remove('text-danger');
+        event.target.classList.add('removed');
+        return this.WishListService.removeToFavorites(id).subscribe((data: any) => {});
+
+
       }
-    });
-  }
+      else if (element == 'removed') {
+        event.target.classList.remove('removed');
+        event.target.classList.add('text-danger');
 
+        let data = {
+          productId: id,
+        };
+        return this.WishListService.addToFavorites(data).subscribe((data: any) => {});
+      }
+    }
+  }
   ondrop(event: CdkDragDrop<string[]>) {
     moveItemInArray(
       event.container.data,
       event.previousIndex,
-      event.currentIndex,
+      event.currentIndex
     );
   }
 }

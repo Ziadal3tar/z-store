@@ -1,3 +1,4 @@
+import { SharedService } from 'src/app/services/shared.service';
 import { StoresService } from './../../services/stores.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { UserService } from './../../services/user.service';
@@ -9,109 +10,60 @@ import { Component, OnInit } from '@angular/core';
 })
 export class YourStoreComponent implements OnInit {
   storeId: any;
-  storeData: any;
-  userdata: any;
-  Products = 'active';
-  Setting = '';
-  addProduct=''
-  chats=''
-  lis = ['Setting', 'Datiles', 'Message'];
-  dnone = 'd-none';
-  loading=""
-  position = 'bottom0';
+  userData: any;
+image:any
+storeImg:any
+loading=false
+storeData:any
+
   color:any
   constructor(
     private UserService: UserService,
     private Router: Router,
     private _activatedRoute: ActivatedRoute,
     private StoresService: StoresService,
+    private SharedService:SharedService
 
   ) {
     this.storeId = _activatedRoute.snapshot.params['id'];
   }
 
   ngOnInit(): void {
-    const target = document.querySelector(".tw")
-    setTimeout(() => {
-      window.scrollTo(0,515);
-    }, 4000);
-    setTimeout(() => {
-this.dnone=""
-this.loading="d-none"
-    }, 3800);
-    this.Position();
-    this.getUser();
+    this.SharedService.updateUserData()
+    this.SharedService.updateStoreData(this.storeId)
+    this.SharedService.currentStoreData.subscribe((data:any)=>{
+      this.storeData = data
+      this.storeImg = this.storeData?.storeImage
+    })
+    this.SharedService.currentUserData.subscribe((data:any)=>{
+      this.SharedService.emit('updateStoreSocketId', data.storeId?._id);
+      this.userData = data
+    })
   }
-  getUser() {
-    this.UserService.getUserData(localStorage.getItem('userToken')).subscribe(
-      (data: any) => {
-        this.userdata = data.userData;
-        this.getStore();
+
+  upload(event: any) {
+    const file = event.target.files[0];
+    this.image = file;
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event: any) => {
+      this.storeImg = event.target.result;;
+    };
+  }
+
+  save() {
+    this.loading = true
+    const formdata = new FormData();
+    formdata.append('image', this.image);
+    formdata.append('id', this.userData?.storeId?._id);
+    this.StoresService.editStoreImg(formdata).subscribe((data: any) => {
+      if (data.message == 'Done') {
+this.image=''
+this.loading = false
 
       }
-    );
+    });
   }
 
-  getStore() {
-    this.StoresService.getStore(this.storeId).subscribe((data: any) => {
-      this.storeData = data.store;
-      this.color = data.store.color    });
-  }
-  active(item: any) {
 
-    if (item == 'Products') {
-      this.Products = 'active';
-      this.Setting = '';
-      this.chats = '';
-      this.addProduct=''
-    }  else if (item == 'Setting') {
-      this.Products = '';
-      this.Setting = 'active';
-      this.addProduct=''
-      this.chats = '';
-    }
-    else if (item == 'addProduct') {
-      window.scrollTo(0,515);
-      this.Products = '';
-      this.Setting = '';
-      this.chats = '';
-      this.addProduct='active'
-    }else if (item == 'chats') {
-      window.scrollTo(0,515);
-      this.Products = '';
-      this.Setting = '';
-      this.addProduct=''
-         this.chats='active'
- }
-    else {
-      this.Products = '';
-      this.Setting = '';
-      this.addProduct=''
-      this.chats = 'active';
-    }
-  }
-  Position() {
-
-
-      setTimeout(() => {
-        this.position = 'top0';
-      }, 500);
-      setTimeout(() => {
-      this.position = 'bottom0';
-    }, 1000);
-
-    setTimeout(() => {
-      this.position = 'top0';
-    }, 1500);
-    setTimeout(() => {
-      this.position = 'bottom0';
-    }, 2000);
-    setTimeout(() => {
-      this.position = 'top0';
-    }, 2500);
-    setTimeout(() => {
-      this.position = 'bottom0';
-    }, 3000);
-
-  }
 }

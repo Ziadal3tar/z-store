@@ -1,12 +1,12 @@
-import {
-  Component, Input, OnInit, Output, EventEmitter,
-} from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Subscription } from 'rxjs';
 import { CartOnAllComponent } from '../cart-on-all/cart-on-all.component';
 import { SharedService } from '../../services/shared.service';
-import { ProductsService } from '../../services/products.service';
 import { UserService } from '../../services/user.service';
+import { CartService } from 'src/app/services/cart.service';
+import { CouponService } from 'src/app/services/coupon.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-cart',
@@ -16,141 +16,105 @@ import { UserService } from '../../services/user.service';
 })
 export class CartComponent implements OnInit {
   ClickEventSubscription: Subscription;
-
   cart: any;
-
-  allProduct: any = [];
-
   subtotal: any;
-
   @Input() cartlength: any;
-
-  userdata: any;
-
+  userData: any;
   token = localStorage.getItem('userToken');
-
-  Total:any
+  Total: any;
+  Discount = 0;
+  quantityErrMessage: any;
+  couponErr: any;
+  coupon: any;
+  couponData:any
 
   constructor(
     private UserService: UserService,
-    private ProductsService: ProductsService,
     private SharedService: SharedService,
-    private CartOnAllComponent: CartOnAllComponent
+    private CartService: CartService,
+    private CouponService: CouponService
   ) {
     this.ClickEventSubscription = this.SharedService.getClickEvent().subscribe(
       (data: any) => {
-        this.getUpdateData(data);
+        this.getCart();
       }
     );
   }
 
   ngOnInit(): void {
-    this.getdata();
-
+    this.getCart();
   }
 
-
-  getdata() {
-
-    const token = localStorage.getItem('userToken');
-    this.UserService.getUserData(token).subscribe((data: any) => {
-      this.cart = data.userData.cart;
-      this.cartlength = data.userData.cart.length;
-      this.userdata = data.userData;
-
-      for (let i = 0; i < this.cart.length; i++) {
-        const element = this.cart[i];
-        this.ProductsService.getProductById(element.productId).subscribe(
-          (data: any) => {
-            this.allProduct.push(data.product);
-          }
-
-        );
-
+  getCart() {
+    this.CartService.getCart(localStorage.getItem('userToken')).subscribe(
+      (data: any) => {
+        this.cart = data.cart;
+        this.Subtotal();
       }
-      this.Subtotal()
-
-
-    });
-
+    );
   }
-
-  getUpdateData(data: any) {
-    this.allProduct = this.allProduct.filter((item: any) => item._id != data);
-    this.cartlength = this.allProduct.length;
-    this.Subtotal()
-  }
-
   deleteFromCart(productId: any) {
     const product = {
       productId,
+      userId: localStorage.getItem('userId'),
     };
-
-    this.UserService.deleteFromCart(this.token, product).subscribe((data) => {
-      this.SharedService.updateAllProduct(product.productId);
+    this.CartService.deleteFromCart(product).subscribe((data) => {
+      this.getCart();
       this.SharedService.sendClickEvent();
     });
-
-    for (let i = 0; i < this.allProduct.length; i++) {
-      const element = this.allProduct[i];
-
-      if (element._id == product.productId) {
-        this.allProduct.splice(i, 1);
-        this.cartlength = this.allProduct.length;
-      }
-    }
   }
 
   plus(i: any) {
+    this.quantityErrMessage = '';
+
     const product = {
       index: i,
-      productId: this.cart[i].productId,
-      quantity: this.cart[i].quantity,
+      productId: this.cart.products[i].productId._id,
+      quantity: '',
     };
     const token = localStorage.getItem('userToken');
-
-    if (this.allProduct[i].quantity == this.cart[i].quantity) {
-      this.cart[i].quantity === this.allProduct[i].quantity;
-      product.quantity = this.cart[i].quantity;
-      this.UserService.changeQuantityOfProductInCart(token, product).subscribe(
+    if (
+      this.cart.products[i]?.quantity < this.cart.products[i].productId.stock
+    ) {
+      this.cart.products[i].quantity++;
+      product.quantity = this.cart.products[i].quantity;
+      this.CartService.changeQuantityOfProductInCart(token, product).subscribe(
         (data: any) => {
+          this.discount(this.couponData?.amount)
           this.SharedService.sendClickEvent();
         }
       );
-    } else {
-      this.cart[i].quantity++;
-      product.quantity = this.cart[i].quantity;
-
-      this.UserService.changeQuantityOfProductInCart(token, product).subscribe(
-        (data: any) => {
-          this.SharedService.sendClickEvent();
-        }
-      );
+    } else if (
+      this.cart.products[i]?.quantity == this.cart.products[i].productId.stock
+    ) {
+      this.quantityErrMessage = 'cant more';
+      setTimeout(() => {
+        this.quantityErrMessage = '';
+      }, 1000);
     }
   }
 
-  minuus(i: any) {
-    const token = localStorage.getItem('userToken');
-    const deletedproduct = {
-      productId: this.cart[i].productId,
+  minus(i: any) {
+    const product = {
+      index: i,
+      productId: this.cart.products[i].productId._id,
+      quantity: '',
     };
-
-    if (this.cart[i].quantity === 0) {
-      this.cart[i].quantity = 0;
-
-    } else {
-      this.cart[i].quantity--;
-      const product = {
-        index: i,
-        productId: this.cart[i].productId,
-        quantity: this.cart[i].quantity,
-      };
-
-      this.UserService.changeQuantityOfProductInCart(token, product).subscribe(
+    const token = localStorage.getItem('userToken');
+    if (this.cart.products[i]?.quantity > 1) {
+      this.cart.products[i].quantity--;
+      product.quantity = this.cart.products[i].quantity;
+      this.CartService.changeQuantityOfProductInCart(token, product).subscribe(
         (data: any) => {
+          this.discount(this.couponData?.amount)
           this.SharedService.sendClickEvent();
         }
       );
+    } else if (this.cart.products[i]?.quantity == 1) {
+      this.quantityErrMessage = "can't be less than 1";
+      setTimeout(() => {
+        this.quantityErrMessage = '';
+      }, 1000);
     }
   }
 
@@ -160,42 +124,47 @@ export class CartComponent implements OnInit {
       event.previousIndex,
       event.currentIndex
     );
-
     const token = localStorage.getItem('userToken');
-
     const data = {
-      allProduct: this.allProduct,
+      allProduct: this.cart.products,
     };
     this.UserService.saveAfterDrag(token, data).subscribe((data: any) => {});
   }
 
-   Subtotal() {
-     if (this.allProduct.length == 0) {
+  Subtotal() {
+    if (this.Discount == 0) {
+    }
+    if (this.cart.products.length == 0) {
       this.Total = 0;
     } else {
-      const cc = [];
-        for (let i = 0; i < this.cart.length; i++) {
-        const element = this.cart[i];
-        const product = this.allProduct.filter(
-          (item: any) => item._id == element.productId,
-        );
-        const orderPrice = element.quantity * product[0].price;
-
-        cc.push(orderPrice);
-      }
       let sum = 0;
-      let i = 0;
-      while (i < cc.length) {
-        sum += cc[i];
-        i++;
+      for (let i = 0; i < this.cart.products.length; i++) {
+        const element = this.cart.products[i];
+        sum += element.quantity * element.productId.finalPrice;
       }
-      this.Total = sum;
-
+      this.Total = sum.toFixed(1);
     }
   }
-
+  addCoupon() {
+    this.CouponService.getCoupon(this.coupon).subscribe(
+      (data: any) => {
+        if (data.message == 'coupon') {
+          this.couponData = data.coupon
+          this.discount(data.coupon?.amount);
+          this.coupon = '';
+        }
+      },
+      (err: HttpErrorResponse) => {
+        this.couponErr = err.error.message;
+        setTimeout(() => {
+          this.couponErr = '';
+        }, 1000);
+      }
+    );
+  }
+  discount(amount: any) {
+    let discount = (this.Total / 100) * amount;
+    this.Discount = parseInt(discount.toFixed(1));
+    this.Subtotal()
+  }
 }
-
-
-
-

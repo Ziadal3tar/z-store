@@ -1,21 +1,11 @@
-.displayProduct img{
-  border: 5px solid transparent;
-  border-radius: 15px;
-}
-.sizes div{
-width: 40px!important;
-height: 40px!important;
-border: 0.1px solid rgb(210, 210, 210) !important;
-box-sizing: border-box;
+.nav-tabs {
+  --bs-nav-tabs-border-width: 1px;
+  --bs-nav-tabs-link-active-color: #ffffff;
+  --bs-nav-tabs-link-active-bg: #dc3545;
+  --bs-nav-tabs-link-hover-border-color:transparent;
 }
 
-.added1{
-opacity: 0 !important;
-transition: 1s !important;
+.nav {
+  --bs-nav-link-hover-color:rgb(31, 31, 31)!important;
+  --bs-nav-link-color: #dc3545 !important;
 }
-.added{
-  opacity: 1;
-  transition: 1s !important;
-
-}
-
