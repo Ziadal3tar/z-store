@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class CouponService {
   // private baseUrl = 'http://localhost:3000/coupon';
-  private baseUrl = 'https://apis-z-store.vercel.app/coupon';
+  private baseUrl = 'https://apis-z-store.onrender.com/coupon';
 
 
   constructor(private http: HttpClient) {}
@@ -24,7 +24,7 @@ export class CouponService {
     return this.http.get(`${this.baseUrl}/getCouponById/${id}`);
   }
   updateCoupon(data: any) {
-    return this.http.put(`${this.baseUrl}/updateCoupon/${data.oldName}`,JSON.stringify(data), {
+    return this.http.put(`${this.baseUrl}/updateCoupon/${data.oldName}`,data, {
       headers: {
         authorization: `Bearer__${localStorage.getItem('userToken')}`,
       },

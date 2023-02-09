@@ -5,11 +5,11 @@ import { Injectable } from '@angular/core';
 })
 export class WishListService {
   // private baseUrl = 'http://localhost:3000/wishlist';
-  private baseUrl = 'https://apis-z-store.vercel.app/wishlist';
+  private baseUrl = 'https://apis-z-store.onrender.com/wishlist';
 
   constructor(private http:HttpClient) { }
   addToFavorites(productId: any) {
-    return this.http.put(`${this.baseUrl}/addWishList`, JSON.stringify(productId),{
+    return this.http.put(`${this.baseUrl}/addWishList`, productId,{
       headers: {
         authorization:`Bearer__${localStorage.getItem("userToken")}`
       }

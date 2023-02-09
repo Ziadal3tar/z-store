@@ -33,11 +33,13 @@ deletedUserId:any
 
 
   search() {
+
     this.loaded = '';
     this.messageErr = '';
     let data = {
       name: this.name,
     };
+
     if (data.name == '') {
       this.allUser = [];
       this.messageErr = '';

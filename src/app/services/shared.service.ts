@@ -16,7 +16,7 @@ import { io } from 'socket.io-client';
 })
 export class SharedService {
   // private baseUrl = 'http://localhost:3000';
-  private baseUrl = 'https://apis-z-store.vercel.app';
+  private baseUrl = 'https://apis-z-store.onrender.com';
 
   socket:any
   private userData = new BehaviorSubject<any>([]);
@@ -60,7 +60,7 @@ export class SharedService {
     private StoresService:StoresService,
     private router: Router
   ) {
-    // this.socket = io(this.baseUrl)
+    this.socket = io(this.baseUrl)
 
   }
   listen(eventName:any){
@@ -74,7 +74,7 @@ export class SharedService {
 
   }
  emit(eventName:any,data:any){
-    this.socket.emit(eventName,JSON.stringify(data))
+    this.socket.emit(eventName,data)
   }
   updateUserData() {
     if (localStorage.getItem('userToken')) {

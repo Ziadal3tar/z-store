@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
 })
 export class ProductsService {
   // private baseUrl = 'http://localhost:3000/Product';
-  private baseUrl = 'https://apis-z-store.vercel.app/Product';
+  private baseUrl = 'https://apis-z-store.onrender.com/Product';
 
 
 
@@ -52,7 +52,7 @@ export class ProductsService {
   }
 
   ifDeletedProduct(data:any){
-    return this.http.patch(`${this.baseUrl}/ifDeletedProduct`,JSON.stringify(data));
+    return this.http.patch(`${this.baseUrl}/ifDeletedProduct`,data);
   }
   getStoresProducts(id:any){
     return this.http.get(`${this.baseUrl}/getStoresProducts/${id}`);

@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class BrandsService {
   // private baseUrl = 'http://localhost:3000/brand';
-  private baseUrl = 'https://apis-z-store.vercel.app/brand';
+  private baseUrl = 'https://apis-z-store.onrender.com/brand';
 
   constructor(private http: HttpClient) {}
   allBrands():any{
@@ -17,7 +17,7 @@ export class BrandsService {
   }
 
   addBrand(data:any):any{
-    return this.http.post(`${this.baseUrl}/addBrand`,JSON.stringify(data), {
+    return this.http.post(`${this.baseUrl}/addBrand`,data, {
       headers: {
         authorization: `Bearer__${localStorage.getItem("userToken")}`
       }
@@ -32,7 +32,7 @@ export class BrandsService {
   }
 
   updateBrand(data:any,id:any):any{
-    return this.http.put(`${this.baseUrl}/updateBrand/${id}`,JSON.stringify(data) ,{
+    return this.http.put(`${this.baseUrl}/updateBrand/${id}`,data ,{
       headers: {
         authorization: `Bearer__${localStorage.getItem("userToken")}`
       }

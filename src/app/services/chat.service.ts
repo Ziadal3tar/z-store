@@ -8,7 +8,7 @@ import {io,Socket} from 'socket.io-client'
 export class ChatService {
 
   // private baseUrl = 'http://localhost:3000/chat';
-  private baseUrl = 'https://apis-z-store.vercel.app/chat';
+  private baseUrl = 'https://apis-z-store.onrender.com/chat';
 
   constructor(private http: HttpClient) {
 
@@ -16,7 +16,7 @@ export class ChatService {
 
 
 sendMessage(data:any){
-  return this.http.post(`${this.baseUrl}/sendMessage`,JSON.stringify(data));
+  return this.http.post(`${this.baseUrl}/sendMessage`,data);
 }
 getChat(id:any){
   return this.http.get(`${this.baseUrl}/getChat/${id}`);

@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
 })
 export class CategoryService {
   // private baseUrl = 'http://localhost:3000/category';
-  private baseUrl = 'https://apis-z-store.vercel.app/category';
+  private baseUrl = 'https://apis-z-store.onrender.com/category';
 
   constructor(private http: HttpClient) {}
   allCategory():any{
@@ -17,7 +17,7 @@ export class CategoryService {
   });
   }
   addCategory(data:any):any{
-    return this.http.post(`${this.baseUrl}/addCategory`,JSON.stringify(data), {
+    return this.http.post(`${this.baseUrl}/addCategory`,data, {
       headers: {
         authorization: `Bearer__${localStorage.getItem("userToken")}`
       }
@@ -31,7 +31,7 @@ export class CategoryService {
   });
   }
   updateCategory(data:any,id:any):any{
-    return this.http.put(`${this.baseUrl}/updateCategory/${id}`,JSON.stringify(data) ,{
+    return this.http.put(`${this.baseUrl}/updateCategory/${id}`,data ,{
       headers: {
         authorization: `Bearer__${localStorage.getItem("userToken")}`
       }
