@@ -29,7 +29,7 @@ export class UserService implements OnInit {
   }
 
   signUp(data: any): any {
-    return this.http.post(`${this.baseUrl}/signUp`, data);
+    return this.http.post(`${this.baseUrl}/signUp`, JSON.stringify(data));
   }
 
   getAllUser(): Observable<any> {
@@ -84,7 +84,7 @@ export class UserService implements OnInit {
 
 
   saveAfterDrag(token: any, data: any) {
-    return this.http.patch(`${this.baseUrl}/saveAfterDrag/${token}`, data);
+    return this.http.patch(`${this.baseUrl}/saveAfterDrag/${token}`, JSON.stringify(data));
   }
 
   updateProduct() {
@@ -107,7 +107,7 @@ export class UserService implements OnInit {
   }
 
   searchUser(data: any) {
-    return this.http.post(`${this.baseUrl}/searchUser`, data,{
+    return this.http.post(`${this.baseUrl}/searchUser`, JSON.stringify(data),{
       headers: {
         authorization: `Bearer__${localStorage.getItem("userToken")}`
       }

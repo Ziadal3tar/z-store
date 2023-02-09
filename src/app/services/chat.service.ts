@@ -16,7 +16,7 @@ export class ChatService {
 
 
 sendMessage(data:any){
-  return this.http.post(`${this.baseUrl}/sendMessage`,data);
+  return this.http.post(`${this.baseUrl}/sendMessage`,JSON.stringify(data));
 }
 getChat(id:any){
   return this.http.get(`${this.baseUrl}/getChat/${id}`);

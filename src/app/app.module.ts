@@ -22,7 +22,6 @@ import { NavbarComponent } from './component/navbar/navbar.component';
 import { MaleComponent } from './component/male/male.component';
 import { ProductsDetailsComponent } from './component/products-details/products-details.component';
 import { AdminComponent } from './component/admin/admin.component';
-import { FrontBageComponent } from './component/front-bage/front-bage.component';
 import { UserService } from './services/user.service';
 import { CartComponent } from './component/cart/cart.component';
 import { AllproductComponent } from './component/allproduct/allproduct.component';
@@ -63,7 +62,6 @@ import { CommonModule } from '@angular/common';
     MaleComponent,
     ProductsDetailsComponent,
     AdminComponent,
-    FrontBageComponent,
     CartComponent,
     AllproductComponent,
     CartOnAllComponent,

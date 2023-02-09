@@ -19,7 +19,7 @@ export class StoresService {
     return this.http.get(`${this.baseUrl}/deleteStore/${createdBy}`);
   }
   searchStore(data:any){
-    return this.http.post(`${this.baseUrl}/searchStores`, data,{headers:{authorization: `Bearer__${localStorage.getItem("userToken")}`}});
+    return this.http.post(`${this.baseUrl}/searchStores`, JSON.stringify(data),{headers:{authorization: `Bearer__${localStorage.getItem("userToken")}`}});
   }
   storDeleted(id:any){
     return this.http.post(`${this.baseUrl}/storDeleted`, id);

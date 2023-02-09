@@ -17,7 +17,7 @@ export class CategoryService {
   });
   }
   addCategory(data:any):any{
-    return this.http.post(`${this.baseUrl}/addCategory`,data, {
+    return this.http.post(`${this.baseUrl}/addCategory`,JSON.stringify(data), {
       headers: {
         authorization: `Bearer__${localStorage.getItem("userToken")}`
       }
@@ -31,7 +31,7 @@ export class CategoryService {
   });
   }
   updateCategory(data:any,id:any):any{
-    return this.http.put(`${this.baseUrl}/updateCategory/${id}`,data ,{
+    return this.http.put(`${this.baseUrl}/updateCategory/${id}`,JSON.stringify(data) ,{
       headers: {
         authorization: `Bearer__${localStorage.getItem("userToken")}`
       }

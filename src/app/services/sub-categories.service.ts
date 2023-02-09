@@ -20,7 +20,7 @@ export class SubCategoriesService {
 
   addSubCategory(data:any,categoryId:any):any{
 
-    return this.http.post(`${this.baseUrl}/addSubCategory/${categoryId}`,data, {
+    return this.http.post(`${this.baseUrl}/addSubCategory/${categoryId}`,JSON.stringify(data), {
       headers: {
         authorization: `Bearer__${localStorage.getItem("userToken")}`
       }
@@ -36,7 +36,7 @@ export class SubCategoriesService {
   }
   updateSubCategory(data:any,id:any):any{
 
-    return this.http.put(`${this.baseUrl}/UpdateSubCategory/${id}`,data ,{
+    return this.http.put(`${this.baseUrl}/UpdateSubCategory/${id}`,JSON.stringify(data) ,{
       headers: {
         authorization: `Bearer__${localStorage.getItem("userToken")}`
       }

@@ -9,7 +9,7 @@ export class WishListService {
 
   constructor(private http:HttpClient) { }
   addToFavorites(productId: any) {
-    return this.http.put(`${this.baseUrl}/addWishList`, productId,{
+    return this.http.put(`${this.baseUrl}/addWishList`, JSON.stringify(productId),{
       headers: {
         authorization:`Bearer__${localStorage.getItem("userToken")}`
       }

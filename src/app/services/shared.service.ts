@@ -74,7 +74,7 @@ export class SharedService {
 
   }
  emit(eventName:any,data:any){
-    this.socket.emit(eventName,data)
+    this.socket.emit(eventName,JSON.stringify(data))
   }
   updateUserData() {
     if (localStorage.getItem('userToken')) {

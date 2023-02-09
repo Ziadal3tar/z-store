@@ -17,7 +17,7 @@ export class BrandsService {
   }
 
   addBrand(data:any):any{
-    return this.http.post(`${this.baseUrl}/addBrand`,data, {
+    return this.http.post(`${this.baseUrl}/addBrand`,JSON.stringify(data), {
       headers: {
         authorization: `Bearer__${localStorage.getItem("userToken")}`
       }
@@ -32,7 +32,7 @@ export class BrandsService {
   }
 
   updateBrand(data:any,id:any):any{
-    return this.http.put(`${this.baseUrl}/updateBrand/${id}`,data ,{
+    return this.http.put(`${this.baseUrl}/updateBrand/${id}`,JSON.stringify(data) ,{
       headers: {
         authorization: `Bearer__${localStorage.getItem("userToken")}`
       }

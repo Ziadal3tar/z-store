@@ -24,7 +24,7 @@ export class CouponService {
     return this.http.get(`${this.baseUrl}/getCouponById/${id}`);
   }
   updateCoupon(data: any) {
-    return this.http.put(`${this.baseUrl}/updateCoupon/${data.oldName}`,data, {
+    return this.http.put(`${this.baseUrl}/updateCoupon/${data.oldName}`,JSON.stringify(data), {
       headers: {
         authorization: `Bearer__${localStorage.getItem('userToken')}`,
       },

@@ -13,7 +13,6 @@ import { CartOnAllComponent } from './component/cart-on-all/cart-on-all.componen
 import { AllproductComponent } from './component/allproduct/allproduct.component';
 import { CartComponent } from './component/cart/cart.component';
 import { LogingurdGuard } from './services/logingurd.guard';
-import { FrontBageComponent } from './component/front-bage/front-bage.component';
 import { LoginComponent } from './component/login/login.component';
 import { AdminComponent } from './component/admin/admin.component';
 import { SignupComponent } from './component/signup/signup.component';

@@ -52,7 +52,7 @@ export class ProductsService {
   }
 
   ifDeletedProduct(data:any){
-    return this.http.patch(`${this.baseUrl}/ifDeletedProduct`,data);
+    return this.http.patch(`${this.baseUrl}/ifDeletedProduct`,JSON.stringify(data));
   }
   getStoresProducts(id:any){
     return this.http.get(`${this.baseUrl}/getStoresProducts/${id}`);

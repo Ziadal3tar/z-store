@@ -28,7 +28,7 @@ export class CartService {
   });
   }
   deleteFromCart(data:any) {
-    return this.http.put(`${this.baseUrl}/deleteFromCart`,data);
+    return this.http.put(`${this.baseUrl}/deleteFromCart`,JSON.stringify(data));
   }
   getCart(token:any){
     return this.http.get(`${this.baseUrl}/getCart/${token}`)
