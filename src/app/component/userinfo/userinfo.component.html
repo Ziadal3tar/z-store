@@ -34,7 +34,7 @@
       <div
         class="col-12 border-bottom bg-white  d-flex align-items-center justify-content-around py-3 flex-column rounded-top ">
 
-          <div class="position-relative  imgCenter overflow-hidden" style="width: 100px; height: 100px ; border-radius: 50%; z-index: 999999;
+          <div class="position-relative  imgCenter overflow-hidden mb-2" style="width: 100px; height: 100px ; border-radius: 50%; z-index: 1;
             background-image: url({{url}});">
 
 <div [ngClass]="{'opacity-100': updatedImg}" class=" w-100 h-100 position-absolute bg-black bg-opacity-50 d-flex align-items-center justify-content-center opacity-0 layer">
@@ -84,7 +84,7 @@
 
       </div>
       <div>
-        <button (click)="storeBtn()" class=" contanier btn btn-dark w-100 mt-2">{{storeTitle}}</button>
+        <button (click)="storeBtn()"  class=" contanier btn btn-dark w-100 mt-2">{{storeTitle}}</button>
 
       </div>
     </div>

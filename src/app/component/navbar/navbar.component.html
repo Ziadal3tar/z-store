@@ -54,11 +54,11 @@
 
 
   <div routerLink="/yourStore/{{item._id}}" style="cursor: pointer;"
-    class="stores d-flex justify-content-between align-items-center w-50 bg-white px-3 "
+    class="stores d-flex justify-content-center align-items-center w-50 bg-white px-3 "
     *ngFor="let item of searched let i = index" [ngClass]="{'bg-light': ((i % 2) == 0) }"
     [ngClass]="{'rounded-bottom': i+1 == searched.length}">
-    <div class=" d-flex align-items-center justify-content-start w-50 my-2">
-      <img class="position-relative me-5 " style="width: 50px; height: 50px; border-radius: 50%;"
+    <div class=" d-flex align-items-center justify-content-between w-100 my-2">
+      <img class="position-relative " style="width: 50px; height: 50px; border-radius: 50%;"
         src='{{item?.storeImage}}' alt="">
       <p class=" fw-bolder fa mt-1">{{item.name}}</p>
     </div>

@@ -69,7 +69,7 @@ this.getChat()
     } else {
       for (let i = 0; i < this.userData?.chats?.length; i++) {
         const element = this.userData.chats[i];
-        if (element.storeId._id == this.storeId) {
+        if (element.storeId?._id == this.storeId) {
           let chat = {
             chat: element,
             chatDetails: element.storeId,
