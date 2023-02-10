@@ -15,7 +15,7 @@ import { HttpErrorResponse } from '@angular/common/http';
   providers: [CartOnAllComponent],
 })
 export class CartComponent implements OnInit {
-  ClickEventSubscription: Subscription;
+  // ClickEventSubscription: Subscription;
   cart: any;
   subtotal: any;
   @Input() cartlength: any;
@@ -34,15 +34,20 @@ export class CartComponent implements OnInit {
     private CartService: CartService,
     private CouponService: CouponService
   ) {
-    this.ClickEventSubscription = this.SharedService.getClickEvent().subscribe(
-      (data: any) => {
-        this.getCart();
-      }
-    );
+    // this.ClickEventSubscription = this.SharedService.getClickEvent().subscribe(
+    //   (data: any) => {
+    //     this.getCart();
+    //   }
+    // );
   }
 
   ngOnInit(): void {
-    this.getCart();
+    // this.getCart();
+    this.SharedService.currentUserData.subscribe((data:any)=>{
+      this.userData = data
+      this.cart = this.userData?.cartId
+      this.Subtotal()
+    })
   }
 
   getCart() {
@@ -134,11 +139,11 @@ export class CartComponent implements OnInit {
   Subtotal() {
     if (this.Discount == 0) {
     }
-    if (this.cart.products.length == 0) {
+    if (this.cart?.products?.length == 0) {
       this.Total = 0;
     } else {
       let sum = 0;
-      for (let i = 0; i < this.cart.products.length; i++) {
+      for (let i = 0; i < this.cart?.products?.length; i++) {
         const element = this.cart.products[i];
         sum += element.quantity * element.productId.finalPrice;
       }

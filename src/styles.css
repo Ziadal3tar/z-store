@@ -148,9 +148,9 @@ button{
   cursor: none;
   pointer-events: none;
 }
-.bi-three-dots-vertical::before {
+/* .bi-three-dots-vertical::before {
   display: none;
-}
+} */
 .dropdown-toggle::after {
   display: none;
 }

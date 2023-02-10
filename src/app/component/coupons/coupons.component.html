@@ -15,9 +15,11 @@
                 (click)="removeCoupon(item._id)"></i>
               <p class=" p-0 m-0">{{item.name}}</p>
             </span>
+
             <div class="dropdown">
               <i class="bi bi-three-dots-vertical m-0 p-0 mx-2 cursorPointer dropdown-toggle" type="button"
-                data-bs-toggle="dropdown" aria-expanded="false"></i>
+                data-bs-toggle="dropdown" aria-expanded="false">
+              </i>
               <ul class="dropdown-menu">
                 <li (click)="couponOption('enable', item)"><a class="dropdown-item">Enable</a></li>
                 <li (click)="couponOption('edit', item)"><a class="dropdown-item">edit</a></li>
@@ -54,6 +56,7 @@
               (click)="removeCoupon(item._id)"></i>
             <p class=" p-0 m-0">{{item.name}}</p>
           </span>
+
           <div class="dropdown">
             <i class="bi bi-three-dots-vertical m-0 p-0 mx-2 cursorPointer dropdown-toggle" type="button"
               data-bs-toggle="dropdown" aria-expanded="false"></i>
