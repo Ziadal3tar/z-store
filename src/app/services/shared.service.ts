@@ -15,7 +15,6 @@ import { io } from 'socket.io-client';
   providedIn: 'root',
 })
 export class SharedService {
-  // private baseUrl = 'http://localhost:3000';
   private baseUrl = 'apis-z-store.vercel.app';
 
   socket:any
