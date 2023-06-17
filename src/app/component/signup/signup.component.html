@@ -59,7 +59,10 @@
                 <p class=" my-auto mb-1 opacity-75 ">Remember me</p>
               </div>
               <div class=" col-lg-6 col-sm-12 p-0 ">
-                <button class="w-100 btn btn-danger text-white" (click)="signUp()">SIGNUP</button>
+                <button class="w-100 btn btn-danger text-white" (click)="signUp()"><p *ngIf="!loading">SIGNUP</p>
+
+                  <div *ngIf="loading" class="spinner-border text-white" style="width: 20px; height: 20px;" role="status"> </div>
+                </button>
               </div>
             </div>
             <div

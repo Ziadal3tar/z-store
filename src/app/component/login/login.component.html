@@ -38,9 +38,17 @@
                 <p class=" my-auto mb-1 opacity-75 ">Remember me</p>
               </div>
               <div class=" col-lg-6 col-sm-12 p-0 ">
-                <button class="w-100 btn btn-danger text-white"(click)="logIn()">LOGIN</button>
+                <button class="w-100 btn btn-danger text-white"(click)="logIn()"><p *ngIf="!loading">LOGIN</p>
+                  <div *ngIf="loading" class="spinner-border text-white" style="width: 20px; height: 20px;" role="status"> </div>
+                </button>
               </div>
             </div>
+
+
+
+
+
+
             <div
               class="col-12  d-flex align-items-center justify-content-between mt-3">
               <div class=" d-flex text-primary opacity-75 cursorPointer">

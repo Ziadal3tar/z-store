@@ -5,7 +5,7 @@ import { Component, OnInit } from '@angular/core';
 import { UserService } from './services/user.service';
 import { HttpErrorResponse } from '@angular/common/http';
 
-Router
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',

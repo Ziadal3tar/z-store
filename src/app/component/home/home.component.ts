@@ -38,16 +38,16 @@ export class HomeComponent implements OnInit {
   constructor(
     private ProductsService: ProductsService,
     private SharedService: SharedService,
-    private WishListService:WishListService,
-    private CartService:CartService
+    private WishListService: WishListService,
+    private CartService: CartService
   ) {}
 
   ngOnInit(): void {
+   
     this.SharedService.currentUserData.subscribe((data: any) => {
       this.userData = data;
       this.SharedService.emit('updateSocketId', data._id);
-      this.deleteDeletedProd()
-
+      this.deleteDeletedProd();
     });
     this.getSpecialOffers();
   }
@@ -92,64 +92,59 @@ export class HomeComponent implements OnInit {
     );
   }
 
-
-
-
-  ifInWishlist(item:any):any{
+  ifInWishlist(item: any): any {
     for (let i = 0; i < this.userData?.wishlist?.length; i++) {
       const element = this.userData.wishlist[i];
       if (element._id == item._id) {
-        return true
+        return true;
       }
     }
-    return false
+    return false;
   }
-   addToFavorites(id: any,event:any) {
-      let data = {
-        productId: id,
-      };
-      for (let i = 0; i < this.userData?.wishlist?.length; i++) {
-        const element = this.userData.wishlist[i];
-        if (element._id == id) {
-           this.WishListService.removeToFavorites(data.productId).subscribe((data:any)=>{
-            if (data.message == 'Done') {
-              event.target.classList.remove("bi-heart-fill","text-danger")
-              event.target.classList.add("bi-heart")
-              return
-            }
-          })
-        }
-      }
-      this.WishListService.addToFavorites(data).subscribe((data: any) => {
-        if (data.message == 'Done') {
-          event.target.classList.add("bi-heart-fill","text-danger")
-          event.target.classList.remove("bi-heart")
-          this.SharedService.updateUserData()
-
-        }
-      });
-    }
-    deleteDeletedProd(){
-
-
-for (let i = 0; i < this.userData?.cartId?.products.length; i++) {
-  const element = this.userData?.cartId?.products[i];
-
-  if (element.productId == null) {
-    const product = {
-      productId :element._id,
-      userId: this.userData._id
+  addToFavorites(id: any, event: any) {
+    let data = {
+      productId: id,
     };
-
-    this.CartService.deleteFromCart(product).subscribe((data:any) => {
-if (data.message =='removeProduct') {
-this.SharedService.updateUserData()
-}
-    });
- }
-
-
-
-}
+    for (let i = 0; i < this.userData?.wishlist?.length; i++) {
+      const element = this.userData.wishlist[i];
+      if (element._id == id) {
+        this.WishListService.removeToFavorites(data.productId).subscribe(
+          (data: any) => {
+            if (data.message == 'Done') {
+              event.target.classList.remove('bi-heart-fill', 'text-danger');
+              event.target.classList.add('bi-heart');
+              return;
+            }
+          }
+        );
+      }
     }
+    this.WishListService.addToFavorites(data).subscribe((data: any) => {
+      if (data.message == 'Done') {
+        event.target.classList.add('bi-heart-fill', 'text-danger');
+        event.target.classList.remove('bi-heart');
+        this.SharedService.updateUserData();
+      }
+    });
+  }
+  deleteDeletedProd() {
+    for (let i = 0; i < this.userData?.cartId?.products.length; i++) {
+      const element = this.userData?.cartId?.products[i];
+
+      if (element.productId == null) {
+        const product = {
+          productId: element._id,
+          userId: this.userData._id,
+        };
+
+        this.CartService.deleteFromCart(product).subscribe((data: any) => {
+          if (data.message == 'removeProduct') {
+            this.SharedService.updateUserData();
+          }
+        });
+      }
+    }
+  }
+
+
 }

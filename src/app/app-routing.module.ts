@@ -19,11 +19,13 @@ import { SignupComponent } from './component/signup/signup.component';
 import { HomeComponent } from './component/home/home.component';
 import { MaleComponent } from './component/male/male.component';
 import { ProductsDetailsComponent } from './component/products-details/products-details.component';
+import { BlogComponent } from './component/blog/blog.component';
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
   { path: 'login',canActivate: [LogoutGuard], component: LoginComponent },
   { path: 'male', component: MaleComponent },
+  { path: 'blog', component: BlogComponent },
   { path: 'all', component: AllproductComponent },
   { path: 'userinfo/settings', canActivate: [LogingurdGuard], component: UserinfoComponent },
   { path: 'userinfo/orders', canActivate: [LogingurdGuard], component: UserinfoComponent },

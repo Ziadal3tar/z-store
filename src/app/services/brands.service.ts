@@ -30,7 +30,6 @@ export class BrandsService {
       }
   });
   }
-
   updateBrand(data:any,id:any):any{
     return this.http.put(`${this.baseUrl}/updateBrand/${id}`,data ,{
       headers: {
@@ -38,5 +37,5 @@ export class BrandsService {
       }
   });
   }
-
 }
+

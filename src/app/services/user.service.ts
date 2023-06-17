@@ -29,6 +29,8 @@ export class UserService implements OnInit {
   }
 
   signUp(data: any): any {
+    console.log(data);
+
     return this.http.post(`${this.baseUrl}/signUp`, data);
   }
 

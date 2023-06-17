@@ -83,12 +83,16 @@ export class SharedService {
           this.userData.next(data.user);
         },
         (err: HttpErrorResponse) => {
+
           if (
             err.error.message == 'jwt expired' ||
             err.error.message == 'jwt malformed'
           ) {
             localStorage.removeItem('userToken');
             this.router.navigate([`/login`]);
+          }else{
+            localStorage.removeItem('userToken')
+            this.router.navigate(['/login'])
           }
         }
       );

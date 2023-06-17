@@ -27,7 +27,7 @@ export class CartComponent implements OnInit {
   couponErr: any;
   coupon: any;
   couponData:any
-
+index:any
   constructor(
     private UserService: UserService,
     private SharedService: SharedService,
@@ -46,6 +46,9 @@ export class CartComponent implements OnInit {
     this.SharedService.currentUserData.subscribe((data:any)=>{
       this.userData = data
       this.cart = this.userData?.cartId
+
+
+
       this.Subtotal()
     })
   }
@@ -71,7 +74,7 @@ export class CartComponent implements OnInit {
 
   plus(i: any) {
     this.quantityErrMessage = '';
-
+this.index = i
     const product = {
       index: i,
       productId: this.cart.products[i].productId._id,
@@ -85,7 +88,7 @@ export class CartComponent implements OnInit {
       product.quantity = this.cart.products[i].quantity;
       this.CartService.changeQuantityOfProductInCart(token, product).subscribe(
         (data: any) => {
-          this.discount(this.couponData?.amount)
+          this.SharedService.updateUserData()
           this.SharedService.sendClickEvent();
         }
       );
@@ -100,6 +103,8 @@ export class CartComponent implements OnInit {
   }
 
   minus(i: any) {
+this.index = i
+
     const product = {
       index: i,
       productId: this.cart.products[i].productId._id,
@@ -124,19 +129,27 @@ export class CartComponent implements OnInit {
   }
 
   ondrop(event: CdkDragDrop<string[]>) {
+
     moveItemInArray(
       event.container.data,
       event.previousIndex,
       event.currentIndex
-    );
-    const token = localStorage.getItem('userToken');
-    const data = {
-      allProduct: this.cart.products,
-    };
-    this.UserService.saveAfterDrag(token, data).subscribe((data: any) => {});
+
+      );
+      const token = localStorage.getItem('userToken');
+      const data = {
+        allProduct: this.cart.products,
+      };
+      this.UserService.saveAfterDrag(token, data).subscribe((data: any) => {
+
+
+console.log('r');
+
+      });
   }
 
   Subtotal() {
+
     if (this.Discount == 0) {
     }
     if (this.cart?.products?.length == 0) {
@@ -148,6 +161,7 @@ export class CartComponent implements OnInit {
         sum += element.quantity * element.productId.finalPrice;
       }
       this.Total = sum.toFixed(1);
+
     }
   }
   addCoupon() {
@@ -168,6 +182,7 @@ export class CartComponent implements OnInit {
     );
   }
   discount(amount: any) {
+
     let discount = (this.Total / 100) * amount;
     this.Discount = parseInt(discount.toFixed(1));
     this.Subtotal()

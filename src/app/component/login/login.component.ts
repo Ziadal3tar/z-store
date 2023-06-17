@@ -13,7 +13,7 @@ export class LoginComponent implements OnInit {
   login = 'd-none';
   email: any;
   password: any;
-
+  loading:Boolean=false
   errs = {
     emailErr: '',
     passwordErr: '',
@@ -38,7 +38,7 @@ export class LoginComponent implements OnInit {
   }
 
   logIn() {
-
+this.loading = !this.loading
     const data = {
       email: this.email,
       password: this.password,
@@ -51,6 +51,7 @@ export class LoginComponent implements OnInit {
         this.errs.passwordErr = '';
         if (data) {
           if (data.message == 'welcome') {
+            this.loading = !this.loading
 
             localStorage.setItem('userToken', data.token);
             this.router.navigate([`/home`]);
@@ -59,6 +60,7 @@ export class LoginComponent implements OnInit {
       }
       ,
       (err: HttpErrorResponse) => {
+        this.loading = !this.loading
 
         if (err.error.validationArr) {
           let arr = err.error.validationArr[0];

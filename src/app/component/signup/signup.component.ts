@@ -15,6 +15,7 @@ export class SignupComponent {
   email: any;
   password: any;
   confirmPassword: any;
+  loading:Boolean =false
   errs = {
     userNameErr: '',
     emailErr: '',
@@ -60,6 +61,7 @@ names = ["Aaran", "Aaren", "Aarez", "Aarman", "Aaron", "Aaron-James", "Aarron", 
 
   }
   signUp() {
+    this.loading = !this.loading
     const data = {
       userName: this.userName,
       email: this.email,
@@ -70,11 +72,14 @@ names = ["Aaran", "Aaren", "Aarez", "Aarman", "Aaron", "Aaron-James", "Aarron", 
       (data: any) => {
         if (data) {
           if (data.message == 'added successfully') {
+    this.loading = !this.loading
+
             this.router.navigate([`/login`]);
           }
         }
       },
       (err: HttpErrorResponse) => {
+    this.loading = !this.loading
         if (err.error.validationArr) {
           let arr = err.error.validationArr[0];
           this.errs.userNameErr = '';

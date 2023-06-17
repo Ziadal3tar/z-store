@@ -34,17 +34,19 @@
       <div
         class="col-12 border-bottom bg-white  d-flex align-items-center justify-content-around py-3 flex-column rounded-top ">
 
-          <div class="position-relative  imgCenter overflow-hidden mb-2" style="width: 100px; height: 100px ; border-radius: 50%; z-index: 1;
+        <div class="position-relative  imgCenter overflow-hidden mb-2" style="width: 100px; height: 100px ; border-radius: 50%; z-index: 1;
             background-image: url({{url}});">
 
-<div [ngClass]="{'opacity-100': updatedImg}" class=" w-100 h-100 position-absolute bg-black bg-opacity-50 d-flex align-items-center justify-content-center opacity-0 layer">
-  <input type="file" value="" multiple (change)="updateUserImg($event)" id="userImg" class=" d-none">
-  <label for="userImg" >
-    <i *ngIf="!updatedImg"  class="fa-solid fa-pen-to-square text-white cursorPointer" style="z-index: 9;"></i>
-  </label>
-  <i *ngIf="updatedImg" class="bi bi-check-lg cursorPointer fs-4 text-white" (click)="save()" style="z-index: 9;"></i>
-</div>
+          <div [ngClass]="{'opacity-100': updatedImg}"
+            class=" w-100 h-100 position-absolute bg-black bg-opacity-50 d-flex align-items-center justify-content-center opacity-0 layer">
+            <input type="file" value="" multiple (change)="updateUserImg($event)" id="userImg" class=" d-none">
+            <label for="userImg">
+              <i *ngIf="!updatedImg" class="fa-solid fa-pen-to-square text-white cursorPointer" style="z-index: 9;"></i>
+            </label>
+            <i *ngIf="updatedImg" class="bi bi-check-lg cursorPointer fs-4 text-white" (click)="save()"
+              style="z-index: 9;"></i>
           </div>
+        </div>
 
 
 
@@ -84,17 +86,10 @@
 
       </div>
       <div>
-        <button (click)="storeBtn()"  class=" contanier btn btn-dark w-100 mt-2">{{storeTitle}}</button>
-
+        <button (click)="storeBtn()" class=" contanier btn btn-dark w-100 mt-2">{{storeTitle}}</button>
       </div>
     </div>
-
-
-
     <div class="col-lg-9 col-md-12 mt-5 px-4 scrollStyle" style="height: 80vh;">
-
-
-
       <div class="tab-content" id="v-pills-tabContent">
         <div class="tab-pane fade" id="v-pills-orders" role="tabpanel" aria-labelledby="v-pills-orders-tab"
           tabindex="0"> <app-orders [userData]="userData"></app-orders> </div>

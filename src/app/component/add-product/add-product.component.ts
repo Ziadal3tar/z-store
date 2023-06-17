@@ -70,10 +70,12 @@ export class AddProductComponent implements OnInit {
     this.files = files;
     const imgs: any[] = [];
     for (let i = 0; i < this.files.length; i++) {
+
       const element = this.files[i];
       const reader = new FileReader();
       reader.readAsDataURL(element);
       reader.onload = (event: any) => {
+        console.log(event.target.result);
         if (i==0) {
           this.mainimg = event.target.result;
         }
@@ -82,14 +84,15 @@ export class AddProductComponent implements OnInit {
     }
     this.productImg = imgs;
   }
-
   addProduct(): void {
     this.loading = !this.loading
     const formdata = new FormData();
     for (let i = 0; i < this.files?.length; i++) {
       const element: any = this.files[i];
       formdata.append('image', element);
+
     }
+
     formdata.append('name', this.name);
     formdata.append('description', this.description);
     formdata.append('price', this.price);
@@ -102,6 +105,7 @@ export class AddProductComponent implements OnInit {
       this.subCategoryId,
       this.brandId
     ).subscribe((data: any) => {
+console.log(data);
 
       if (data.message == 'Created') {
         this.added = 'added';

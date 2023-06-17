@@ -27,7 +27,7 @@
             style="background-color: rgba(180, 177, 177, 0.5); padding: 7.5px 5px;"><span (click)="minus(i)"
               style="cursor: pointer;"><i class="fas fa-minus maincolor"></i></span>{{item?.quantity}}<span
               (click)="plus(i)" style="cursor: pointer;"><i class="maincolor fas fa-plus"></i></span></div>
-          <p class="text-danger position-fixed">{{quantityErrMessage}}</p>
+          <p class="text-danger position-fixed" *ngIf="i==index">{{quantityErrMessage}}</p>
         </div>
         <p class="col-2 text-center "> ${{(item.productId.finalPrice * item?.quantity).toFixed(1)}} </p>
         <div class="  col-1  ">
