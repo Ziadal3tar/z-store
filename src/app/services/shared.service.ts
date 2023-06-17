@@ -59,7 +59,7 @@ export class SharedService {
     private StoresService:StoresService,
     private router: Router
   ) {
-    this.socket = io(this.baseUrl)
+    // this.socket = io(this.baseUrl)
 
   }
   listen(eventName:any){

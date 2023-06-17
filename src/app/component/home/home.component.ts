@@ -43,12 +43,12 @@ export class HomeComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-   
-    this.SharedService.currentUserData.subscribe((data: any) => {
-      this.userData = data;
-      this.SharedService.emit('updateSocketId', data._id);
-      this.deleteDeletedProd();
-    });
+
+    // this.SharedService.currentUserData.subscribe((data: any) => {
+    //   this.userData = data;
+    //   this.SharedService.emit('updateSocketId', data._id);
+    //   this.deleteDeletedProd();
+    // });
     this.getSpecialOffers();
   }
 
