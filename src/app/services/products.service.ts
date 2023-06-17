@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
 })
 export class ProductsService {
   // private baseUrl = 'http://localhost:3000/Product';
-  private baseUrl = 'https://apis-z-store.onrender.com/Product';
+  private baseUrl = 'apis-z-store.vercel.app/Product';
 
 
 

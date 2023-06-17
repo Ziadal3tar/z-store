@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class BrandsService {
   // private baseUrl = 'http://localhost:3000/brand';
-  private baseUrl = 'https://apis-z-store.onrender.com/brand';
+  private baseUrl = 'apis-z-store.vercel.app/brand';
 
   constructor(private http: HttpClient) {}
   allBrands():any{

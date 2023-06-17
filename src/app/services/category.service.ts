@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
 })
 export class CategoryService {
   // private baseUrl = 'http://localhost:3000/category';
-  private baseUrl = 'https://apis-z-store.onrender.com/category';
+  private baseUrl = 'apis-z-store.vercel.app/category';
 
   constructor(private http: HttpClient) {}
   allCategory():any{

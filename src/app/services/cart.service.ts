@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
 })
 export class CartService {
   // private baseUrl = 'http://localhost:3000/cart';
-  private baseUrl = 'https://apis-z-store.onrender.com/cart';
+  private baseUrl = 'apis-z-store.vercel.app/cart';
 
   constructor(private http: HttpClient) {}
   addToCart(product: any) {

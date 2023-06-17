@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class CouponService {
   // private baseUrl = 'http://localhost:3000/coupon';
-  private baseUrl = 'https://apis-z-store.onrender.com/coupon';
+  private baseUrl = 'apis-z-store.vercel.app/coupon';
 
 
   constructor(private http: HttpClient) {}

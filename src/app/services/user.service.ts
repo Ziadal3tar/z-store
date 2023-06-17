@@ -14,7 +14,7 @@ export class UserService implements OnInit {
   cart: any;
 
   // private baseUrl = 'http://localhost:3000/auth';
-  private baseUrl = 'https://apis-z-store.onrender.com/auth';
+  private baseUrl = 'apis-z-store.vercel.app/auth';
 
   userData: any;
 

@@ -16,7 +16,7 @@ import { io } from 'socket.io-client';
 })
 export class SharedService {
   // private baseUrl = 'http://localhost:3000';
-  private baseUrl = 'https://apis-z-store.onrender.com';
+  private baseUrl = 'apis-z-store.vercel.app';
 
   socket:any
   private userData = new BehaviorSubject<any>([]);

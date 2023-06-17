@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class StoresService {
   // private baseUrl = 'http://localhost:3000/store';
-  private baseUrl = 'https://apis-z-store.onrender.com/store';
+  private baseUrl = 'apis-z-store.vercel.app/store';
 
   constructor(private http: HttpClient) {}
   addStores(formdata: any): any {
