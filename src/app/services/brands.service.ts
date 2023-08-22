@@ -1,41 +1,40 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class BrandsService {
   // private baseUrl = 'http://localhost:3000/brand';
-  private baseUrl = 'apis-z-store.vercel.app/brand';
+  private baseUrl = 'https://ecommerce-z-store-apis-eztm.vercel.app/brand';
 
   constructor(private http: HttpClient) {}
-  allBrands():any{
+  allBrands(): any {
     return this.http.get(`${this.baseUrl}/allBrands`, {
       headers: {
-        authorization: `Bearer__${localStorage.getItem("userToken")}`
-      }
-  });
+        authorization: `Bearer__${localStorage.getItem('userToken')}`,
+      },
+    });
   }
 
-  addBrand(data:any):any{
-    return this.http.post(`${this.baseUrl}/addBrand`,data, {
+  addBrand(data: any): any {
+    return this.http.post(`${this.baseUrl}/addBrand`, data, {
       headers: {
-        authorization: `Bearer__${localStorage.getItem("userToken")}`
-      }
-  });
+        authorization: `Bearer__${localStorage.getItem('userToken')}`,
+      },
+    });
   }
-  removeBrand(id:any):any{
+  removeBrand(id: any): any {
     return this.http.delete(`${this.baseUrl}/removeBrand/${id}`, {
       headers: {
-        authorization: `Bearer__${localStorage.getItem("userToken")}`
-      }
-  });
+        authorization: `Bearer__${localStorage.getItem('userToken')}`,
+      },
+    });
   }
-  updateBrand(data:any,id:any):any{
-    return this.http.put(`${this.baseUrl}/updateBrand/${id}`,data ,{
+  updateBrand(data: any, id: any): any {
+    return this.http.put(`${this.baseUrl}/updateBrand/${id}`, data, {
       headers: {
-        authorization: `Bearer__${localStorage.getItem("userToken")}`
-      }
-  });
+        authorization: `Bearer__${localStorage.getItem('userToken')}`,
+      },
+    });
   }
 }
-

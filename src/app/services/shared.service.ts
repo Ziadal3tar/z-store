@@ -15,9 +15,9 @@ import { io } from 'socket.io-client';
   providedIn: 'root',
 })
 export class SharedService {
-  private baseUrl = 'apis-z-store.vercel.app';
+  private baseUrl = 'https://ecommerce-z-store-apis-eztm.vercel.app/';
 
-  socket:any
+  socket: any;
   private userData = new BehaviorSubject<any>([]);
   currentUserData = this.userData.asObservable();
 
@@ -56,24 +56,21 @@ export class SharedService {
     private subCategoryService: SubCategoriesService,
     private brandService: BrandsService,
     private CouponService: CouponService,
-    private StoresService:StoresService,
+    private StoresService: StoresService,
     private router: Router
   ) {
     // this.socket = io(this.baseUrl)
-
   }
-  listen(eventName:any){
-    return new Observable((Subscriber)=>{
-      this.socket.on(eventName,(data:any)=>{
-        Subscriber.next(data)
-      })
-    })
+  listen(eventName: any) {
+    return new Observable((Subscriber) => {
+      this.socket.on(eventName, (data: any) => {
+        Subscriber.next(data);
+      });
+    });
   }
-  ngOnInit(): void {
-
-  }
- emit(eventName:any,data:any){
-    this.socket.emit(eventName,data)
+  ngOnInit(): void {}
+  emit(eventName: any, data: any) {
+    this.socket.emit(eventName, data);
   }
   updateUserData() {
     if (localStorage.getItem('userToken')) {
@@ -82,16 +79,15 @@ export class SharedService {
           this.userData.next(data.user);
         },
         (err: HttpErrorResponse) => {
-
           if (
             err.error.message == 'jwt expired' ||
             err.error.message == 'jwt malformed'
           ) {
             localStorage.removeItem('userToken');
             this.router.navigate([`/login`]);
-          }else{
-            localStorage.removeItem('userToken')
-            this.router.navigate(['/login'])
+          } else {
+            localStorage.removeItem('userToken');
+            this.router.navigate(['/login']);
           }
         }
       );
@@ -128,12 +124,11 @@ export class SharedService {
       this.allProducts.next(data.products);
     });
   }
-  updateStoreData(id:any) {
-    this.StoresService.getStore(id).subscribe((data:any)=>{
+  updateStoreData(id: any) {
+    this.StoresService.getStore(id).subscribe((data: any) => {
       this.storeData.next(data.store);
-    })
+    });
   }
-
 
   sendClickEvent() {
     this.subject.next({});
@@ -147,18 +142,16 @@ export class SharedService {
     return this.subject.asObservable();
   }
 
-  updateAllData(){
-    this.updateAdmins()
-    this.updateSubCategories()
-    this.updateBrands()
-    this.updateCategories()
-    this.updateCoupons()
-    this.updateBrands()
-    this.updateUserData()
-    this.updateProducts()
+  updateAllData() {
+    this.updateAdmins();
+    this.updateSubCategories();
+    this.updateBrands();
+    this.updateCategories();
+    this.updateCoupons();
+    this.updateBrands();
+    this.updateUserData();
+    this.updateProducts();
   }
-
-
 
   addToCart(id: any) {
     const product = {

@@ -5,26 +5,25 @@ import { Injectable } from '@angular/core';
 })
 export class CouponService {
   // private baseUrl = 'http://localhost:3000/coupon';
-  private baseUrl = 'apis-z-store.vercel.app/coupon';
-
+  private baseUrl = 'https://ecommerce-z-store-apis-eztm.vercel.app/coupon';
 
   constructor(private http: HttpClient) {}
 
-  addCoupon(data: any):any {
+  addCoupon(data: any): any {
     return this.http.post(`${this.baseUrl}/addCoupon`, data, {
       headers: {
         authorization: `Bearer__${localStorage.getItem('userToken')}`,
       },
     });
   }
-  getCoupons():any {
+  getCoupons(): any {
     return this.http.get(`${this.baseUrl}/allcoupons`);
   }
   getCouponById(id: any) {
     return this.http.get(`${this.baseUrl}/getCouponById/${id}`);
   }
   updateCoupon(data: any) {
-    return this.http.put(`${this.baseUrl}/updateCoupon/${data.oldName}`,data, {
+    return this.http.put(`${this.baseUrl}/updateCoupon/${data.oldName}`, data, {
       headers: {
         authorization: `Bearer__${localStorage.getItem('userToken')}`,
       },
@@ -44,8 +43,7 @@ export class CouponService {
       },
     });
   }
-  getCoupon(name: any):any {
+  getCoupon(name: any): any {
     return this.http.get(`${this.baseUrl}/getCoupon/${name}`);
   }
-
 }

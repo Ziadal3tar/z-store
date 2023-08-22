@@ -2,36 +2,41 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CartService {
   // private baseUrl = 'http://localhost:3000/cart';
-  private baseUrl = 'apis-z-store.vercel.app/cart';
+  private baseUrl = 'https://ecommerce-z-store-apis-eztm.vercel.app/cart';
 
   constructor(private http: HttpClient) {}
   addToCart(product: any) {
-    return this.http.post(`${this.baseUrl}/createCart`, product,
+    return this.http.post(
+      `${this.baseUrl}/createCart`,
+      product,
 
-    {
-      headers: {
-        authorization: `Bearer__${localStorage.getItem("userToken")}`
+      {
+        headers: {
+          authorization: `Bearer__${localStorage.getItem('userToken')}`,
+        },
       }
-  });
+    );
   }
   removeToFavorites(id: any) {
-    return this.http.delete(`${this.baseUrl}/removeWishList/${id}`,
+    return this.http.delete(
+      `${this.baseUrl}/removeWishList/${id}`,
 
-    {
-      headers: {
-        authorization: `Bearer__${localStorage.getItem("userToken")}`
+      {
+        headers: {
+          authorization: `Bearer__${localStorage.getItem('userToken')}`,
+        },
       }
-  });
+    );
   }
-  deleteFromCart(data:any) {
-    return this.http.put(`${this.baseUrl}/deleteFromCart`,data);
+  deleteFromCart(data: any) {
+    return this.http.put(`${this.baseUrl}/deleteFromCart`, data);
   }
-  getCart(token:any){
-    return this.http.get(`${this.baseUrl}/getCart/${token}`)
+  getCart(token: any) {
+    return this.http.get(`${this.baseUrl}/getCart/${token}`);
   }
 
   changeQuantityOfProductInCart(token: any, product: any) {
@@ -41,5 +46,3 @@ export class CartService {
     );
   }
 }
-
-

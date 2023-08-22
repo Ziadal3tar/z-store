@@ -6,35 +6,38 @@ import { Injectable } from '@angular/core';
 })
 export class ProductsService {
   // private baseUrl = 'http://localhost:3000/Product';
-  private baseUrl = 'apis-z-store.vercel.app/Product';
+  private baseUrl = 'https://ecommerce-z-store-apis-eztm.vercel.app/Product';
 
+  constructor(private http: HttpClient) {}
 
+  addproduct(
+    formdata: any,
+    categoryId: any,
+    subCategoryId: any,
+    brandId: any
+  ): any {
+    return this.http.post(
+      `${this.baseUrl}/addProduct/${categoryId}/${subCategoryId}/${brandId}`,
+      formdata,
 
-  constructor(
-    private http:HttpClient,
-  ) { }
-
-  addproduct(formdata:any,categoryId:any,subCategoryId:any,brandId:any): any {
-
-    return this.http.post(`${this.baseUrl}/addProduct/${categoryId}/${subCategoryId}/${brandId}`, formdata,
-
-    {
-      headers: {
-        authorization: `Bearer__${localStorage.getItem("userToken")}`
+      {
+        headers: {
+          authorization: `Bearer__${localStorage.getItem('userToken')}`,
+        },
       }
-  });
+    );
   }
 
+  removeproduct(productId: any): any {
+    return this.http.post(
+      `${this.baseUrl}/addProduct/${productId}`,
 
-  removeproduct(productId:any): any {
-
-    return this.http.post(`${this.baseUrl}/addProduct/${productId}`,
-
-    {
-      headers: {
-        authorization: `Bearer__${localStorage.getItem("userToken")}`
+      {
+        headers: {
+          authorization: `Bearer__${localStorage.getItem('userToken')}`,
+        },
       }
-  });
+    );
   }
   getProduct() {
     return this.http.get(`${this.baseUrl}/allProducts`);
@@ -51,11 +54,10 @@ export class ProductsService {
     return this.http.delete(`${this.baseUrl}/deleteProductById/${id}`);
   }
 
-  ifDeletedProduct(data:any){
-    return this.http.patch(`${this.baseUrl}/ifDeletedProduct`,data);
+  ifDeletedProduct(data: any) {
+    return this.http.patch(`${this.baseUrl}/ifDeletedProduct`, data);
   }
-  getStoresProducts(id:any){
+  getStoresProducts(id: any) {
     return this.http.get(`${this.baseUrl}/getStoresProducts/${id}`);
   }
-
 }
