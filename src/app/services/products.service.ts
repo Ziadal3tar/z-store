@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
 })
 export class ProductsService {
   // private baseUrl = 'http://localhost:3000/Product';
-  private baseUrl = 'https://ecommerce-z-store-apis-eztm.vercel.app/Product';
+  private baseUrl = 'https://z-store-apis-b6lh.vercel.app/Product';
 
   constructor(private http: HttpClient) {}
 

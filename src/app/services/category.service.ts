@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
 })
 export class CategoryService {
   // private baseUrl = 'http://localhost:3000/category';
-  private baseUrl = 'https://ecommerce-z-store-apis-eztm.vercel.app/category';
+  private baseUrl = 'https://z-store-apis-b6lh.vercel.app/category';
 
   constructor(private http: HttpClient) {}
   allCategory(): any {

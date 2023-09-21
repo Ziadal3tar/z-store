@@ -7,7 +7,7 @@ import { io, Socket } from 'socket.io-client';
 })
 export class ChatService {
   // private baseUrl = 'http://localhost:3000/chat';
-  private baseUrl = 'https://ecommerce-z-store-apis-eztm.vercel.app/chat';
+  private baseUrl = 'https://z-store-apis-b6lh.vercel.app/chat';
 
   constructor(private http: HttpClient) {}
 

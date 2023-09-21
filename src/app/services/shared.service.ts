@@ -15,7 +15,7 @@ import { io } from 'socket.io-client';
   providedIn: 'root',
 })
 export class SharedService {
-  private baseUrl = 'https://ecommerce-z-store-apis-eztm.vercel.app/';
+  private baseUrl = 'https://z-store-apis-b6lh.vercel.app/';
 
   socket: any;
   private userData = new BehaviorSubject<any>([]);

@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class WishListService {
   // private baseUrl = 'http://localhost:3000/wishlist';
-  private baseUrl = 'https://ecommerce-z-store-apis-eztm.vercel.app/wishlist';
+  private baseUrl = 'https://z-store-apis-b6lh.vercel.app/wishlist';
 
   constructor(private http: HttpClient) {}
   addToFavorites(productId: any) {
