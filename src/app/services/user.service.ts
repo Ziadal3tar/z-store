@@ -13,8 +13,8 @@ export class UserService implements OnInit {
 
   cart: any;
 
-  private baseUrl = 'http://localhost:3000/auth';
-  // private baseUrl = 'https://ecommerce-z-store-apis-eztm.vercel.app/auth';
+  // private baseUrl = 'http://localhost:3000/auth';
+  private baseUrl = 'https://ecommerce-z-store-apis-eztm.vercel.app/auth';
 
   userData: any;
 
@@ -28,8 +28,6 @@ export class UserService implements OnInit {
   ngOnInit(): void {}
 
   signUp(data: any): any {
-    console.log(data);
-
     return this.http.post(`${this.baseUrl}/signUp`, data);
   }
 
