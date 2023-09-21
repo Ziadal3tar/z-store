@@ -45,10 +45,10 @@ this.SharedService.currentUserData.subscribe((data:any)=>{
 this.getChat()
   });
 })
-    this.SharedService.listen('resevMessage').subscribe((data: any) => {
-      this.SharedService.updateStoreData(this.storeId)
-      this.SharedService.updateUserData()
-    });
+    // this.SharedService.listen('resevMessage').subscribe((data: any) => {
+    //   this.SharedService.updateStoreData(this.storeId)
+    //   this.SharedService.updateUserData()
+    // });
 
 
   }

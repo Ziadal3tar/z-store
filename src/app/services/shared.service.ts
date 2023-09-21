@@ -61,13 +61,13 @@ export class SharedService {
   ) {
     // this.socket = io(this.baseUrl)
   }
-  listen(eventName: any) {
-    return new Observable((Subscriber) => {
-      this.socket.on(eventName, (data: any) => {
-        Subscriber.next(data);
-      });
-    });
-  }
+  // listen(eventName: any) {
+  //   return new Observable((Subscriber) => {
+  //     this.socket.on(eventName, (data: any) => {
+  //       Subscriber.next(data);
+  //     });
+  //   });
+  // }
   ngOnInit(): void {}
   emit(eventName: any, data: any) {
     this.socket.emit(eventName, data);

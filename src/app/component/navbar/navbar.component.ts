@@ -36,9 +36,9 @@ export class NavbarComponent implements OnInit {
   ngOnInit(): void {
     this.SharedService.updateAllData();
 
-    this.SharedService.listen('resevMessage').subscribe((data: any) => {
-      // this.SharedService.updateStoreData(this.storeId)
-    });
+    // this.SharedService.listen('resevMessage').subscribe((data: any) => {
+    //   // this.SharedService.updateStoreData(this.storeId)
+    // });
     this.SharedService.currentUserData.subscribe((data: any) => {
       this.userData = data;
       this.Subtotal();
