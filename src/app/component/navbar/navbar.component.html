@@ -16,7 +16,7 @@
         <li class="nav-item  ">
           <a id="setting" routerLink="/blog" class="nav-link d-flex align-items-center">BLOG</a>
         </li>
-        <li class="nav-item " *ngIf="userData.role == 'Admin'">
+        <li class="nav-item " *ngIf="userData?.role == 'Admin'">
           <a class="nav-link " routerLink="/admin">ADMIN </a>
         </li>
         <li class="nav-item ">
@@ -27,17 +27,21 @@
     <div class="user-details  d-flex  align-items-center justify-content-end col-md-4  col-lg-3  ">
       <i (click)="openSearch = !openSearch" class="fa-solid fa-magnifying-glass  fs-5"></i>
       <div class="userImg d-flex align-items-center justify-content-around position-relative  " style="  width: 80px;">
-        <div *ngIf="userData" alt="" routerLink="/userinfo/settings" style="width: 40px;height: 40px;border-radius: 50%; cursor: pointer; background-position: center center; background-size: cover;
+        <div *ngIf="userData && userData != ''" alt="" routerLink="/userinfo/settings" style="width: 40px;height: 40px;border-radius: 50%; cursor: pointer; background-position: center center; background-size: cover;
           background-image: url({{userData.profilePic}});"></div>
+
+
       </div>
-      <i *ngIf="userData" style="cursor: pointer;"
+
+
+      <i *ngIf="userData && userData != ''" style="cursor: pointer;"
         class="fs-5 mood fab fa-opencart d-flex align-items-center justify-content-center" (click)="sideCart='open'" (click)="Subtotal()">
         <p *ngIf="userData.cart?.products?.length!=0 && userData.cart"
           class="bg-danger rounded-5 d-flex align-items-center justify-content-center p-2 text-white"
           style="width:auto ;height: auto; font-size: 10px; ">{{userData?.cartId?.products?.length}}</p>
       </i>
       <li *ngIf="!userData" class="nav-item right-0 ">
-        <a class="nav-link  text-decoration-none list-unstyled text-black" routerLink="/main">SIGN</a>
+        <a class="nav-link  text-decoration-none list-unstyled text-black" routerLink="/login">SIGN</a>
       </li>
     </div>
   </div>

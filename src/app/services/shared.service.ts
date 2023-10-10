@@ -91,6 +91,8 @@ export class SharedService {
           }
         }
       );
+    }else{
+      this.userData.next(undefined);
     }
   }
   updateCategories() {

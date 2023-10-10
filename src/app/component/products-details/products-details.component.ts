@@ -12,12 +12,19 @@ export class ProductsDetailsComponent implements OnInit {
   theNumberOfPieces: any = 1;
   message = '.';
   userData: any;
+
+  loginFirst:any = false
   @Input() productDetails: any;
   constructor(
     private SharedService: SharedService,
     private CartService: CartService
   ) {}
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.SharedService.currentUserData.subscribe((data=>{
+this.userData = data
+
+
+    }))}
   plus() {
     if (this.theNumberOfPieces >= this.productDetails.stock) {
       this.message = "We don't have more";
@@ -39,6 +46,10 @@ export class ProductsDetailsComponent implements OnInit {
     }
   }
   addToCart() {
+    if (this.userData == undefined) {
+      this.loginFirst = true
+return
+    }
     if (this.theNumberOfPieces === 0) {
       this.message = 'How many do you need';
     } else {

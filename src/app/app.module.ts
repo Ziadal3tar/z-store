@@ -52,6 +52,7 @@ import { FilterBtnComponent } from './component/btn/filter-btn/filter-btn.compon
 import { SearchBtnComponent } from './component/btn/search-btn/search-btn.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { LoginFirstComponent } from './component/login-first/login-first.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -84,7 +85,8 @@ import { CommonModule } from '@angular/common';
     LoadingComponent,
     FilterBtnComponent,
     SearchBtnComponent,
-    ChatsComponent
+    ChatsComponent,
+    LoginFirstComponent
   ],
   imports: [
     CommonModule,

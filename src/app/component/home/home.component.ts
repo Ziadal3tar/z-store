@@ -27,7 +27,7 @@ export class HomeComponent implements OnInit {
   userData: any;
 
   specialOffers: any = [];
-
+  loginFirst:any = false
   productDetails: any;
   openProductDetails = false;
   filter = {
@@ -44,11 +44,11 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
 
-    // this.SharedService.currentUserData.subscribe((data: any) => {
-    //   this.userData = data;
-    //   this.SharedService.emit('updateSocketId', data._id);
-    //   this.deleteDeletedProd();
-    // });
+    this.SharedService.currentUserData.subscribe((data: any) => {
+      this.userData = data;
+      // this.SharedService.emit('updateSocketId', data._id);
+      // this.deleteDeletedProd();
+    });
     this.getSpecialOffers();
   }
 
@@ -102,6 +102,10 @@ export class HomeComponent implements OnInit {
     return false;
   }
   addToFavorites(id: any, event: any) {
+    if (this.userData == undefined) {
+      this.loginFirst = true
+return
+    }
     let data = {
       productId: id,
     };
@@ -128,6 +132,7 @@ export class HomeComponent implements OnInit {
     });
   }
   deleteDeletedProd() {
+
     for (let i = 0; i < this.userData?.cartId?.products.length; i++) {
       const element = this.userData?.cartId?.products[i];
 

@@ -2,6 +2,7 @@ import { Router } from '@angular/router';
 import { UserService } from 'src/app/services/user.service';
 import { Component, Input, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { SharedService } from 'src/app/services/shared.service';
 
 @Component({
   selector: 'app-settings',
@@ -18,7 +19,7 @@ export class SettingsComponent {
   passwordErr:any
   confirmPassErr:any
   emailErr:any
-  constructor(private UserService: UserService,private router:Router) {}
+  constructor(private UserService: UserService,private router:Router,private _SharedService:SharedService) {}
 ngOnInit(): void {
 }
 
@@ -68,6 +69,7 @@ ngOnInit(): void {
   logOut()
   {
     localStorage.removeItem('userToken');
+    this._SharedService.updateUserData()
     this.router.navigate([`/login`]);
   }
 }

@@ -4,8 +4,8 @@
     style=" height: 85vh !important;">
 
 <div class=" col-lg-7 col-12 row h-100 half1">
-  <div class=" col-3 col-md-2 h-100 d-flex align-items-center justify-content-between  allImgs flex-column ">
-    <div class=" col-12 h-15 " *ngFor="let img of productDetails?.images let i = index">
+  <div class=" col-3 col-md-2 h-100 d-flex align-items-center justify-content-center allImgs flex-column ">
+    <div class=" col-12 h-15 my-2" *ngFor="let img of productDetails?.images let i = index">
       <div class="rounded-3 w-100 h-100 position-relative imgCenter " style="background-image: url({{img}});"
          [ngClass]="{'activeImg': i  === indexx}" (click)="indexx = i"></div>
     </div>
@@ -33,7 +33,7 @@
       <h1 class="  fw-bold"> {{productDetails?.name}} </h1>
       <p class="  opacity-50"> {{productDetails?.description}}</p>
       <div class=" d-flex ">
-   
+
       </div>
       <div class=" d-flex flex-row align-items-center">
         <h4 id="price" class="  d-flex align-items-center "> ${{productDetails?.finalPrice}}</h4>
@@ -45,9 +45,10 @@
           style="background-color: rgba(180, 177, 177, 0.5); padding: 7.5px 5px;"><span (click)="minuus()"
             style="cursor: pointer;"><i class="fas fa-minus maincolor"></i></span> {{theNumberOfPieces}}<span
             (click)="plus()" style="cursor: pointer;"><i class="maincolor fas fa-plus"></i></span></div>
-        <button (click)="addToCart()" class="rounded-5 w-auto btn offset-1  bg-danger text-white mt-sm-2 fs-6 mt-md-0"> <i
+        <button (click)="addToCart()" class="rounded-5 px-5 w-auto btn offset-1  bg-danger text-white mt-sm-2 fs-6 mt-md-0"> <i
             class="fab fa-opencart"></i></button>
         <p class=" text-danger opacity-0 " [ngClass]="{' opacity-100': message  !== '.' }">{{message}} </p>
       </div>
     </div>
   </div>
+  <app-login-first *ngIf="loginFirst" (closeL)="loginFirst = $event"></app-login-first>

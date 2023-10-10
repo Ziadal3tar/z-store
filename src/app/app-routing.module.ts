@@ -21,7 +21,7 @@ import { MaleComponent } from './component/male/male.component';
 import { ProductsDetailsComponent } from './component/products-details/products-details.component';
 import { BlogComponent } from './component/blog/blog.component';
 const routes: Routes = [
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
   { path: 'login',canActivate: [LogoutGuard], component: LoginComponent },
   { path: 'male', component: MaleComponent },

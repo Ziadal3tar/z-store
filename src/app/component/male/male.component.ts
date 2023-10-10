@@ -34,6 +34,7 @@ export class MaleComponent implements OnInit {
   subCategoryId: any;
   brandId: any;
   userData:any
+  loginFirst:any = false
   sizes = ['sm', 'md', 'lg', 'xl', 'free'];
   status = 'Dead';
   colors = [
@@ -146,6 +147,10 @@ ifInWishlist(item:any):any{
   }
 
   addToCart(id: any) {
+    if (this.userData == undefined) {
+      this.loginFirst = true
+return
+    }
     const product = {
       productId: id,
       quantity: 1,
@@ -158,6 +163,10 @@ ifInWishlist(item:any):any{
   }
 
   addToFavorites(id: any,event:any) {
+    if (this.userData || this.userData != '') {
+      this.loginFirst = true
+return
+    }
     let data = {
       productId: id,
     };
