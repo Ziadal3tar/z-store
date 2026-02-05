@@ -44,7 +44,7 @@ export class CartOnAllComponent implements OnInit {
 
   deleteFromCart(productId: any) {
     const product = { productId, userId: this.userData._id };
-    this.CartService.deleteFromCart(product).subscribe((data: any) => {
+    this.CartService.removeFromCart(product).subscribe((data: any) => {
       if (data.message == 'removeProduct') {
         this.SharedService.updateUserData()
       }

@@ -1,6 +1,5 @@
 import { SharedService } from 'src/app/services/shared.service';
 import { Router } from '@angular/router';
-import { ChatService } from './services/chat.service';
 import { Component, OnInit } from '@angular/core';
 import { UserService } from './services/user.service';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -15,11 +14,6 @@ export class AppComponent implements OnInit {
   cartlength: any;
   userdata: any;
   constructor(
-    private UserService: UserService,
-    private ChatService: ChatService,
-    private router: Router,
-    private SharedService: SharedService
-
   ) {
   }
 

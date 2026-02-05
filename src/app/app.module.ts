@@ -35,12 +35,9 @@ import { SettingsComponent } from './component/settings/settings.component';
 import { UserinfoComponent } from './component/userinfo/userinfo.component';
 import { FooterComponent } from './component/footer/footer.component';
 import { ResNavComponent } from './component/res-nav/res-nav.component';
-import { BlogComponent } from './component/blog/blog.component';
-import { YourStoreComponent } from './component/your-store/your-store.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SroteSettingComponent } from './component/srote-setting/srote-setting.component';
 import { AddProductComponent } from './component/add-product/add-product.component';
-import { ChatsComponent } from './component/chats/chats.component';
 import { NgwWowModule } from 'ngx-wow';
 import { CouponsComponent } from './component/coupons/coupons.component';
 import { CategoryComponent } from './component/category/category.component';
@@ -75,8 +72,6 @@ import { CreateYourStoreComponent } from './component/create-your-store/create-y
     UserinfoComponent,
     FooterComponent,
     ResNavComponent,
-    BlogComponent,
-    YourStoreComponent,
     SroteSettingComponent,
     AddProductComponent,
     CouponsComponent,
@@ -87,7 +82,6 @@ import { CreateYourStoreComponent } from './component/create-your-store/create-y
     LoadingComponent,
     FilterBtnComponent,
     SearchBtnComponent,
-    ChatsComponent,
     LoginFirstComponent,
     CreateYourStoreComponent
   ],

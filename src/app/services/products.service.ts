@@ -39,7 +39,7 @@ addproduct(
     );
   }
   getProduct() {
-    return this.http.get(`${this.baseUrl}/allProducts`);
+    return this.http.get(`${this.baseUrl}/allProducts?size=100`);
   }
   getSpecialOffers() {
     return this.http.get(`${this.baseUrl}/getSpecialProduct`);

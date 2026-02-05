@@ -142,7 +142,7 @@ return
           userId: this.userData._id,
         };
 
-        this.CartService.deleteFromCart(product).subscribe((data: any) => {
+        this.CartService.removeFromCart(product).subscribe((data: any) => {
           if (data.message == 'removeProduct') {
             this.SharedService.updateUserData();
           }

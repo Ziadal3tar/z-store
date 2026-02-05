@@ -20,10 +20,12 @@ export class MaleComponent implements OnInit {
   index: any;
 
   products: any = [];
-
+  allProducts: any[] = [];
   searchingFor: any;
 
-
+  currentPage = 1;
+  pageSize = 12;
+  totalPages = 0;
   specifiedCategory: any;
 
   productDetails: any
@@ -117,96 +119,136 @@ export class MaleComponent implements OnInit {
 
     }))
     this.SharedService.currentAllProduct.subscribe((data: any) => {
-      this.products = data
+      this.allProducts =data;
+    this.totalPages = Math.ceil(this.allProducts.length / this.pageSize);
+    this.updatePage();
     })
   }
+updatePage() {
+  const start = (this.currentPage - 1) * this.pageSize;
+  const end = start + this.pageSize;
+  this.products = this.allProducts.slice(start, end);
+}
+
+nextPage() {
+  if (this.currentPage < this.totalPages) {
+    this.currentPage++;
+    this.updatePage();
+  }
+}
+
+prevPage() {
+  if (this.currentPage > 1) {
+    this.currentPage--;
+    this.updatePage();
+  }}
+get pages(): number[] {
+  return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+}
+
+goToPage(page: number) {
+  if (page >= 1 && page <= this.totalPages) {
+    this.currentPage = page;
+    this.updatePage();
+  }
+}
+
 
   onProductsChange(products: any) {
     this.products = products;
   }
 
-ifInWishlist(item: any): boolean {
-  return !!this.userData?.wishlist?.some((w: any) => w?._id === item?._id);
-}
-select(): void {
-  const getVal = (id: string) =>
-    (document.getElementById(id) as HTMLInputElement)?.value ?? null;
+  ifInWishlist(item: any): boolean {
+    return !!this.userData?.wishlist?.some((w: any) => w?._id === item?._id);
 
-  this.categoryId = getVal('categoryId_AP');
-  this.subCategoryId = getVal('subCategoryId_AP');
-  this.brandId = getVal('brandId_AP');
-}
+  }
+  select(): void {
+    const getVal = (id: string) =>
+      (document.getElementById(id) as HTMLInputElement)?.value ?? null;
 
-addToCart(id: any): void {
-  if (!this.userData) {
-    this.loginFirst = true;
-    return;
+    this.categoryId = getVal('categoryId_AP');
+    this.subCategoryId = getVal('subCategoryId_AP');
+    this.brandId = getVal('brandId_AP');
   }
 
-  const product = {
-    productId: id,
-    quantity: 1,
-  };
-
-  this.CartService.addToCart(product).subscribe({
-    next: (_data: any) => {
-      this.SharedService.updateUserData();
-      this.SharedService.sendClickEvent();
-    },
-    error: (err: any) => {
-      console.error('addToCart error', err);
-    },
-  });
-}
-
- addToFavorites(id: any, event?: Event): void {
-  if (!this.userData) {
-    this.loginFirst = true;
-    return;
-  }
-
-  const inWishlist = !!this.userData?.wishlist?.some((w: any) => w?._id === id);
-
-  const toggleDomHeart = (addFill: boolean) => {
-    const target = (event?.target as HTMLElement) ?? null;
-    if (!target || !target.classList) return;
-    if (addFill) {
-      target.classList.add('bi-heart-fill', 'text-danger');
-      target.classList.remove('bi-heart');
-    } else {
-      target.classList.remove('bi-heart-fill', 'text-danger');
-      target.classList.add('bi-heart');
+  addToCart(id: any): void {
+    if (!this.userData) {
+      this.loginFirst = true;
+      return;
     }
-  };
 
-  if (inWishlist) {
-    // إزالة من المفضلة
-    this.WishListService.removeToFavorites(id).subscribe({
+    const product = {
+      productId: id,
+      quantity: 1,
+    };
+
+    this.CartService.addToCart(product).subscribe({
+      next: (_data: any) => {
+        this.SharedService.updateUserData();
+        this.SharedService.sendClickEvent();
+      },
+      error: (err: any) => {
+        console.error('addToCart error', err);
+      },
+    });
+  }
+
+  addToFavorites(id: any, event?: Event): void {
+    if (!this.userData) {
+      this.loginFirst = true;
+      return;
+    }
+
+    const inWishlist = !!this.userData?.wishlist?.some((w: any) => w?._id === id);
+
+    const toggleDomHeart = (addFill: boolean) => {
+      const target = (event?.target as HTMLElement) ?? null;
+      if (!target || !target.classList) return;
+      if (addFill) {
+        target.classList.add('bi-heart-fill', 'text-danger');
+        target.classList.remove('bi-heart');
+      } else {
+        target.classList.remove('bi-heart-fill', 'text-danger');
+        target.classList.add('bi-heart');
+      }
+    };
+
+    if (inWishlist) {
+      // إزالة من المفضلة
+      this.WishListService.removeToFavorites(id).subscribe({
+        next: (res: any) => {
+          if (res?.message === 'Done') {
+            toggleDomHeart(false);
+            this.SharedService.updateUserData();
+          }
+        },
+        error: (err: any) => {
+          console.error('removeToFavorites error', err);
+        },
+      });
+      return;
+    }
+
+    // إضافة إلى المفضلة
+    const payload = { productId: id };
+    this.WishListService.addToFavorites(payload).subscribe({
       next: (res: any) => {
         if (res?.message === 'Done') {
-          toggleDomHeart(false);
+          toggleDomHeart(true);
           this.SharedService.updateUserData();
         }
       },
       error: (err: any) => {
-        console.error('removeToFavorites error', err);
+        console.error('addToFavorites error', err);
       },
     });
-    return;
+  }
+  trackById(index: number, item: any) {
+    return item._id;
+  }
+  openDetails(product: any) {
+    this.productDetails = product;
+    this.openProductDetails = true;
   }
 
-  // إضافة إلى المفضلة
-  const payload = { productId: id };
-  this.WishListService.addToFavorites(payload).subscribe({
-    next: (res: any) => {
-      if (res?.message === 'Done') {
-        toggleDomHeart(true);
-        this.SharedService.updateUserData();
-      }
-    },
-    error: (err: any) => {
-      console.error('addToFavorites error', err);
-    },
-  });
-}
 }

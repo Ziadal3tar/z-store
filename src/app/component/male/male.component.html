@@ -1,4 +1,7 @@
 <app-navbar [cartlength]="cartlength"></app-navbar>
+
+
+
 <div class=" w-100 h-100 bg-black position-fixed top-0 bg-opacity-75 p-5 " [ngClass]="{'d-none': !openProductDetails}"
   style="z-index: 99;">
   <div class="container bg-white position-relative ">
@@ -19,12 +22,20 @@
 <div class="row m-0  mt-5 p-5">
   <div
     class=" col-xl-3 col-lg-3  col-md-4 col-sm-6 mb-2 d-flex align-items-center justify-content-center justify-content-md-start flex-column"
-    *ngFor="let slide of products let i = index">
+    *ngFor="let slide of products let i = index; trackBy: trackById">
     <div style="width: 225px; height: 300px;" class="  position-relative">
       <div class="rounded-3 position-relative rounded-3 overflow-hidden product" style=" width: 225px; height: 300px; ">
-        <div (click)="productDetails = slide" (click)="openProductDetails = !openProductDetails"
+        <!-- <div (click)="productDetails = slide" (click)="openProductDetails = !openProductDetails"
           class="cursorPointer imgCenter  w-100 h-100 position-absolute mainImg transition"
-          style="background-image: url({{slide.images[0]}});"></div>
+          style="background-image: url({{slide.images[0]}});"></div> -->
+<img
+  [src]="slide.images[0]"
+  loading="lazy"
+  decoding="async"
+  class="product-img"
+(click)="openDetails(slide)"
+/>
+
         <div
           class="layer position-absolute w-100 h-25 bg-black bg-opacity-50 d-lg-flex align-items-center justify-content-center d-none "
           style="bottom: -25%; ">
@@ -53,4 +64,31 @@
     </div>
   </div>
 </div>
+
+
+<div class="pagination-wrapper">
+  <button
+    class="nav-btn"
+    [disabled]="currentPage === 1"
+    (click)="goToPage(currentPage - 1)">
+    ‹ Prev
+  </button>
+
+  <button
+    *ngFor="let page of pages"
+    class="page-btn"
+    [class.active]="page === currentPage"
+    (click)="goToPage(page)">
+    {{ page }}
+  </button>
+
+  <button
+    class="nav-btn"
+    [disabled]="currentPage === totalPages"
+    (click)="goToPage(currentPage + 1)">
+    Next ›
+  </button>
+</div>
+
+
 <app-login-first *ngIf="loginFirst" (closeL)="loginFirst = $event"></app-login-first>

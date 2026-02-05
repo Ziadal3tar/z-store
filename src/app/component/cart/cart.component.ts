@@ -54,7 +54,7 @@ index:any
   }
 
   getCart() {
-    this.CartService.getCart(localStorage.getItem('userToken')).subscribe(
+    this.CartService.loadCart(localStorage.getItem('userToken')).subscribe(
       (data: any) => {
         this.cart = data.cart;
         this.Subtotal();
@@ -66,7 +66,7 @@ index:any
       productId,
       userId: localStorage.getItem('userId'),
     };
-    this.CartService.deleteFromCart(product).subscribe((data) => {
+    this.CartService.removeFromCart(product).subscribe((data) => {
       this.getCart();
       this.SharedService.sendClickEvent();
     });
@@ -86,7 +86,7 @@ this.index = i
     ) {
       this.cart.products[i].quantity++;
       product.quantity = this.cart.products[i].quantity;
-      this.CartService.changeQuantityOfProductInCart(token, product).subscribe(
+      this.CartService.updateQuantity(token, product).subscribe(
         (data: any) => {
           this.SharedService.updateUserData()
           this.SharedService.sendClickEvent();
@@ -114,7 +114,7 @@ this.index = i
     if (this.cart.products[i]?.quantity > 1) {
       this.cart.products[i].quantity--;
       product.quantity = this.cart.products[i].quantity;
-      this.CartService.changeQuantityOfProductInCart(token, product).subscribe(
+      this.CartService.updateQuantity(token, product).subscribe(
         (data: any) => {
           this.discount(this.couponData?.amount)
           this.SharedService.sendClickEvent();
