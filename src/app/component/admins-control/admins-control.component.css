@@ -1,0 +1,21 @@
+.Userimage{
+  width: 50px;
+  height: 50px;
+}
+.item:hover{
+  background-color: rgb(232, 232, 232) !important;
+}
+.bi-three-dots-vertical::before {
+  display: none;
+}
+.dropdown-toggle::after {
+  display: none;
+}
+.spin{
+  font-size: 15px !important;
+  height: 20px!important;
+  width: 20px!important;
+}
+.removeUser{
+  z-index: 9;
+}

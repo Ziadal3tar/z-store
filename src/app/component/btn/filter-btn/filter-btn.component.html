@@ -1,0 +1,56 @@
+<div class="dropdown">
+  <button class="btn bg-transparent border rounded-0 text-black dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <i class="bi bi-filter"></i> Filter  </button>
+    <div class="  dropdown-menu vw-100 bg-light overflow-hidden container mx-auto">
+      <div class="  col-12 row bg-light filter p-3">
+      <div class="col-3">
+        <p class=" fw-bold">Sort By</p>
+        <ul class="text-decoration-none list-unstyled text-secondary">
+          <li>Default</li>
+          <li>Popularity</li>
+          <li>Average rating</li>
+          <li>Newness</li>
+          <li>Price: Low to High</li>
+          <li>Price: High to Low</li>
+        </ul>
+      </div>
+      <div class="col-3">
+        <p class=" fw-bold">Price</p>
+        <ul class="text-decoration-none list-unstyled text-secondary">
+          <li (click)="priceFilter('all')">All</li>
+          <li (click)="priceFilter(price)" [ngClass]="{'d-none': i+1 == prices.length}" *ngFor="let price of prices let i = index">${{price.from}}.00 - ${{price.to}}.00</li>
+          <li (click)="priceFilter(prices[prices.length-1])">${{prices[prices.length-1].from}}.00+</li>
+        </ul>
+      </div>
+      <div class="col-3">
+        <p class=" fw-bold">Color</p>
+        <ul class="text-decoration-none list-unstyled text-secondary">
+          <li class=" d-flex align-items-center justify-content-start" (click)="colorFilter('all')">all</li>
+          <li *ngFor="let color of colors" class=" d-flex align-items-center justify-content-start" (click)="colorFilter(color)">
+            <div [ngStyle]="{'background-color': color}" style="width: 10px; height: 10px ;  border-radius: 50%;" class=" me-2"> </div>
+            {{color}}
+          </li>
+
+
+        </ul>
+
+      </div>
+      <div class="col-3">
+        <p class=" fw-bold">Tags</p>
+        <div>
+
+          <button class=" btn bg-transparent rounded-5 border-2 border-secondary p-0 px-1 me-3 mb-3">Fashion</button>
+          <button class=" btn bg-transparent rounded-5 border-2 border-secondary p-0 px-1 me-3 mb-3">Lifestyle</button>
+          <button class=" btn bg-transparent rounded-5 border-2 border-secondary p-0 px-1 me-3 mb-3">Denim</button>
+          <button class=" btn bg-transparent rounded-5 border-2 border-secondary p-0 px-1 me-3 mb-3">Streetstyle</button>
+          <button class=" btn bg-transparent rounded-5 border-2 border-secondary p-0 px-1 me-3 mb-3">Crafts</button>
+          <button class=" btn bg-transparent rounded-5 border-2 border-secondary p-0 px-1 me-3 mb-3">Shose</button>
+          <button class=" btn bg-transparent rounded-5 border-2 border-secondary p-0 px-1 me-3 mb-3">dresses</button>
+          <button class=" btn bg-transparent rounded-5 border-2 border-secondary p-0 px-1 me-3 mb-3">pants</button>
+          <button class=" btn bg-transparent rounded-5 border-2 border-secondary p-0 px-1 me-3 mb-3">sports</button>
+          <button class=" btn bg-transparent rounded-5 border-2 border-secondary p-0 px-1 me-3 mb-3">formal</button>
+        </div>
+      </div>
+    </div>
+    </div>
+</div>

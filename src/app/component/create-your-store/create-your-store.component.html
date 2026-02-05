@@ -1,0 +1,49 @@
+<div class="store-create-card">
+  <h2>Create your store</h2>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="form" novalidate>
+    <div class="form-row">
+      <label for="name">Store name <span class="required">*</span></label>
+      <input id="name" type="text" formControlName="name" [class.invalid]="form.get('name')?.invalid && form.get('name')?.touched" />
+      <small class="hint" *ngIf="form.get('name')?.touched && form.get('name')?.invalid">
+        <span *ngIf="form.get('name')?.errors?.['required']">Name is required.</span>
+        <span *ngIf="form.get('name')?.errors?.['minlength']">At least 3 characters.</span>
+        <span *ngIf="form.get('name')?.errors?.['maxlength']">Max 80 characters.</span>
+      </small>
+    </div>
+
+    <div class="form-row">
+      <label for="description">Description</label>
+      <textarea id="description" formControlName="description" rows="4" placeholder="Optional description (max 1000 chars)"></textarea>
+    </div>
+
+    <div class="form-row">
+      <label>Store image <span class="required">*</span></label>
+      <div class="image-uploader">
+        <input id="store-image-input" type="file" accept="image/*" (change)="onFileChange($event)" />
+        <div class="preview" *ngIf="previewUrl; else uploadPlaceholder">
+          <img [src]="previewUrl" alt="preview" />
+
+          <button type="button" class="btn-small danger" (click)="removeImage()">Remove</button>
+        </div>
+
+        <ng-template #uploadPlaceholder>
+          <div class="placeholder">
+            <p>Click to select an image (png, jpg, webp). Max 3MB.</p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+
+    <div class="form-row actions">
+      <div class="error" *ngIf="error">{{ error }}</div>
+
+      <button type="submit" class="btn primary" [disabled]="loading">
+        <span *ngIf="!loading">Create store</span>
+        <span *ngIf="loading">Creating...</span>
+      </button>
+
+      <button type="button" class="btn outline" (click)="openHome()" [disabled]="loading">Cancel</button>
+    </div>
+  </form>
+</div>

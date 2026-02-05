@@ -1,0 +1,138 @@
+<app-loading *ngIf="loading"></app-loading>
+
+<div class="add-product-page container py-4">
+  <h3 class="page-title text-center text-md-start mb-4">Add Product</h3>
+
+  <div class="row g-4 align-items-start">
+    <!-- LEFT: Preview (on small screens moves below the form) -->
+    <div class="col-lg-6 order-2 order-lg-1">
+      <div class="preview-card card p-3 h-100">
+        <div class="preview-main d-flex align-items-center justify-content-center mb-3">
+          <img *ngIf="mainimg; else placeholder" [src]="mainimg" alt="main image"
+               class="img-fluid main-preview rounded-3" />
+          <ng-template #placeholder>
+            <div class="placeholder-box rounded-3 d-flex align-items-center justify-content-center">
+              <span class="text-muted">No preview</span>
+            </div>
+          </ng-template>
+        </div>
+
+        <div class="preview-thumbs d-flex gap-2 flex-wrap justify-content-center">
+          <div *ngFor="let item of productImg; let i = index" class="thumb-item">
+            <img [src]="item" [alt]="'thumb ' + (i+1)" class="img-fluid rounded" />
+          </div>
+        </div>
+
+        <div class="product-info mt-4">
+          <h5 class="product-name mb-1 text-truncate">{{ name || 'Product name' }}</h5>
+          <p class="product-desc small text-muted mb-1">{{ description || 'Short description' }}</p>
+
+          <div class="d-flex align-items-center gap-2">
+            <div class="price-box">
+              <span class="final-price">${{ (price / 100) * (100 - sale) | number:'1.0-0' }}</span>
+              <small class="ms-2 badge-discount">{{ sale || 0 }}%</small>
+            </div>
+            <small class="text-decoration-line-through text-muted ms-3">${{ price || 0 }}</small>
+          </div>
+
+          <div class="mt-2 small text-muted">
+            <span>Category: </span><strong>{{ category || '-' }}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Form -->
+    <div class="col-lg-6 order-1 order-lg-2">
+      <div class="form-card card p-3 h-100">
+        <!-- selects row -->
+        <div class="row gx-2 gy-2">
+          <div class="col-sm-6">
+            <label class="form-label small">Category</label>
+            <select id="categoryId_AP" class="form-select" (change)="select()">
+              <option value="">Select category:</option>
+              <option *ngFor="let item of allCategories" [value]="item._id">{{ item.name }}</option>
+            </select>
+          </div>
+
+          <div class="col-sm-6">
+            <label class="form-label small">SubCategory</label>
+            <select id="subCategoryId_AP" class="form-select" (change)="select()">
+              <option value="">Select subcategory:</option>
+              <option *ngFor="let item of allSubCategories" [value]="item._id"
+                      [hidden]="item.categoryId?._id != categoryId">{{ item.name }}</option>
+            </select>
+          </div>
+
+          <div class="col-sm-6">
+            <label class="form-label small">Brand</label>
+            <select id="brandId_AP" class="form-select" (change)="select()">
+              <option value="">Select brand:</option>
+              <option *ngFor="let item of allBrands" [value]="item._id">{{ item.name }}</option>
+            </select>
+          </div>
+
+          <div class="col-sm-6">
+            <label class="form-label small">Gender</label>
+            <select id="gender" class="form-select" (change)="select()">
+              <option value="">Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="All">All</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- file upload -->
+        <div class="mt-3">
+          <input type="file" id="imgs" multiple (change)="uploads($event)" class="d-none" />
+          <label for="imgs" class="btn btn-outline-secondary w-100 upload-btn">
+            <i class="bi bi-images me-2"></i> Upload product pictures
+          </label>
+
+          <div class="upload-hint small text-muted mt-2">
+            يمكنك رفع صور متعددة — الصورة الأولى ستعرض كصورة رئيسية.
+          </div>
+        </div>
+
+        <!-- product fields -->
+        <div class="mt-3">
+          <input type="text" [(ngModel)]="name" class="form-control mb-2" placeholder="Name" />
+          <textarea rows="3" [(ngModel)]="description" class="form-control mb-2" placeholder="Description"></textarea>
+
+          <div class="row gx-2 align-items-center">
+            <div class="col-6 col-sm-4">
+              <label class="form-label small">Price</label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input type="number" [(ngModel)]="price" class="form-control" placeholder="Price (number)" />
+              </div>
+            </div>
+
+            <div class="col-6 col-sm-4">
+              <label class="form-label small">Sale %</label>
+              <div class="input-group">
+                <span class="input-group-text">%</span>
+                <input type="number" [(ngModel)]="sale" class="form-control" placeholder="Discount" />
+              </div>
+            </div>
+
+            <div class="col-12 col-sm-4">
+              <label class="form-label small">Quantity</label>
+              <input type="number" [(ngModel)]="quantity" class="form-control" placeholder="Quantity" />
+            </div>
+          </div>
+        </div>
+
+        <!-- action row -->
+        <div class="d-flex gap-2 justify-content-between align-items-center mt-4">
+          <button (click)="addProduct()" class="btn btn-danger px-4">Add Product</button>
+          <div class="status-text">
+            <p [ngClass]="added" class="text-success mb-0">Added</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

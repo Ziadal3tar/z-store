@@ -1,0 +1,11 @@
+.nav-tabs {
+  --bs-nav-tabs-border-width: 1px;
+  --bs-nav-tabs-link-active-color: #ffffff;
+  --bs-nav-tabs-link-active-bg: #dc3545;
+  --bs-nav-tabs-link-hover-border-color:transparent;
+}
+
+.nav {
+  --bs-nav-link-hover-color:rgb(31, 31, 31)!important;
+  --bs-nav-link-color: #dc3545 !important;
+}

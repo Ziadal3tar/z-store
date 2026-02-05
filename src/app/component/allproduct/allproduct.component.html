@@ -1,0 +1,44 @@
+<div class=" w-100 h-100 bg-black position-fixed top-0 bg-opacity-75 p-5 " [ngClass]="{'d-none': !openProductDetails}"
+  style="z-index: 99;">
+  <div class="container bg-white position-relative scrollStyle">
+    <div class=" position-absolute top-0 end-0 m-3 cursorPointer"><i (click)="openProductDetails = !openProductDetails"
+        class="bi bi-x-circle-fill"></i></div>
+    <app-products-details style="z-index: 99;" [productDetails]="productDetails"></app-products-details>
+  </div>
+
+</div>
+<div class="row m-0  mt-5 p-5">
+
+  <div
+    class=" col-xl-3 col-lg-3  col-md-4 col-sm-6 mb-2 d-flex align-items-center justify-content-center justify-content-md-start flex-column"
+    *ngFor="let slide of products let i = index">
+    <div style="width: 200px; height: 300px;" class="  position-relative">
+      <div class="rounded-3 position-relative rounded-3 overflow-hidden product" style=" width: 200px; height: 300px; ">
+        <div (click)="productDetails = slide" (click)="openProductDetails = !openProductDetails"
+          class="cursorPointer imgCenter  w-100 h-100 position-absolute mainImg transition"
+          style="background-image: url({{slide.images[0]}});"></div>
+        <div
+          class="layer position-absolute w-100 h-25 bg-black bg-opacity-50 d-flex align-items-center justify-content-center"
+          style="bottom: -25%; ">
+          <i (click)="addToCart(slide._id)" class="mood fab fa-opencart text-white fs-4 cursorPointer"></i>
+        </div>
+
+
+
+
+      </div>
+
+    </div>
+    <div class="mt-1" style="width: 200px;">
+      <div class=" w-100 d-flex align-items-center justify-content-between">
+        <p class=" m-0 text-gray fs-6"> {{slide.name}}</p>
+        <i class="bi cursorPointer " [ngClass]="ifInWishlist(slide)?'bi-heart-fill text-danger':'bi-heart'" (click)="addToFavorites(slide._id,$event)" ></i>
+      </div>
+      <div class=" w-100 d-flex align-items-center justify-content-between">
+        <p class=" m-0 text-gray">{{slide.finalPrice}}$ </p>
+      </div>
+
+
+    </div>
+  </div>
+</div>

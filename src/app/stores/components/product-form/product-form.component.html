@@ -1,0 +1,75 @@
+<div class="product-form-card">
+  <h3>{{ isEditMode ? 'Edit product' : 'Add product' }}</h3>
+
+  <form (ngSubmit)="submit()" [formGroup]="form" class="form">
+    <div class="row">
+      <label>Name *</label>
+      <input formControlName="name" type="text" />
+      <small *ngIf="form.get('name')?.touched && form.get('name')?.invalid" class="err">Name required</small>
+    </div>
+
+    <div class="row">
+      <label>Description</label>
+      <textarea formControlName="description" rows="4"></textarea>
+    </div>
+
+    <div class="row two-cols">
+      <div>
+        <label>Price *</label>
+        <input type="number" formControlName="price" />
+      </div>
+      <div>
+        <label>Discount (%)</label>
+        <input type="number" formControlName="discount" />
+      </div>
+    </div>
+
+    <div class="row two-cols">
+      <div>
+        <label>Total Items *</label>
+        <input type="number" formControlName="totalItems" />
+      </div>
+      <div>
+        <label>Category</label>
+        <input type="text" formControlName="categoryId" placeholder="category id or pick from list" />
+      </div>
+    </div>
+
+    <div class="row">
+      <label>Tags (comma separated)</label>
+      <input formControlName="tags" />
+    </div>
+
+    <div class="row">
+      <label>Attributes</label>
+      <div class="attrs" formArrayName="attributes">
+        <div class="attr-row" *ngFor="let ctrl of attributes.controls; let i = index" [formGroupName]="i">
+          <input formControlName="key" placeholder="Key (e.g. size)" />
+          <input formControlName="value" placeholder="Value (e.g. M)" />
+          <button type="button" class="btn small danger" (click)="removeAttribute(i)">Remove</button>
+        </div>
+
+        <button type="button" class="btn small" (click)="addAttribute()">Add attribute</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <label>Images (max {{MAX_IMAGES}})</label>
+      <input type="file" (change)="onFilesSelected($event)" multiple accept="image/*" />
+      <div class="previews">
+        <div class="preview" *ngFor="let p of previews; let i = index">
+          <img [src]="p" alt="preview" />
+          <button type="button" class="btn small danger" (click)="removeImage(i)">Remove</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="row actions">
+      <div class="err" *ngIf="error">{{ error }}</div>
+      <button type="submit" class="btn primary" [disabled]="loading">
+        {{ loading ? 'Saving...' : (isEditMode ? 'Save changes' : 'Add product') }}
+      </button>
+      <button type="button" class="btn outline" (click)="cancel()">Cancel</button>
+    </div>
+  </form>
+</div>

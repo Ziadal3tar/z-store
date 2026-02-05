@@ -1,0 +1,14 @@
+.product:hover .layer{
+  bottom:0% !important;
+  transition: 0.5s;
+  z-index: 99999999999999 !important;
+}
+ .mainImg{
+  background-size: 250px;
+  transition: 0.5s !important;
+}
+
+.mainImg:hover{
+  transition: 0.5s;
+  background-size: 285px;
+}

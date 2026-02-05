@@ -1,0 +1,110 @@
+<app-navbar></app-navbar>
+<app-loading *ngIf="loading"></app-loading>
+
+<div [ngClass]="{'d-none': !storDetails}" style="z-index: 9;"
+  class="  w-100 h-100 position-relative p-0 m-0 bg-black bg-opacity-75 top-0 position-fixed d-flex align-items-center justify-content-center">
+  <div class=" bg-white col-lg-5 col-md-7 col-sm-11  row position-absolute container p-3">
+
+
+    <!-- <div class=" d-flex justify-content-between">
+      <h1 class="fs-2">STORE</h1>
+      <i (click)="storeBtn()" class="fa-solid fa-circle-xmark cursorPointer"></i>
+    </div> -->
+
+    <!-- <div class="d-flex row align-items-center justify-content-end col-12 container  m-0 p-0">
+      <input [(ngModel)]="storeName" class=" col-9 p-2 rounded-0 border-bottom border-0  " type="text"
+        placeholder="store's name">
+
+      <div class=" col-2 offset-1 d-flex align-items-end justify-content-end p-0">
+        <input class="form-control rounded-5 mt-2 d-none" (change)="upload($event)" type="file" id="formFile">
+        <label class=" btn btn-light w-100" for="formFile"><i class="bi bi-image"></i></label>
+      </div>
+    </div>
+    <div class=" col-12 row d-flex align-items-center justify-content-end  p-0 m-0">
+      <p class=" m-0 text-danger col-12">{{errMessage}}</p>
+      <button (click)="addStore()" class=" btn btn-warning mt-3 rounded-0 col-lg-2 col-md-4 col-sm-6">Done</button>
+
+    </div> -->
+
+    <!-- <app-create-your-store></app-create-your-store> -->
+  </div>
+</div>
+
+<div class=" container">
+  <div class="row" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+    <div class="col-lg-3 px-4 col-md-12 mt-5 ">
+      <div
+        class="col-12 border-bottom bg-white  d-flex align-items-center justify-content-around py-3 flex-column rounded-top ">
+
+        <div class="position-relative  imgCenter overflow-hidden mb-2" style="width: 100px; height: 100px ; border-radius: 50%; z-index: 1;
+            background-image: url({{url}});">
+
+          <div [ngClass]="{'opacity-100': updatedImg}"
+            class=" w-100 h-100 position-absolute bg-black bg-opacity-50 d-flex align-items-center justify-content-center opacity-0 layer">
+            <input type="file" value="" multiple (change)="updateUserImg($event)" id="userImg" class=" d-none">
+            <label for="userImg">
+              <i *ngIf="!updatedImg" class="fa-solid fa-pen-to-square text-white cursorPointer" style="z-index: 9;"></i>
+            </label>
+            <i *ngIf="updatedImg" class="bi bi-check-lg cursorPointer fs-4 text-white" (click)="save()"
+              style="z-index: 9;"></i>
+          </div>
+        </div>
+
+
+
+        <div class=" d-flex flex-column align-items-center  position-relative "
+          style="height: 60px!important; width: 200px;">
+          <p class=" fs-5 position-absolute top-0">{{userData.userName }}</p>
+          <p class=" opacity-50 position-absolute bottom-0">{{userData.createdAt}}</p>
+        </div>
+
+
+
+
+        <div class="col-12 container ">
+
+          <button class=" btn btn-light border col-12 active" id="v-pills-setting-tab" data-bs-toggle="pill"
+            data-bs-target="#v-pills-setting" type="button" role="tab" aria-controls="v-pills-setting"
+            aria-selected="false">settings</button>
+
+
+          <!-- <button *ngIf="userData.storeId" class="col-12 mt-2  btn btn-light border "
+            (click)="deleteStore()">deleteStore
+          </button> -->
+        </div>
+      </div>
+
+      <div class="navPerInfo bg-white py-2  rounded-bottom">
+
+        <div class=" d-flex flex-column  h-auto">
+          <p class="nav-link" id="v-pills-orders-tab" data-bs-toggle="pill" data-bs-target="#v-pills-orders"
+            type="button" role="tab" aria-controls="v-pills-orders" aria-selected="true">orders</p>
+          <p class="nav-link" id="v-pills-favorites-tab" data-bs-toggle="pill" data-bs-target="#v-pills-favorites"
+            type="button" role="tab" aria-controls="v-pills-favorites" aria-selected="false">
+            favorites({{userData?.wishlist?.length}})</p>
+          <p class="nav-link" id="v-pills-personal-tab" data-bs-toggle="pill" data-bs-target="#v-pills-personal"
+            type="button" role="tab" aria-controls="v-pills-personal" aria-selected="false">personal</p>
+        </div>
+
+      </div>
+      <div>
+        <!-- <button (click)="storeBtn()" class=" contanier btn btn-dark w-100 mt-2">{{storeTitle}}</button> -->
+      </div>
+    </div>
+    <div class="col-lg-9 col-md-12 mt-5 px-4 scrollStyle" style="height: 80vh;">
+      <div class="tab-content" id="v-pills-tabContent">
+        <div class="tab-pane fade" id="v-pills-orders" role="tabpanel" aria-labelledby="v-pills-orders-tab"
+          tabindex="0"> <app-orders [userData]="userData"></app-orders> </div>
+        <div class="tab-pane fade" id="v-pills-favorites" role="tabpanel" aria-labelledby="v-pills-favorites-tab"
+          tabindex="0"><app-favorites [userData]="userData"></app-favorites>
+        </div>
+        <div class="tab-pane fade" id="v-pills-personal" role="tabpanel" aria-labelledby="v-pills-personal-tab"
+          tabindex="0"><app-personal [userData]="userData"></app-personal></div>
+        <div class="tab-pane fade show active" id="v-pills-setting" role="tabpanel"
+          aria-labelledby="v-pills-setting-tab" tabindex="0"> <app-settings [userData]="userData"></app-settings> </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,80 @@
+<div class="product-container container py-5">
+  <div class="product-inner row g-0 align-items-center">
+    <!-- LEFT: Gallery -->
+    <div class="gallery col-lg-7 col-12 d-flex flex-column flex-lg-row gap-3">
+      <!-- Thumbnails (vertical on lg, horizontal on sm) -->
+      <div class="thumbs d-flex flex-lg-column overflow-auto align-items-center"
+           role="tablist" aria-label="Product images thumbnails">
+        <button *ngFor="let img of productDetails?.images; let i = index"
+                class="thumb-btn"
+                [attr.aria-selected]="i === indexx"
+                (click)="indexx = i"
+                [ngClass]="{'active': i === indexx}"
+                [attr.aria-label]="'Thumbnail ' + (i+1)">
+          <img [src]="img" [alt]="productDetails?.name + ' thumbnail ' + (i+1)" loading="lazy" />
+        </button>
+      </div>
+
+      <!-- Main image -->
+      <div class="main-img-wrapper d-flex justify-content-center align-items-center">
+        <div class="main-img" tabindex="0" role="img"
+             [attr.aria-label]="productDetails?.name + ' image'">
+          <img [src]="productDetails?.images[indexx]" [alt]="productDetails?.name" loading="lazy" />
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Details -->
+    <div class="details col-lg-5 col-12 d-flex flex-column justify-content-between p-4">
+      <div>
+        <h5 class="store-name mb-2">
+          <span *ngIf="!productDetails?.storeId" class="text-danger">Z-STORE Company</span>
+          <span *ngIf="productDetails?.storeId" class="text-danger text-capitalize">
+            {{productDetails?.storeId?.name}}-STORE
+          </span>
+        </h5>
+
+        <h1 class="product-title fw-bold mb-2">{{productDetails?.name}}</h1>
+        <p class="product-desc opacity-75 mb-3">{{productDetails?.description}}</p>
+
+        <div class="price-row d-flex align-items-center gap-2 mb-2">
+          <h3 id="price" class="mb-0">${{productDetails?.finalPrice}}</h3>
+          <span *ngIf="productDetails?.discount" class="badge-discount rounded-pill">
+            {{productDetails?.discount}}%
+          </span>
+        </div>
+        <p id="total" class="text-decoration-line-through opacity-50 mb-3">
+          ${{productDetails?.price}}
+        </p>
+      </div>
+
+      <div class="actions d-flex flex-column gap-3">
+        <div class="d-flex align-items-center gap-3">
+          <div id="count" class="counter d-flex align-items-center rounded-3 p-2">
+            <button aria-label="Decrease quantity" (click)="minuus()" class="counter-btn">-</button>
+            <div class="qty">{{theNumberOfPieces}}</div>
+            <button aria-label="Increase quantity" (click)="plus()" class="counter-btn">+</button>
+          </div>
+
+          <button (click)="addToCart()" class="btn add-cart rounded-5 px-4">
+            <i class="fab fa-opencart me-2"></i> Add to cart
+          </button>
+        </div>
+
+        <p class="text-danger small-message" [ngClass]="{'visible': message !== '.'}">
+          {{message}}
+        </p>
+
+        <!-- optional: small features / shipping info -->
+        <div class="small-features d-flex gap-3 flex-wrap opacity-75">
+          <span>Free returns</span>
+          <span>|</span>
+          <span>2 years warranty</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- modal for login-first component (kept as before) -->
+  <app-login-first *ngIf="loginFirst" (closeL)="loginFirst = $event"></app-login-first>
+</div>

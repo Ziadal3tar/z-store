@@ -1,0 +1,97 @@
+
+
+<!-- FILE: storefront.component.html -->
+
+<!-- Place this in src/app/storefront/storefront.component.html -->
+<div class="storefront-root">
+  <header class="topbar">
+    <div class="brand">MyStore</div>
+    <div class="search">
+      <input  placeholder="Search products, e.g., headphones" />
+      <button aria-label="search">🔍</button>
+    </div>
+
+    <div class="cart">
+      <button class="cart-btn">🛒 <span class="count">{{cart.length}}</span></button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <h1>Discover modern gear that fits your life</h1>
+      <p>Curated picks — fast delivery — secure checkout</p>
+      <div class="hero-actions">
+        <button class="btn-primary">Shop Bestsellers</button>
+        <button class="btn-ghost">See new arrivals</button>
+      </div>
+    </div>
+    <img src="https://picsum.photos/seed/hero/1200/500" alt="hero"/>
+  </section>
+
+  <nav class="categories">
+    <div class="cats-row">
+      <button *ngFor="let c of categories" (click)="selectCategory(c)" [class.active]="c===selectedCategory">{{c}}</button>
+    </div>
+
+    <div class="controls">
+      <label>
+        Sort
+        <select>
+          <option value="popular">Popular</option>
+          <option value="new">New</option>
+          <option value="price-asc">Price: Low &uarr;</option>
+          <option value="price-desc">Price: High &darr;</option>
+        </select>
+      </label>
+    </div>
+  </nav>
+
+  <main class="content">
+    <aside class="filters">
+      <h3>Filters</h3>
+      <div class="filter-block">
+        <label>Price range</label>
+        <div class="range-row">
+          <input type="number" placeholder="Min" />
+          <input type="number" placeholder="Max" />
+        </div>
+      </div>
+
+      <div class="filter-block">
+        <label>Rating</label>
+        <div>4&nbsp;★ &amp; up</div>
+      </div>
+    </aside>
+
+    <section class="products">
+      <div class="grid">
+        <article class="product-card" *ngFor="let p of filteredProducts">
+          <div class="media">
+            <img [src]="p.image" [alt]="p.title" />
+            <span *ngIf="p.badge" class="badge">{{p.badge}}</span>
+          </div>
+          <div class="body">
+            <h4 class="title">{{p.title}}</h4>
+            <p class="cat">{{p.category}}</p>
+            <div class="meta">
+              <div class="price">${{p.price}}</div>
+              <div class="rating">⭐ {{p.rating}}</div>
+            </div>
+            <div class="actions">
+              <button (click)="addToCart(p)" class="add">Add to cart</button>
+              <button class="view">View</button>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="empty" *ngIf="filteredProducts.length===0">No products found.</div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>©2025  MyStore</div>
+    <div>Made with ♥ for beautiful shopping experiences</div>
+  </footer>
+</div>
+

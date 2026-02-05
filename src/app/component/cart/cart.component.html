@@ -1,0 +1,69 @@
+<app-navbar [cartlength]="cartlength"></app-navbar>
+<div class=" container">
+  <div class=" w-100 text-center fs-1 my-5">
+    <p>CART</p>
+  </div>
+  <div class="row main " cdkDropList [cdkDropListData]="cart?.products">
+    <div class="col-lg-9 col-sm-12 bg-white p-3 rounded-3 pb-0" >
+      <p *ngIf="cart?.products?.length==0" class=" fa d-flex align-items-center justify-content-center h-100">your cart is empty</p>
+      <div class="col-12 d-flex text-center border-bottom mb-5" *ngIf="cart?.products?.length!=0">
+        <p class="col-5 text-center">product</p>
+        <p class="col-2">price</p>
+        <p class="col-2">quantity</p>
+        <p class="col-2">sum</p>
+      </div>
+      <div class="col-12 d-flex align-items-center justify-content-center border-bottom pb-1 product mb-0"
+        *ngFor="let item of cart?.products let i = index" cdkDrag>
+        <div class="col-5 d-flex align-items-center justify-content-center ">
+          <div class="mdImg imgCenter" style="background-image: url({{item.productId.images[0]}});"></div>
+          <div class="col-6 offset-1">
+            <p class=" fw-bold ">{{item.productId.name}}</p>
+            <p class=" col-12 d-xs-none d-md-block">{{item.productId.description}}</p>
+          </div>
+        </div>
+        <p class="col-2 text-center">${{item.productId.finalPrice}}</p>
+        <div class="col-2  ">
+          <div id="count" class="d-flex justify-content-between rounded-3 "
+            style="background-color: rgba(180, 177, 177, 0.5); padding: 7.5px 5px;"><span (click)="minus(i)"
+              style="cursor: pointer;"><i class="fas fa-minus maincolor"></i></span>{{item?.quantity}}<span
+              (click)="plus(i)" style="cursor: pointer;"><i class="maincolor fas fa-plus"></i></span></div>
+          <p class="text-danger position-fixed" *ngIf="i==index">{{quantityErrMessage}}</p>
+        </div>
+        <p class="col-2 text-center "> ${{(item.productId.finalPrice * item?.quantity).toFixed(1)}} </p>
+        <div class="  col-1  ">
+          <div class="remove text-danger" (click)="deleteFromCart(item.productId._id)">
+            <i class="fa-solid fa-trash"></i>
+          </div>
+        </div>
+
+      </div>
+
+<div class="coupon w-100 my-2 d-flex align-items-center justify-content-end " *ngIf="cart?.products?.length!=0">
+  <p class="text-danger me-1">{{couponErr}}</p>
+  <input type="text" class=" w-25 rounded-3 couponInput p-2 " [(ngModel)]="coupon" placeholder="Coupon">
+  <div class=""><button (click)="addCoupon()"
+     class=" btn">ADD <i class="bi bi-arrow-right"></i></button></div>
+</div>
+    </div>
+    <div class="sum col-lg-2 offset-lg-1 col-sm-12  h-100 p-4 bg-white rounded-3">
+      <div class="col-12 border-bottom my-3">
+        <div class="d-flex align-items-center justify-content-between w-100">
+          <p>Subtotal</p>
+          <p>${{Total}}</p>
+        </div>
+        <div class="d-flex align-items-center justify-content-between w-100">
+          <p>Discount</p>
+          <p class=" text-danger">-${{Discount}}</p>
+        </div>
+      </div>
+      <div class="col-12 my-3">
+        <div class="d-flex align-items-center justify-content-between w-100">
+          <p>Total</p>
+          <p>${{Total - Discount}}</p>
+        </div>
+        <button (click)="Subtotal()" class=" btn btn-primary w-100">CheackOut</button>
+      </div>
+    </div>
+  </div>
+</div>
+<app-cart-on-all (getlength)="cartlength = $event" (allproduct)="cart.products = $event"></app-cart-on-all>

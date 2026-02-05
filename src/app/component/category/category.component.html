@@ -1,0 +1,134 @@
+<app-loading *ngIf="loading"></app-loading>
+
+<div class="container py-3">
+  <p class="page-title text-center fs-4 my-3">Categories</p>
+
+  <div class="row g-3">
+    <!-- Add Category -->
+    <div class="col-lg-5 col-md-6 col-12">
+      <div class="card p-3 shadow-sm">
+        <h6 class="mb-2">Add Category</h6>
+
+        <div class="d-flex gap-2 align-items-center">
+          <input
+            type="text"
+            class="form-control flex-grow-1"
+            [(ngModel)]="categoryName"
+            placeholder="Category name" />
+
+          <label for="categoryImgAdd" title="Upload image" class="btn btn-danger btn-icon">
+            <i class="bi bi-image"></i>
+          </label>
+          <input id="categoryImgAdd" type="file" class="d-none" (change)="upload($event, 'add')" />
+        </div>
+
+        <div class="d-flex justify-content-end mt-3">
+          <button (click)="addCategory()" class="btn btn-primary">ADD <i class="bi bi-arrow-right ms-1"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table & list -->
+    <div class="col-lg-7 col-md-6 col-12">
+      <div class="card p-2 shadow-sm" style="max-height:80vh; overflow:auto;">
+        <h6 class="mb-2">All Categories</h6>
+
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead class="table-light sticky-top">
+              <tr>
+                <th class="text-center">#</th>
+                <th class="text-center">Name</th>
+                <th class="text-center">Created By</th>
+                <th class="text-center">Image</th>
+                <th class="text-center">Delete</th>
+                <th class="text-center">Update</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr *ngFor="let item of pagedCategories(); let i = index" [class.bg-light]="((currentPageStart + i) % 2) === 0">
+                <th class="text-center" scope="row">{{ currentPageStart + i + 1 }}</th>
+                <td class="text-center">{{ item.name }}</td>
+                <td class="text-center">{{ item.createdBy?.userName || '-' }}</td>
+                <td class="text-center">
+                  <div class="cat-img rounded-2 mx-auto"
+                       [style.backgroundImage]="'url(' + (item.image || placeholderImg) + ')'">
+                  </div>
+                </td>
+
+                <td class="text-center">
+                  <button class="btn btn-sm btn-outline-danger" (click)="removeCategory(item._id)">
+                    <i class="bi bi-trash2-fill"></i>
+                  </button>
+                </td>
+
+                <td class="text-center">
+                  <button class="btn btn-sm btn-outline-dark" (click)="openEditModal(item)">
+                    <i class="bi bi-pen-fill"></i>
+                  </button>
+                </td>
+              </tr>
+
+              <!-- empty state -->
+              <tr *ngIf="!allCategories || allCategories.length === 0">
+                <td colspan="6" class="text-center py-4 text-muted">No categories yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination controls -->
+        <nav *ngIf="totalPages > 1" aria-label="Category pages" class="mt-3">
+          <ul class="pagination justify-content-center mb-0 flex-wrap">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <button class="page-link" (click)="goToPage(1)">« First</button>
+            </li>
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <button class="page-link" (click)="prevPage()">‹ Prev</button>
+            </li>
+
+            <!-- show range of pages (smart) -->
+            <li class="page-item" *ngFor="let p of pagesToShow()" [class.active]="p === currentPage">
+              <button class="page-link" (click)="goToPage(p)">{{p}}</button>
+            </li>
+
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+              <button class="page-link" (click)="nextPage()">Next ›</button>
+            </li>
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+              <button class="page-link" (click)="goToPage(totalPages)">Last »</button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal (overlay) -->
+<div [class.d-none]="!openEdit" class="edit-overlay">
+  <div class="edit-card">
+    <div class="d-flex justify-content-between align-items-start">
+      <h6>Edit Category</h6>
+      <button class="btn-close" aria-label="Close" (click)="closeEditModal()"></button>
+    </div>
+
+    <div class="my-2">
+      <input type="text" class="form-control" [(ngModel)]="newCategoryName" placeholder="Category name" />
+    </div>
+
+    <div class="d-flex gap-2 align-items-center">
+      <label for="categoryImgEdit" class="btn btn-danger btn-icon" title="Upload image">
+        <i class="bi bi-image"></i>
+      </label>
+      <input id="categoryImgEdit" type="file" class="d-none" (change)="upload($event, 'edit')" />
+      <div class="small text-muted ms-2">{{ editPreviewName }}</div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-3">
+      <button class="btn btn-secondary" (click)="closeEditModal()">Cancel</button>
+      <button class="btn btn-primary" (click)="editCategory()">Save</button>
+    </div>
+  </div>
+</div>

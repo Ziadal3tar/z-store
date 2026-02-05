@@ -1,0 +1,26 @@
+.line1{
+  font-family: Poppins-Regular;
+  font-size: 28px;
+  line-height: 1.2857;
+}
+
+.line2{
+  font-family: PlayfairDisplay-Bold;
+  font-size: 60px;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+.cards p{
+  color:black;
+}
+.cards .layer{
+  opacity: 0;
+  transition: 0.5s;
+}
+.cards:hover p ,button{
+  color: white;
+
+}
+.cards:hover .layer {
+  opacity: 100;}
+

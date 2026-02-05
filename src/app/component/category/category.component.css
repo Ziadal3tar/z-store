@@ -1,0 +1,60 @@
+/* general */
+.page-title { letter-spacing: .4px; font-weight:600; }
+
+/* card shadows and spacing */
+.card { border-radius: 10px; }
+
+/* file button */
+.btn-icon { display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px; padding:0; border-radius:8px; }
+
+/* category image box in table */
+.cat-img {
+  width: 70px;
+  height: 70px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  margin: 0 auto;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+/* edit modal overlay */
+.edit-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 1rem;
+}
+.edit-card {
+  width: 100%;
+  max-width: 520px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 1.25rem;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+}
+
+/* responsive tweaks */
+@media (max-width: 991.98px) {
+  .cat-img { width: 60px; height: 60px; }
+  .edit-card { max-width: 440px; padding: 1rem; }
+}
+
+@media (max-width: 575.98px) {
+  .btn-icon { width:40px; height:40px; }
+  .cat-img { width: 48px; height: 48px; }
+  .page-title { font-size: 1.05rem; }
+}
+
+/* pagination */
+.pagination .page-link { cursor: pointer; }
+
+/* loader area */
+.table-responsive { min-height: 120px; }
+
+/* small visual for empty states */
+.table .bg-light td { background: #fbfbfb; }

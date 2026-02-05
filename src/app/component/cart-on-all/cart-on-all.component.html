@@ -1,0 +1,33 @@
+<div class="main  h-100 bg-white position-fixed top-0  m-0 p-0  " [ngClass]="sideCart"
+  style="z-index: 99; scrollbar-gutter: stable; overflow-y: auto; right:  -85%; transition: 1s; ">
+  <div class="w-100 border-bottom d-flex justify-content-between align-items-center p-3 mb-4 ">
+    <p class=" fs-3">Cart</p>
+    <i (click)="backCart()" class=" delete d-block fa-solid fa-xmark fs-4 "></i>
+  </div>
+  <div >
+    <div class="product d-flex mb-3 border-bottom " *ngFor="let item of userData?.cartId?.products let i = index">
+      <div class="col-3 offset-1"><img class=" w-100 my-auto" src="{{item?.productId?.images[0]}}" alt=""></div>
+      <div class="col-6 offset-1 d-flex flex-column h-100 justify-content-center h-50">
+        <p style="font-size: 11px;" class="">{{item?.productId?.category}}</p>
+        <h5 class="title">{{item?.productId?.name}}</h5>
+        <div  class=" d-flex ">
+          <p>${{item?.productId?.finalPrice}}</p>
+          <p style="font-size: 11px;" class=" opacity-50 ms-2">{{item?.quantity}} * ${{item?.productId?.finalPrice}}</p>
+        </div>
+      </div>
+      <div class="col-1 delete " (click)="deleteFromCart(item?.productId?._id)"> <i class="fa-solid fa-xmark  "></i>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="m-0 row my-3 d-flex flex-row align-items-center justify-content-around p-0">
+      <p class=" opacity-50 fs-3 col-5">Subtotal</p>
+      <p class=" fs-3  col-3 offset-5 me-0 text-end">${{subtotal}}</p>
+    </div>
+    <div class="buttons d-flex row  align-items-center justify-content-evenly col-12 p-0">
+      <button routerLink="/cart" class="btn btn-light border col-10 offset-1 ">VIEWCART</button>
+
+      <button class="btn btn-danger   mt-2 col-10 offset-1">CHEACKOUT</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,88 @@
+<div class="loginPage  d-flex align-items-center justify-content-center p-0" style="background-image: url(./assets/white-abstract-background_23-2148817571.jpg);">
+
+
+  <div class=" container d-flex align-items-center justify-content-center h-100  m-0 p-0">
+    <img src="./assets/Hello-rafiki (4).svg" [ngClass]="hello" class="wow fadeInDown w-50 vh-100 "
+      data-wow-delay="0.3s" alt="">
+
+
+
+
+
+    <div  [ngClass]="login"
+      class="div-login bg-transparent  d-flex align-items-center bg-black justify-content-center  rounded-3 w-100 h-75 overflow-hidden container ">
+      <div class="row w-100 h-100 flex-wrap-reverse p-0">
+        <div class="col-md-6 col-sm-12 row leftHalf d-flex flex-column align-items-center justify-content-center m-0 ">
+          <div class=" col-10 d-flex flex-column align-items-center justify-content-center ">
+            <p *ngIf="errs.message!=''" class="text-danger text-start w-100 mb-0">{{errs.message}}</p>
+
+            <div class="input-group mb-3  ">
+              <span class="input-group-text bg-white"><i
+                  class="fa-solid fa-user text-black rounded-5 d-flex align-items-center justify-content-center"></i></span>
+              <input type="text" class="form-control" placeholder="Email" [(ngModel)]="email">
+              <p *ngIf="errs.emailErr!=''" class="text-danger text-start w-100 mb-0">{{errs.emailErr}}</p>
+
+            </div>
+
+            <div class="input-group   ">
+              <span class="input-group-text bg-white"><i
+                  class="fa-solid fa-lock text-black  d-flex align-items-center justify-content-center"></i></span>
+              <input type="password" class="form-control" placeholder="Password" [(ngModel)]="password">
+              <span class="input-group-text bg-white"><i
+                  class="fa-solid fa-eye-low-vision cursorPointer"></i></span>
+              <p *ngIf="errs.passwordErr != ''" class="text-danger text-start w-100 mb-0">{{errs.passwordErr}}</p>
+
+            </div>
+            <div class=" col-12  d-flex align-items-center justify-content-between row mt-md-3 mt-sm-0 ">
+              <div class="col-lg-6 col-sm-12 d-flex p-0"><input disabled class=" my-auto me-1" type="checkbox">
+                <p class=" my-auto mb-1 opacity-75 ">Remember me</p>
+              </div>
+              <div class=" col-lg-6 col-sm-12 p-0 ">
+                <button class="w-100 btn btn-danger text-white"(click)="logIn()"><p *ngIf="!loading">LOGIN</p>
+                  <div *ngIf="loading" class="spinner-border text-white" style="width: 20px; height: 20px;" role="status"> </div>
+                </button>
+              </div>
+            </div>
+
+
+
+
+
+
+            <div
+              class="col-12  d-flex align-items-center justify-content-between mt-3">
+              <div class=" d-flex text-primary opacity-75 cursorPointer">
+                <p routerLink="/signup">Regester</p>
+              </div>
+              <div class=" d-flex opacity-75 cursorPointer">
+                <p>ForgetPassword?</p>
+              </div>
+            </div>
+            <div class=" d-flex align-items-center justify-content-center  col-12 row ">
+              <div class="col-5  ">
+                <div class=" line "></div>
+              </div>
+              <p class="col-2  my-auto  text-center p-0">OR</p>
+              <div class="col-5">
+                <div class=" line "></div>
+              </div>
+            </div>
+          </div>
+          <div class=" mt-2 col-6">
+            <div class=" d-flex my-2 w-100 ">
+              <span class="input-group-text m-0 rounded-start rounded-0 border-0 faceBookBg" ><i
+                  class="fa-brands fa-facebook text-white  d-flex align-items-center justify-content-center"></i></span>
+              <button class=" btn  rounded-end rounded-0 m-0 border-0 py-2 px-0 text-white w-100 faceBookBg">FACEBOOK</button>
+            </div>
+            <div class=" d-flex my-2  w-100 ">
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-sm-12  rightHalf d-flex align-items-center justify-content-center">
+          <img src="./assets/Gen Z-pana.svg" class=" w-75" alt="">
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

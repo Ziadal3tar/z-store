@@ -1,0 +1,77 @@
+<app-navbar></app-navbar>
+<app-loading *ngIf="loading"></app-loading>
+
+<div style="height: 80vh  !important; width: 100%; "
+  class=" d-flex align-items-center justify-content-center position-relative ">
+  <div class=" w-100 h-100 position-relative" [ngStyle]="{'background-image': 'url(' + storeData.backGroundImage + ')'}" style="background-position: center; background-size: contain; background-repeat: no-repeat;" >
+  </div>
+  <ul class="text-decoration-none list-unstyled ms-3 mt-4 border-0 position-absolute start-0 top-50 position-fixed" id="myTab"
+    role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link rounded-5 active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home-tab-pane"
+        type="button" role="tab" aria-controls="home-tab-pane" aria-selected="true"><i class="bi bi-diagram-3-fill"></i>
+        <p class=" m-0 ms-3 opacity-0 position-absolute">Shop</p>
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button [ngClass]="{'disabled':  userData?.storeId?._id!=storeId }" class="nav-link rounded-5" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane"
+        type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false"><i class="bi bi-gear"></i>
+        <p class=" m-0 ms-3 opacity-0 position-absolute">Setting</p>
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link rounded-5" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact-tab-pane"  [ngClass]="{'disabled':  userData?.storeId?._id!=storeId }"
+        type="button" role="tab" aria-controls="contact-tab-pane" aria-selected="false"><i
+          class="bi bi-bag-plus-fill"></i>
+        <p class=" m-0 ms-3 opacity-0 position-absolute">Add product</p>
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link " id="disabled-tab" data-bs-toggle="tab" data-bs-target="#disabled-tab-pane" type="button"
+        role="tab" aria-controls="disabled-tab-pane" aria-selected="false"><i class="bi bi-chat-fill "></i>
+        <p class=" m-0 ms-3 opacity-0 position-absolute">Contact</p>
+      </button>
+    </li>
+  </ul>
+
+  <div class="position-absolute end-0 me-md-5 me-2 d-flex align-items-center justify-content-between w-auto"
+    style="bottom: -65px;">
+    <div [ngClass]="color" class=" fs-1  text-center fw-bold fa">
+
+      <p *ngIf="!userData?.storeId?.title || userData?.storeId?.title == 'undefined'"
+        class=" mb-2 text-uppercase bg-light p-2 px-3 rounded-5" id="name">
+        {{storeData?.name}}</p>
+    </div>
+    <div class="imgCenter ms-md-5 ms-2 position-relative overflow-hidden" style=" width: 130px !important; height: 130px; border-radius: 50%; background-position: center center; background-size: cover;
+  background-image: url({{storeImg}});">
+
+
+
+      <div *ngIf="userData?.storeId?._id==storeId" [ngClass]="{'opacity-100': image}" class=" w-100 h-100 position-absolute bg-black bg-opacity-50 d-flex align-items-center justify-content-center opacity-0 storeImgLayer">
+        <input type="file" value="" multiple (change)="upload($event)" id="file" class=" d-none">
+        <label for="file"  [ngClass]="{'d-block': image}" [ngClass]="{'d-none': !image}">
+          <i *ngIf="!image" class="fa-solid fa-pen-to-square text-white cursorPointer" style="z-index: 9;"></i>
+        </label>
+        <i  *ngIf="image"  class="bi bi-check-lg cursorPointer fs-4 text-white" (click)="save()" style="z-index: 9;"></i>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+
+<div class="tab-content" id="myTabContent">
+  <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
+    <app-allproduct [products]="storeData.storeProduct"></app-allproduct>
+  </div>
+  <div class="tab-pane fade" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+    <app-srote-setting></app-srote-setting>
+  </div>
+  <div class="tab-pane fade" id="contact-tab-pane" role="tabpanel" aria-labelledby="contact-tab" tabindex="0">
+    <app-add-product></app-add-product>
+  </div>
+  <div class="tab-pane fade" id="disabled-tab-pane" role="tabpanel" aria-labelledby="disabled-tab" tabindex="0">
+    <app-chats></app-chats>
+  </div>
+</div>

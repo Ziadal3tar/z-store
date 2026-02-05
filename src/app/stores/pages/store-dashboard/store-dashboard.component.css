@@ -1,0 +1,310 @@
+:root {
+  /* Colors */
+  --card-bg: #ffffff;
+  --card-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  --muted: #666666;
+  --border: #e9eef3;
+  --accent: #2b6cb0;
+  --danger: #e53e3e;
+
+  /* Spacing scale */
+  --space-xs: 6px;
+  --space-sm: 10px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* Typography */
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --radius: 10px;
+  --tile-bg: #f8fafc;
+}
+
+/* Mobile-first base */
+.dashboard-card {
+  width: 100%;
+  max-width: 1200px;
+  margin: 16px auto;
+  padding: var(--space-md);
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--card-shadow);
+  box-sizing: border-box;
+  color: #111827;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+/* Topbar */
+.dashboard-card .topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.dashboard-card .topbar .title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dashboard-card .topbar .title h2 {
+  margin: 0;
+  font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+  line-height: 1.1;
+}
+
+.dashboard-card .topbar .title small {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.dashboard-card .topbar .actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-left: auto;
+}
+
+.dashboard-card .topbar .actions .btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  background: transparent;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+
+.dashboard-card .topbar .actions .btn:active {
+  transform: translateY(1px);
+}
+
+.dashboard-card .topbar .actions .primary {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 3px 8px rgba(43,108,176,0.12);
+}
+
+.dashboard-card .topbar .actions .outline {
+  border: 1px solid var(--border);
+  color: #111827;
+  background: transparent;
+}
+
+/* tiles */
+.dashboard-card .tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.dashboard-card .tiles .tile {
+  padding: var(--space-sm);
+  background: var(--tile-bg);
+  border-radius: 8px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+
+.dashboard-card .tiles .tile .num {
+  font-size: clamp(1rem, 3.5vw, 1.25rem);
+  font-weight: 700;
+}
+.dashboard-card .tiles .tile .label {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* main content grid: mobile stacks everything vertically */
+.dashboard-card .content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-md);
+}
+
+.dashboard-card .content .analytics,
+.dashboard-card .content .orders,
+.dashboard-card .content .products {
+  background: #fff;
+  padding: var(--space-sm);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+/* orders table: responsive horizontal scroll on small screens */
+.dashboard-card .content .orders .orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
+}
+
+.dashboard-card .content .orders .orders-table thead th {
+  text-align: left;
+  padding: 10px;
+  font-size: 0.9rem;
+  color: #374151;
+  background: transparent;
+}
+
+.dashboard-card .content .orders .orders-table tbody td {
+  padding: 10px;
+  border-top: 1px solid #f3f6f9;
+  font-size: 0.95rem;
+}
+
+.dashboard-card .content .orders .table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* products list */
+.dashboard-card .content .products .products-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dashboard-card .content .products .product-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  background: #fbfdff;
+  flex-wrap: wrap;
+}
+
+.dashboard-card .content .products .thumb {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex: 0 0 72px;
+}
+
+.dashboard-card .content .products .meta {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.dashboard-card .content .products .meta .title {
+  font-weight: 600;
+  font-size: 0.98rem;
+}
+
+.dashboard-card .content .products .meta .small {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.dashboard-card .content .products .controls {
+  display: flex;
+  gap: 8px;
+  flex: 0 0 auto;
+  align-items: center;
+}
+
+.dashboard-card .content .products .btn {
+  padding: 7px 9px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.dashboard-card .content .products .danger {
+  background: var(--danger);
+  color: #fff;
+  border: none;
+}
+
+/* spacing on larger devices */
+@media (min-width: 640px) {
+  .dashboard-card {
+    padding: var(--space-lg);
+  }
+
+  .dashboard-card .tiles {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* tablet & up: two-column layout */
+@media (min-width: 900px) {
+  .dashboard-card .content {
+    grid-template-columns: 320px 1fr;
+    gap: var(--space-lg);
+  }
+
+  .dashboard-card .content .analytics {
+    position: sticky;
+    top: 18px;
+    height: fit-content;
+  }
+
+  .dashboard-card .content .orders {
+    grid-column: 2 / 3;
+  }
+
+  .dashboard-card .content .products {
+    grid-column: 2 / 3;
+  }
+
+  .dashboard-card .topbar .actions {
+    gap: 12px;
+  }
+}
+
+/* large desktops: center and increase max width */
+@media (min-width: 1200px) {
+  .dashboard-card {
+    max-width: 1400px;
+  }
+}
+
+/* Reusable utility tweaks for multiple pages */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* make images responsive by default where used */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* small helper for compact tiles or lists */
+.compact {
+  padding: 8px;
+}
+.compact .title {
+  font-size: 0.95rem;
+}
+
+/* Accessibility: focus styles */
+:focus {
+  outline: 3px solid rgba(43,108,176,0.18);
+  outline-offset: 2px;
+}
+
+/* ensure tables readable on mobile */
+.dashboard-card .content .orders .table-wrap::-webkit-scrollbar {
+  height: 8px;
+}
+.dashboard-card .content .orders .table-wrap::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.12);
+  border-radius: 999px;
+}

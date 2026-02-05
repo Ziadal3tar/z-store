@@ -1,0 +1,237 @@
+/* Converted SCSS -> CSS */
+/* Variables replaced:
+   $accent: #dc3545;
+   $muted: rgba(0,0,0,0.55);
+   $bg: #fff;
+   $radius: 12px;
+*/
+
+.product-container .product-inner {
+  min-height: 70vh;
+}
+
+/* Gallery area */
+.product-container .gallery {
+  gap: 1rem;
+}
+
+/* Thumbs container */
+.product-container .gallery .thumbs {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.25rem;
+}
+
+/* Thumbs: small-screen (horizontal scroll) */
+@media (max-width: 991.98px) {
+  .product-container .gallery .thumbs {
+    flex-direction: row;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.5rem;
+  }
+}
+
+/* Thumbs: large-screen (vertical) */
+@media (min-width: 992px) {
+  .product-container .gallery .thumbs {
+    flex-direction: column;
+    width: 80px;
+    max-height: 480px;
+  }
+}
+
+/* Thumbnail buttons */
+.product-container .gallery .thumbs .thumb-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .18s ease, box-shadow .18s ease;
+  position: relative;
+}
+
+.product-container .gallery .thumbs .thumb-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.product-container .gallery .thumbs .thumb-btn.active,
+.product-container .gallery .thumbs .thumb-btn.active:focus,
+.product-container .gallery .thumbs .thumb-btn.active:hover {
+  outline: 2px solid #dc3545;
+  opacity: 0.85;
+  transform: scale(0.98);
+}
+
+/* Main image wrapper */
+.product-container .gallery .main-img-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-container .gallery .main-img {
+  width: 100%;
+  height: 420px;
+  max-width: 720px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  transition: transform .25s ease, box-shadow .25s ease;
+  cursor: zoom-in;
+}
+
+.product-container .gallery .main-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Hover zoom on larger screens */
+@media (min-width: 992px) {
+  .product-container .gallery .main-img:hover {
+    transform: scale(1.02);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+  }
+}
+
+/* Main image responsive height */
+@media (max-width: 575.98px) {
+  .product-container .gallery .main-img {
+    height: 260px;
+  }
+}
+
+/* Details area */
+.product-container .details {
+  padding: 1.75rem;
+}
+
+.product-container .details .store-name {
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.product-container .details .product-title {
+  font-size: 1.6rem;
+  margin-bottom: 0.25rem;
+}
+
+.product-container .details .product-desc {
+  margin-bottom: 1rem;
+}
+
+/* Price row */
+.product-container .details .price-row {
+  align-items: baseline;
+  display: flex;
+}
+
+.product-container .details .price-row h3 {
+  color: #dc3545;
+  margin: 0;
+}
+
+.product-container .details .price-row .badge-discount {
+  background: rgba(220,53,69,0.12);
+  color: #dc3545;
+  padding: 0.25rem 0.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: 999px;
+  margin-left: 0.5rem;
+}
+
+/* Counter */
+.product-container .details .counter {
+  background: rgba(0,0,0,0.05);
+  padding: 6px;
+  border-radius: 10px;
+  min-width: 120px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-container .details .counter .counter-btn {
+  border: none;
+  background: transparent;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background .12s ease;
+}
+
+.product-container .details .counter .counter-btn:hover {
+  background: rgba(0,0,0,0.04);
+}
+
+.product-container .details .counter .qty {
+  min-width: 28px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Add to cart button */
+.product-container .details .add-cart {
+  background: #dc3545;
+  color: #fff;
+  border: none;
+  box-shadow: 0 6px 14px rgba(220,53,69,0.16);
+  transition: transform .12s ease, box-shadow .12s ease;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.product-container .details .add-cart:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(220,53,69,0.18);
+}
+
+/* small message visibility */
+.product-container .details .small-message {
+  opacity: 0;
+  height: 0;
+  transition: opacity .18s ease, height .18s ease;
+}
+
+.product-container .details .small-message.visible {
+  opacity: 1;
+  height: auto;
+}
+
+/* small features */
+.product-container .details .small-features {
+  font-size: 0.88rem;
+}
+
+/* Responsive tweaks: stack on smaller screens */
+@media (max-width: 991.98px) {
+  .product-container .product-inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .product-container .details {
+    padding: 1rem;
+  }
+}

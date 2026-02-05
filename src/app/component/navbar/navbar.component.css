@@ -1,0 +1,68 @@
+
+@media (min-width :992px) {
+  .drop .ul {
+    transition: 1s;
+    top: -190px !important;
+  }
+  .drop:hover .ul {
+    top: 56px !important;
+  }
+  nav ul li ul {
+    width: 170px;
+    border-radius: 20px;
+  }
+  nav ul li ul li {
+    margin: 10px 0;
+  }
+  nav ul li ul li a {
+    text-decoration: none;
+    transition: 0.3s;
+  }
+  nav ul li ul li a:hover {
+    color: #000000
+  }
+  .drop:hover nav ul li ul {
+    top: 57px !important;
+  }
+
+
+  nav ul li ul li {
+    width: 100%;
+  }
+  nav ul li ul li a {
+    color: #dc3545;
+  }
+  nav ul li a:hover {
+    color: #dc3545;
+  }
+  i,
+  li {
+    cursor: pointer;
+  }
+  .header-toggle {
+    display: none;
+  }
+}
+@media (max-width:991px) {
+  .end {
+    display: none;
+  }
+  .header-toggle {
+    display: block !important;
+    margin: 0 0;
+  }
+  .navitem {
+    display: none !important;
+  }
+}
+.activeImg {
+  border: #dc3545 solid 2px;
+}
+.hide{
+  height: 0px !important;
+  transition: 0.5s !important;
+  overflow: hidden !important;
+}
+.stores:hover{
+background-color:#dedede!important;
+}

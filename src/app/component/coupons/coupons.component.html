@@ -1,0 +1,151 @@
+<div class="row d-flex py-5">
+  <p class=" fa text-center fs-4">Coupon</p>
+
+  <div class="col-md-8 col-sm-12 mb-sm-3 d-flex mb-3 mb-md-0 align-items-center justify-content-center ">
+    <div style="height: 250px; width: 400px;   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    " class=" bg-white rounded-2 overflow-hidden position-relative pt-4 ">
+      <div class=" position-absolute top-0 bg-white fa p-2">
+        Disabled Coupons
+      </div>
+      <div class=" h-75 w-100  overflow-scroll scrollStyle ps-2">
+
+        <div *ngFor="let item of allCoupons let i = index" [ngClass]="{'bg-light': ((i % 2) == 0) }">
+          <div *ngIf="item.isStopped" class=" d-flex align-items-center justify-content-between py-1 rounded-3"><span
+              class=" d-flex align-items-center"><i
+                class="bi bi-x-circle-fill text-danger m-0 me-2 p-0 fs-6 cursorPointer rounded-5 p-1 "
+                (click)="removeCoupon(item._id)"></i>
+              <p class=" p-0 m-0">{{item.name}}</p>
+            </span>
+
+            <div class="dropdown">
+              <i class="bi bi-three-dots-vertical m-0 p-0 mx-2 cursorPointer dropdown-toggle" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false">
+              </i>
+              <ul class="dropdown-menu">
+                <li (click)="couponOption('enable', item)"><a class="dropdown-item">Enable</a></li>
+                <li (click)="couponOption('edit', item)"><a class="dropdown-item">edit</a></li>
+                <li (click)="couponOption('details', item)"><a class="dropdown-item">details</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+      <div class="d-flex align-items-center justify-content-around h-25 w-100 p-2 position-relative"
+        style=" box-shadow: 3px -5px 30px #0003">
+        <p class=" text-danger position-absolute start-0 bottom-0 m-0 ms-4  " [ngClass]="errMessageStyle">{{errMessage}}
+        </p>
+
+        <input type="text" class=" w-75 h-100 border-0 rounded-5 px-3" placeholder="Coupon" [(ngModel)]="couponName">
+        <div class="" (click)="addCoupon()"><i class="bi bi-plus-circle m-auto cursorPointer"></i></div>
+      </div>
+
+
+    </div>
+
+  </div>
+  <div class="col-md-4 col-sm-12 bg-white p-0 rounded-3 overflow-hidden position-relative pt-4" style="height: 60vh;   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  ">
+    <div class=" position-absolute top-0 bg-white fa p-2">
+      Enabled coupons
+    </div>
+    <div class=" h-100 w-100  overflow-scroll scrollStyle ps-2">
+      <div *ngFor="let item of allCoupons let i = index" [ngClass]="{'bg-light': ((i % 2) != 0) }">
+        <div *ngIf="!item.isStopped" class=" d-flex align-items-center justify-content-between py-1"><span
+            class=" d-flex align-items-center"><i
+              class="bi bi-x-circle-fill text-danger m-0 me-2 p-0 fs-6 cursorPointer rounded-5 p-1 "
+              (click)="removeCoupon(item._id)"></i>
+            <p class=" p-0 m-0">{{item.name}}</p>
+          </span>
+
+          <div class="dropdown">
+            <i class="bi bi-three-dots-vertical m-0 p-0 mx-2 cursorPointer dropdown-toggle" type="button"
+              data-bs-toggle="dropdown" aria-expanded="false"></i>
+            <ul class="dropdown-menu">
+
+
+              <li (click)="couponOption('disable', item)"><a class="dropdown-item">Disable</a></li>
+              <li (click)="couponOption('edit', item)"><a class="dropdown-item">edit</a></li>
+              <li (click)="couponOption('details', item)"><a class="dropdown-item">details</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div [ngClass]="{'d-none': openEdit}"
+  class=" position-absolute vw-100 vh-100 row bg-black bg-opacity-50 top-0 start-0  d-flex align-items-center justify-content-center">
+
+
+  <div [ngClass]="{'d-none': detailsDiv}"
+    class="detailsDiv col-lg-4 col-sm-6 h-50 bg-light rounded-3 p-4 position-relative">
+    <div class="position-absolute top-0 end-0 p-0 w-auto m-2 cursorPointer " (click)="couponOption('closeAll',null)"><i
+        class="bi bi-x fs-5"></i></div>
+    <div class="text-center fa">coupon details</div>
+    <div class=" h-75 d-flex align-items-start justify-content-evenly row mt-3">
+      <div>
+        <p class=" fw-bold">Coupon: <span class=" fw-normal">{{couponDetails?.name}}</span></p>
+      </div>
+      <div>
+        <p class=" fw-bold">Amount: <span class=" fw-normal">{{couponDetails?.amount}}</span></p>
+      </div>
+      <div>
+        <p class=" fw-bold">ExpireIn: <span class=" fw-normal">{{couponDetails?.expireIn}}</span></p>
+      </div>
+      <div>
+        <p class=" fw-bold">Is Stopped: <span class=" fw-normal">{{couponDetails?.isStopped}}</span></p>
+      </div>
+      <div>
+        <p class=" fw-bold">created By: <span class=" fw-normal">{{couponDetails?.createdBy?.userName}}</span></p>
+      </div>
+      <div>
+        <p class=" fw-bold">Last updated By: <span class=" fw-normal">{{couponDetails?.updatedBy?.userName}}</span></p>
+      </div>
+      <div>
+        <p class=" fw-bold">Last Disabled By: <span class=" fw-normal">{{couponDetails?.deletedBy?.userName}}</span></p>
+      </div>
+
+    </div>
+
+
+  </div>
+
+
+  <div [ngClass]="{'d-none': editDiv}"
+    class="editDiv col-lg-4 col-sm-6 h-50 bg-light rounded-3 d-flex align-items-center justify-content-around flex-column row position-relative">
+    <div class="position-absolute top-0 end-0 p-0 w-auto m-2 cursorPointer " (click)="couponOption('closeAll',null)"><i
+        class="bi bi-x fs-5"></i></div>
+    <div class=" col-12 h-50 d-flex align-items-center justify-content-center row">
+      <input type="text" class="border-0 col-9  p-2 mx-1 rounded-2 border-bottom" [(ngModel)]="editName"
+        placeholder="name">
+      <input type="number" class=" border-0  col-9 p-2 mx-1 rounded-2 border-bottom" [(ngModel)]="couponAmount"
+        placeholder="Amount">
+      <input type="date" class=" col-9 border-0 border-bottom rounded-2 p-2 mx-1" [(ngModel)]="couponExpireIn">
+    </div>
+
+    <button class=" btn col-3 btn-primary w-25" (click)="editCoupon(null)">SAVE</button>
+
+  </div>
+
+  <div [ngClass]="{'d-none': enableDiv}"
+    class="editDiv col-lg-4 col-sm-6 h-50 bg-light rounded-3 d-flex align-items-center justify-content-around flex-column row position-relative">
+    <div class="position-absolute top-0 end-0 p-0 w-auto m-2 cursorPointer " (click)="couponOption('closeAll',null)"><i
+        class="bi bi-x fs-5"></i></div>
+    <div class=" col-12 h-50 d-flex align-items-center justify-content-center row">
+      <input type="text" class="border-0 col-9  p-2 mx-1 rounded-2 border-bottom" [(ngModel)]="editName"
+        placeholder="name">
+      <input type="number" class=" border-0  col-9 p-2 mx-1 rounded-2 border-bottom" [(ngModel)]="couponAmount"
+        placeholder="Amount">
+      <input type="date" class=" col-9 border-0 border-bottom rounded-2 p-2 mx-1" [(ngModel)]="couponExpireIn">
+    </div>
+
+    <button class=" btn col-3 btn-primary w-25" (click)="editCoupon('enable')">SAVE</button>
+  </div>
+
+
+
+</div>

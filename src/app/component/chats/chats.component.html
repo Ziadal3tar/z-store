@@ -1,0 +1,77 @@
+<div class=" container">
+  <div class="row d-flex align-items-center justify-content-center ">
+    <div class=" w-100 vh-100 d-flex align-items-center row justify-content-center"
+
+    >
+    <!-- [ngClass]="userData?.storeId?._id == storeId && openChat ? 'justify-content-between' : 'justify-content-center'" -->
+
+      <div *ngIf="userData?.storeId?._id == storeId && !openChat"
+        class="col-lg-3 p-0  col-md-4 m-0 col-sm-12  bg-light rounded-4  chats my-auto overflow-hidden">
+        <div style=" background-color: rgb(225, 225, 225) !important;"
+          class="rounded-bottom rounded-4 d-flex align-items-center justify-content-between  pt-3 px-3 fa">
+          <p>chats</p>
+        </div>
+        <div class="rounded-4 d-flex align-items-center  p-2  col-12 active"
+          *ngFor="let chat of storeData.chats let i = index" (click)="chatData = chat"
+          (click)="theChatOpenedId = chat.userId._id" (click)="getChat()" (click)="openChat = !openChat">
+          <div class="position-relative col-3 me-3 imgCenter"
+            style="width: 50px; height: 50px; border-radius: 50%; background-image: url({{chat?.userId?.profilePic}});">
+          </div>
+          <p class="col-10 my-auto">{{chat?.userId?.userName}}</p>
+        </div>
+      </div>
+      <div *ngIf="openChat || this.userData?.storeId?._id != this.storeId"
+        class=" col-lg-8 col-md-7 col-sm-12 mt-sm-4 mt-md-0 row border-0 m-0 messages rounded-4 p-0 position-relative overflow-hidden  d-flex flex-column align-items-center justify-content-center ">
+        <div style=" background-color: rgb(225, 225, 225) !important; height: 10%!important;"
+          class=" col-12 d-flex align-items-center p-3 position-absolute top-0 justify-content-between">
+          <div class=" col-10 d-flex align-items-center p-3 ">
+
+
+            <div class="position-relative col-3 me-5 imgCenter"
+              style="width: 35px; height: 35px; border-radius: 50%; background-image: url({{chatData?.chatDetails?.storeImage||chatData?.chatDetails?.profilePic}});">
+            </div>
+
+            <p class="col-4  my-auto">{{chatData?.chatDetails?.name||chatData?.chatDetails?.userName}}</p>
+          </div>
+          <div class="col-2 d-flex align-items-center justify-content-end p-3">
+            <i style="cursor: pointer; z-index: 9;" (click)="openChat = !openChat" class="fa-solid fa-xmark  "></i>
+          </div>
+        </div>
+        <div #chats class=""
+          style=" background-image: url(./assets/bg-chat1.jpg)!important ; height: 80%!important ; scrollbar-gutter: stable;overflow-y: auto;">
+          <div class="row ">
+
+            <div *ngIf="userData.storeId && userData.storeId._id==storeId">
+              <div *ngFor="let message of chatData?.chat?.messages"
+                [ngClass]="{'justify-content-end': message?.sender._id != storeId}"
+                class="col-12 d-flex align-items-center ">
+                <p class=" fs-6 w-auto " [ngClass]="message?.sender._id == storeId?'me':'other'"
+                  style="width: auto!important;">{{message?.content}}</p>
+              </div>
+            </div>
+
+            <div *ngIf=" userData?.storeId?._id!=storeId">
+              <div *ngFor="let message of chatData?.chat?.messages"
+                [ngClass]="{'justify-content-end': message?.sender?._id== storeId}"
+                class="col-12 d-flex align-items-center ">
+                <p class=" fs-6 w-auto " [ngClass]="message?.sender?._id!= storeId?'me':'other'"
+                  style="width: auto!important;">{{message?.content}}</p>
+              </div>
+            </div>
+
+
+
+          </div>
+        </div>
+        <div class=" col-12 d-flex py-2 position-absolute bottom-0"
+          style=" background-color: rgb(225, 225, 225) !important; height: 10%!important;">
+          <div class=" col-10 my-auto">
+            <input [(ngModel)]="message" type="text" placeholder="Type a message" class="rounded-5 w-100 p-2 border-0">
+          </div>
+          <div class="col-2 d-flex justify-content-center my-auto">
+            <button style="background-color: #8f1f37;" class=" btn  px-2 py-1 text-white" (click)="send()">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

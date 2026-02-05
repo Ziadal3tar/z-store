@@ -1,0 +1,128 @@
+.store-create-card {
+  max-width: 820px;
+  margin: 24px auto;
+  background: var(--card-bg, #fff);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: var(--card-shadow, 0 6px 20px rgba(0,0,0,0.06));
+}
+
+.store-create-card h2 {
+  margin: 0 0 12px 0;
+  font-size: 1.4rem;
+}
+
+.store-create-card .form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.store-create-card .form .form-row {
+  display: flex;
+  flex-direction: column;
+}
+
+.store-create-card .form .form-row label {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.store-create-card .form input[type='text'],
+.store-create-card .form textarea {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e3e6ea;
+  font-size: 0.95rem;
+}
+
+.store-create-card .form input.invalid {
+  border-color: #e05555;
+}
+
+.store-create-card .form .hint {
+  margin-top: 6px;
+  color: #e05555;
+  font-size: 0.85rem;
+}
+
+/* image uploader */
+.store-create-card .image-uploader {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.store-create-card .image-uploader input[type='file'] {
+  display: block;
+}
+
+.store-create-card .image-uploader .preview {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.store-create-card .image-uploader .preview img {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #eaeaea;
+}
+
+.store-create-card .image-uploader .preview .btn-small {
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.store-create-card .image-uploader .placeholder {
+  padding: 12px;
+  color: #666;
+  background: #f8f9fb;
+  border-radius: 8px;
+}
+
+/* actions */
+.store-create-card .actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.store-create-card .actions .error {
+  color: #b00020;
+  margin-right: auto;
+  font-size: 0.95rem;
+}
+
+.store-create-card .actions .btn {
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+}
+
+.store-create-card .actions .primary {
+  background: var(--primary, #2b6cb0);
+  color: #fff;
+}
+
+.store-create-card .actions .outline {
+  background: transparent;
+  border: 1px solid #cbd5e1;
+  color: #333;
+}
+
+/* responsive */
+@media (max-width: 600px) {
+  .store-create-card {
+    padding: 14px;
+  }
+
+  .store-create-card .image-uploader .preview img {
+    width: 96px;
+    height: 96px;
+  }
+}

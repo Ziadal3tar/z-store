@@ -1,0 +1,13 @@
+.div-login {
+    box-shadow: 0 13px 50px #0003;
+}
+.loginPage{
+  height: 100vh;
+    background-size: cover;
+    background-position: center center;
+}
+.line{
+    width: 100%;
+    height: 1px;
+    background-color: rgb(172, 172, 172);
+  }

@@ -1,0 +1,56 @@
+@media (min-width: 1025px) {
+  .mansOffers img {
+    box-sizing: border-box;
+    border: 5px solid transparent;
+    border-radius: 20px;
+
+  }
+}
+
+button:focus {
+  box-shadow: none !important;
+  border-color: rgba(0, 0, 0, .125) !important;
+}
+
+
+.height {
+  transition: 5s !important;
+  height: 0vh !important;
+}
+
+.s-itm {
+  text-decoration: none;
+  color: #dc3545;
+  cursor: pointer;
+  transition: 0.5s;
+}
+
+.s-itm:hover {
+  /* bg-opacity-50 bg-danger px-3 rounded-3 */
+  background-color: #dc3545;
+  opacity: 0.5;
+  border-radius: 5px;
+  padding: 0 10px;
+  color: #ffffff;
+}
+
+.layer {
+  transition: 0.5s;
+}
+
+.product:hover .layer {
+  bottom: 0% !important;
+  transition: 0.5s;
+  z-index: 99999999999999 !important;
+}
+
+
+.mainImg {
+  background-size: 250px;
+  transition: 0.5s !important;
+}
+
+.mainImg:hover {
+  transition: 0.5s;
+  background-size: 285px;
+}

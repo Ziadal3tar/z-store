@@ -1,0 +1,40 @@
+<app-navbar></app-navbar>
+<div class=" container">
+
+  <ul class="nav nav-tabs d-flex align-items-center justify-content-start" id="myTab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin" type="button"
+        role="tab" aria-controls="admin" aria-selected="true">admin</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link " id="addCoupon-tab" data-bs-toggle="tab" data-bs-target="#addCoupon" type="button"
+        role="tab" aria-controls="addCoupon" aria-selected="true">addCoupon</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="addCategory-tab" data-bs-toggle="tab" data-bs-target="#addCategory" type="button"
+        role="tab" aria-controls="addCategory" aria-selected="false">addCategory</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="addSubCategory-tab" data-bs-toggle="tab" data-bs-target="#addSubCategory"
+        type="button" role="tab" aria-controls="addSubCategory" aria-selected="false">addSubCategory</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="addBrand-tab" data-bs-toggle="tab" data-bs-target="#addBrand" type="button"
+        role="tab" aria-controls="addBrand" aria-selected="false">addBrand</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="addProduct-tab" data-bs-toggle="tab" data-bs-target="#addProduct" type="button"
+        role="tab" aria-controls="addProduct" aria-selected="false">addProduct</button>
+    </li>
+  </ul>
+
+  <div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show active" style="height: 70vh !important;" id="admin" role="tabpanel" aria-labelledby="admin-tab"><app-admins-control></app-admins-control> </div>
+    <div class="tab-pane fade" id="addCoupon" role="tabpanel" aria-labelledby="addCoupon-tab"><app-coupons></app-coupons> </div>
+    <div class="tab-pane fade" id="addCategory" role="tabpanel" aria-labelledby="addCategory-tab"><app-category></app-category></div>
+    <div class="tab-pane fade" id="addSubCategory" role="tabpanel" aria-labelledby="addSubCategory-tab"><app-sup-category></app-sup-category></div>
+    <div class="tab-pane fade" id="addBrand" role="tabpanel" aria-labelledby="addBrand-tab"><app-brand></app-brand></div>
+    <div class="tab-pane fade" id="addProduct" role="tabpanel" aria-labelledby="addProduct-tab"><app-add-product></app-add-product></div>
+  </div>
+
+</div>

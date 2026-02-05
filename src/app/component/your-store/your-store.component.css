@@ -1,0 +1,70 @@
+/* .active{
+border-bottom: 2px solid  rgb(187, 41, 46);
+} */
+
+/* li{
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  padding-bottom: 1px;
+} */
+.top0{
+  margin-top: 30px !important;
+  transition: 0.5s !important;
+}
+/* .bottom0{ margin-bottom: 30px !important;
+  transition: 0.5s !important;
+} */
+  .red{color: red;}
+  .black{color: black;}
+  .white{color: white;}
+  .yellow{color: yellow;}
+  .blue{color: blue;}
+  .green{color: green;}
+
+  .nav-tabs {
+    --bs-nav-tabs-border-width: 1px;
+    --bs-nav-tabs-link-active-color: #ffffff;
+    --bs-nav-tabs-link-active-bg: #dc3545;
+    --bs-nav-tabs-link-hover-border-color:transparent;
+  }
+
+  .nav {
+    --bs-nav-link-hover-color:rgb(31, 31, 31)!important;
+    --bs-nav-link-color: #dc3545 !important;
+  }
+#myTab button{
+  background-color: rgb(224, 224, 224);
+  width: 50px;
+  height:50px;
+  overflow:hidden;
+  border:0;
+  margin: 8px 0;
+  transition: 0.5s !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 25px;
+}
+#myTab button:hover{
+  transition: 0.5s !important;
+  width: auto ;
+padding: 0 19px;
+}
+#myTab button:hover p{
+position: relative !important;
+opacity: 1 !important;
+transition: 0.5s !important;
+}
+
+#myTab .active{
+  background-color: antiquewhite !important;
+}
+.storeImgLayer:hover{
+  opacity: 1 !important;
+  transition: 0.5s !important;
+}
+.storeImgLayer:hover label{
+  display:block !important;
+  transition: 0.5s !important;
+
+}

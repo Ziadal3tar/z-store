@@ -1,0 +1,19 @@
+<div [ngClass]="[sideNav]" class="main w-25 h-100 bg-white position-fixed top-0 m-0 "
+  style="z-index: 99; scrollbar-gutter: stable; overflow-y: auto; transition: 1s; left: -80%; ">
+  <div (click)="back()" class=" w-100 position-relative d-flex fs-4 justify-content-end p-3 cursorPointer"> <i
+      class="fa-solid fa-xmark"></i>
+  </div>
+  <ul class=" text-decoration-none list-unstyled">
+    <li><a>HOME</a>
+    </li>
+    <li class=" w-100 "><a routerLink="/male" class="d-flex justify-content-between w-100">SHOP </a>
+    </li>
+    <li><a>PLOG</a>
+    </li>
+    <li class=" w-100" *ngIf="userdata?.role == 'Admin'"><a routerLink="/admin"
+        class="d-flex justify-content-between w-100">ADMIN</a>
+    </li>
+    <li><a>CONTACT</a>
+    </li>
+  </ul>
+</div>
