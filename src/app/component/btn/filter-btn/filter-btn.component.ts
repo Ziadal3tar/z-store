@@ -1,4 +1,3 @@
-import { SharedService } from './../../../services/shared.service';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
@@ -7,65 +6,53 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   styleUrls: ['./filter-btn.component.css'],
 })
 export class FilterBtnComponent {
-  @Output() productsChanged: EventEmitter<any> = new EventEmitter<any>();
-  @Input() products: any;
+  @Input() products: any[] = [];
+  @Output() productsChanged = new EventEmitter<any[]>();
 
-  prices: any[] = [
+  prices = [
     { from: 0, to: 50 },
     { from: 50, to: 100 },
     { from: 100, to: 200 },
     { from: 200, to: 500 },
     { from: 500, to: 1000 },
-    { from: 1000, to: 999999999999999 },
-  ];
-  colors: any[] = [
-    "black",
-    "red",
-    "blue",
-    "green",
-    "yellow",
-    "white",
-    "orange",
-    "brown",
-    "gray",
+    { from: 1000, to: Number.MAX_VALUE },
   ];
 
+  colors = [
+    'black',
+    'red',
+    'blue',
+    'green',
+    'yellow',
+    'white',
+    'orange',
+    'brown',
+    'gray',
+  ];
 
-  constructor(private SharedService: SharedService) {
-    this.productsChanged = new EventEmitter<string>();
+  priceFilter(range: any) {
+    if (range === 'all') {
+      this.productsChanged.emit([...this.products]);
+      return;
+    }
+
+    const filtered = this.products.filter(
+      p => p.finalPrice >= range.from && p.finalPrice <= range.to
+    );
+
+    this.productsChanged.emit(filtered);
   }
 
-  priceFilter(price: any) {
-    if (price == 'all') {
-      this.SharedService.currentAllProduct.subscribe((data: any) => {
-        this.products = data;
-        this.productsChanged.next(this.products);
-      });
-    }else{
-    this.SharedService.currentAllProduct.subscribe((data: any) => {
-      this.products = data.filter(
-        (item: any) =>
-          item.finalPrice >= price.from && item.finalPrice <= price.to
-      );
-      this.productsChanged.next(this.products);
-    });
-  }}
+  colorFilter(color: string) {
+    if (color === 'all') {
+      this.productsChanged.emit([...this.products]);
+      return;
+    }
 
-  colorFilter(color: any) {
-    if (color == 'all') {
-      this.SharedService.currentAllProduct.subscribe((data: any) => {
-        this.products = data;
-        this.productsChanged.next(this.products);
-      });
-    }else{
-    this.SharedService.currentAllProduct.subscribe((data: any) => {
-      this.products = data.filter(
-        (item: any) =>
-          item.colors.includes(color) == true
-      );
+    const filtered = this.products.filter(p =>
+      p.colors?.includes(color)
+    );
 
-      this.productsChanged.next(this.products);
-    });
-  }}
-
+    this.productsChanged.emit(filtered);
+  }
 }

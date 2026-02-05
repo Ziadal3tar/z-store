@@ -19,7 +19,6 @@ import { LoginComponent } from './component/login/login.component';
 import { SignupComponent } from './component/signup/signup.component';
 import { HomeComponent } from './component/home/home.component';
 import { NavbarComponent } from './component/navbar/navbar.component';
-import { MaleComponent } from './component/male/male.component';
 import { ProductsDetailsComponent } from './component/products-details/products-details.component';
 import { AdminComponent } from './component/admin/admin.component';
 import { UserService } from './services/user.service';
@@ -36,7 +35,6 @@ import { UserinfoComponent } from './component/userinfo/userinfo.component';
 import { FooterComponent } from './component/footer/footer.component';
 import { ResNavComponent } from './component/res-nav/res-nav.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { SroteSettingComponent } from './component/srote-setting/srote-setting.component';
 import { AddProductComponent } from './component/add-product/add-product.component';
 import { NgwWowModule } from 'ngx-wow';
 import { CouponsComponent } from './component/coupons/coupons.component';
@@ -59,7 +57,6 @@ import { CreateYourStoreComponent } from './component/create-your-store/create-y
     SignupComponent,
     HomeComponent,
     NavbarComponent,
-    MaleComponent,
     ProductsDetailsComponent,
     AdminComponent,
     CartComponent,
@@ -72,7 +69,6 @@ import { CreateYourStoreComponent } from './component/create-your-store/create-y
     UserinfoComponent,
     FooterComponent,
     ResNavComponent,
-    SroteSettingComponent,
     AddProductComponent,
     CouponsComponent,
     CategoryComponent,

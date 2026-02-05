@@ -16,28 +16,19 @@ import { LoginComponent } from './component/login/login.component';
 import { AdminComponent } from './component/admin/admin.component';
 import { SignupComponent } from './component/signup/signup.component';
 import { HomeComponent } from './component/home/home.component';
-import { MaleComponent } from './component/male/male.component';
 import { ProductsDetailsComponent } from './component/products-details/products-details.component';
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
   { path: 'login',canActivate: [LogoutGuard], component: LoginComponent },
-  { path: 'male', component: MaleComponent },
-  { path: 'all', component: AllproductComponent },
+  { path: 'Shop', component: AllproductComponent },
   { path: 'userinfo/settings', canActivate: [LogingurdGuard], component: UserinfoComponent },
   { path: 'userinfo/orders', canActivate: [LogingurdGuard], component: UserinfoComponent },
   { path: 'userinfo/settings', canActivate: [LogingurdGuard], component: UserinfoComponent },
   { path: 'userinfo/favorites', canActivate: [LogingurdGuard], component: UserinfoComponent },
   { path: 'userinfo/personal', canActivate: [LogingurdGuard], component: UserinfoComponent },
-  { path: 'productDetails/:id', component: ProductsDetailsComponent },
   { path: 'signup',canActivate: [LogoutGuard], component: SignupComponent },
   { path: 'admin', canActivate: [LogingurdGuard], component: AdminComponent },
-  { path: 'addProduct', canActivate: [LogingurdGuard], component: AddProductComponent },
-  { path: 'footer', component: FooterComponent },
-  { path: 'cart', canActivate: [LogingurdGuard], component: CartComponent },
-  { path: 'footer', canActivate: [LogingurdGuard], component: FooterComponent },
-  // { path: 'store', loadChildren: () => import('./stores/stores.module').then(m => m.StoresModule) }
-
 ];
 
 @NgModule({
