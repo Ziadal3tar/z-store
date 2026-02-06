@@ -21,6 +21,7 @@ export class AppComponent implements OnInit {
   //   if (localStorage.getItem('userToken')) {
   //     this.SharedService.updateAllData()
 
+
   //   }
 
 

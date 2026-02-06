@@ -35,6 +35,12 @@ export class LoginComponent implements OnInit {
         }, 10);
       }, 500);
     }, 2000);
+   alert(
+  'Login Info\n' +
+  'Email: admin@gmail.com\n' +
+  'Password: admin'
+);
+
   }
 
   logIn() {

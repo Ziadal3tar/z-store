@@ -2,7 +2,7 @@
 
 
 
-<div class=" w-100 h-100 bg-black position-fixed top-0 bg-opacity-75 p-5 " [ngClass]="{'d-none': !openProductDetails}"
+<div class=" w-100 h-100 bg-black position-fixed top-0 bg-opacity-75 p-0 p-sm-5 " [ngClass]="{'d-none': !openProductDetails}"
   style="z-index: 99;">
   <div class="container bg-white position-relative ">
     <div class=" position-absolute top-0 end-0 m-3 cursorPointer" (click)="productdetails.indexx = 0"><i
@@ -26,7 +26,7 @@
 
 <div class="row m-0  mt-5 p-5">
   <div
-    class=" col-xl-3 col-lg-3  col-md-4 col-sm-6 mb-2 d-flex align-items-center justify-content-center justify-content-md-start flex-column"
+    class=" col-xl-3 col-lg-3  col-md-4 col-sm-6 mb-5 d-flex align-items-center justify-content-center justify-content-md-start flex-column"
     *ngFor="let slide of products let i = index; trackBy: trackById">
     <div style="width: 225px; height: 300px;" class="  position-relative">
       <div class="rounded-3 position-relative rounded-3 overflow-hidden product" style=" width: 225px; height: 300px; ">

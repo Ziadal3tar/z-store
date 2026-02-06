@@ -102,6 +102,7 @@
   display: block;
 }
 
+
 /* Hover zoom on larger screens */
 @media (min-width: 992px) {
   .product-container .gallery .main-img:hover {
@@ -115,8 +116,15 @@
   .product-container .gallery .main-img {
     height: 260px;
   }
+  .product-container .gallery .main-img-wrapper {
+  padding-right: 40px !important;
 }
-
+}
+@media (max-width: 350px) {
+    .product-container .gallery .main-img-wrapper {
+  padding-right: 80px !important;
+  padding-left: 15px;
+}}
 /* Details area */
 .product-container .details {
   padding: 1.75rem;

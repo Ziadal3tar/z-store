@@ -29,6 +29,7 @@ const routes: Routes = [
   { path: 'userinfo/personal', canActivate: [LogingurdGuard], component: UserinfoComponent },
   { path: 'signup',canActivate: [LogoutGuard], component: SignupComponent },
   { path: 'admin', canActivate: [LogingurdGuard], component: AdminComponent },
+  { path: 'cart', canActivate: [LogingurdGuard], component: CartComponent },
 ];
 
 @NgModule({
