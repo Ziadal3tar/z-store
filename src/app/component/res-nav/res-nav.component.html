@@ -4,11 +4,10 @@
       class="fa-solid fa-xmark"></i>
   </div>
   <ul class=" text-decoration-none list-unstyled">
-    <li><a>HOME</a>
-    </li>
+   <li class="nav-item">
+          <a class="nav-link" routerLink="/home">HOME</a>
+        </li>
     <li class=" w-100 "><a routerLink="/Shop" class="d-flex justify-content-between w-100">SHOP </a>
-    </li>
-    <li><a>PLOG</a>
     </li>
     <li class=" w-100" *ngIf="userdata?.role == 'Admin'"><a routerLink="/admin"
         class="d-flex justify-content-between w-100">ADMIN</a>
