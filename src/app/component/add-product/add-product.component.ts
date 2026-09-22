@@ -29,8 +29,8 @@ interface CatalogItem {
 export class AddProductComponent
   implements OnInit, OnDestroy
 {
-Number(arg0: number):any {
-throw new Error('Method not implemented.');
+Number(value: unknown): number {
+  return globalThis.Number(value);
 }
   @Input() allData: any;
 

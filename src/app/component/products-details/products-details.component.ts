@@ -1,4 +1,3 @@
-
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -43,6 +42,7 @@ export class ProductsDetailsComponent
   routeMode = false;
 
   isLoading = false;
+  isDeleting = false;
   errorMessage = '';
 
   indexx = 0;
@@ -121,6 +121,20 @@ export class ProductsDetailsComponent
   }
 
   /**
+   * Check whether current user is admin.
+   *
+   * Supports both:
+   * - isAdmin: true
+   * - role: "admin"
+   */
+  get isAdmin(): boolean {
+    return (
+      this.userData?.isAdmin === true ||
+      String(this.userData?.role ?? '').toLowerCase() === 'admin'
+    );
+  }
+
+  /**
    * Load product by id.
    */
   private loadProduct(id: string): void {
@@ -160,6 +174,57 @@ export class ProductsDetailsComponent
   }
 
   /**
+   * Delete product.
+   *
+   * The UI will only expose this action to admins,
+   * but the backend authorization remains the real protection.
+   */
+  deleteProduct(): void {
+    const productId = this.productDetails?._id;
+
+    if (!this.isAdmin || !productId || this.isDeleting) {
+      return;
+    }
+
+    const productName = this.productDetails?.name ?? 'this product';
+
+    const confirmed = window.confirm(
+      `Delete "${productName}"?\n\nThis action cannot be undone.`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.isDeleting = true;
+    this.errorMessage = '';
+    this.message = '';
+    this.cdr.markForCheck();
+
+    this.subscriptions.add(
+      this.productsService.deleteProduct(String(productId)).subscribe({
+        next: () => {
+          this.isDeleting = false;
+          this.message = 'Product deleted successfully.';
+          this.cdr.markForCheck();
+
+          this.router.navigate(['/shop']);
+        },
+
+        error: (error) => {
+          this.isDeleting = false;
+
+          this.errorMessage =
+            error?.error?.message ??
+            'Could not delete this product.';
+
+          this.cdr.markForCheck();
+        },
+      })
+    );
+  }
+
+  /**
    * Add the product to Recently Viewed.
    */
   private trackRecentlyViewed(): void {
@@ -178,6 +243,7 @@ export class ProductsDetailsComponent
     this.message = '';
     this.isAdding = false;
     this.wishlistBusy = false;
+    this.isDeleting = false;
 
     this.selectedColor = this.productDetails?.colors?.[0] ?? '';
     this.selectedSize = this.productDetails?.sizes?.[0] ?? '';

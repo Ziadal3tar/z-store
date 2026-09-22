@@ -2,6 +2,7 @@ import { getAuthToken } from 'src/app/core/auth-token.util';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
+import { Observable } from 'rxjs';
 export interface ProductListResponse {
   message: string;
   products: any[];
@@ -81,8 +82,8 @@ export class ProductsService {
     return this.http.get(`${this.baseUrl}/getProduct/${id}`);
   }
 
-  deleteProductById(id: any) {
-    return this.http.delete(`${this.baseUrl}/deleteProductById/${id}`);
+  deleteProduct(id: any) {
+    return this.http.delete(`${this.baseUrl}/removeProduct/${id}`);
   }
 
   ifDeletedProduct(data: any) {
@@ -90,5 +91,20 @@ export class ProductsService {
   }
   getStoresProducts(id: any) {
     return this.http.get(`${this.baseUrl}/getStoresProducts/${id}`);
+  }
+
+    updateProduct(
+    productId: string,
+    formData: FormData
+  ): Observable<any> {
+    return this.http.put(
+      `${this.baseUrl}/updateProduct/${productId}`,
+      formData,
+      {
+        headers: {
+          authorization: `Bearer__${getAuthToken()}`,
+        },
+      }
+    );
   }
 }

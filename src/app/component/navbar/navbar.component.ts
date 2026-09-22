@@ -158,7 +158,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
             }
 
             this.productsService
-              .deleteProductById(item.productId)
+              .deleteProduct(item.productId)
               .pipe(takeUntil(this.destroy$))
               .subscribe();
           });
