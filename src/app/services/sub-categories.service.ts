@@ -1,18 +1,19 @@
+import { getAuthToken } from 'src/app/core/auth-token.util';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SubCategoriesService {
-  // private baseUrl = 'https://z-store-apis-b6lh.vercel.app/subCategory';
-  private baseUrl ='https://z-store-apis-b6lh.vercel.app/subCategory';
+  private baseUrl = `${environment.apiUrl}/subCategory`;
 
   constructor(private http: HttpClient) {}
   allSubCategory(): any {
     return this.http.get(`${this.baseUrl}/allSubCategory`, {
       headers: {
-        authorization: `Bearer__${localStorage.getItem('userToken')}`,
+        authorization: `Bearer__${getAuthToken()}`,
       },
     });
   }
@@ -23,7 +24,7 @@ export class SubCategoriesService {
       data,
       {
         headers: {
-          authorization: `Bearer__${localStorage.getItem('userToken')}`,
+          authorization: `Bearer__${getAuthToken()}`,
         },
       }
     );
@@ -31,14 +32,14 @@ export class SubCategoriesService {
   removeSubCategory(id: any): any {
     return this.http.delete(`${this.baseUrl}/removeSubCategory/${id}`, {
       headers: {
-        authorization: `Bearer__${localStorage.getItem('userToken')}`,
+        authorization: `Bearer__${getAuthToken()}`,
       },
     });
   }
   updateSubCategory(data: any, id: any): any {
     return this.http.put(`${this.baseUrl}/UpdateSubCategory/${id}`, data, {
       headers: {
-        authorization: `Bearer__${localStorage.getItem('userToken')}`,
+        authorization: `Bearer__${getAuthToken()}`,
       },
     });
   }

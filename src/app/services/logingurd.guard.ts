@@ -1,31 +1,25 @@
+import { getAuthToken } from 'src/app/core/auth-token.util';
 import { Injectable } from '@angular/core';
 import {
-  ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot, UrlTree, Router,
+  ActivatedRouteSnapshot,
+  CanActivate,
+  Router,
+  RouterStateSnapshot,
+  UrlTree,
 } from '@angular/router';
-import { Observable } from 'rxjs';
-import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LogingurdGuard implements CanActivate {
-  constructor(
-    private UserService:UserService,
-    private Router:Router,
-  ) {}
+  constructor(private readonly router: Router) {}
 
   canActivate(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot,
-  ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-
-    if (localStorage.getItem("userToken") == null) {
-      this.Router.navigate(['/login']);
-
-      return false;
-    }else{
-
-      return true;
-    }
+    _route: ActivatedRouteSnapshot,
+    _state: RouterStateSnapshot,
+  ): boolean | UrlTree {
+    return getAuthToken()
+      ? true
+      : this.router.createUrlTree(['/login']);
   }
 }

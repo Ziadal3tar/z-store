@@ -1,23 +1,19 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class StoresService {
-  private baseUrl = 'https://z-store-apis-b6lh.vercel.app/store';
+  private readonly baseUrl = `${environment.apiUrl}/store`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
-  getAnalytics(storeId: string): Observable<any> {
-  return this.http.get(`/api/stores/${storeId}/analytics`);
-}
- getStore(storeId: any) {
-    return this.http.get(`${this.baseUrl}/getStore/${storeId}`, {
-      headers: {
-        authorization: `Bearer__${localStorage.getItem('userToken')}`,
-      },
-    });
+  getAnalytics(storeId: string): Observable<unknown> {
+    return this.http.get(`${this.baseUrl}/${encodeURIComponent(storeId)}/analytics`);
+  }
+
+  getStore(storeId: string): Observable<unknown> {
+    return this.http.get(`${this.baseUrl}/getStore/${encodeURIComponent(storeId)}`);
   }
 }

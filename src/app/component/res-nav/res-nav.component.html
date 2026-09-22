@@ -1,18 +1,177 @@
-<div [ngClass]="[sideNav]" class="main w-25 h-100 bg-white position-fixed top-0 m-0 "
-  style="z-index: 99; scrollbar-gutter: stable; overflow-y: auto; transition: 1s; left: -80%; ">
-  <div (click)="back()" class=" w-100 position-relative d-flex fs-4 justify-content-end p-3 cursorPointer"> <i
-      class="fa-solid fa-xmark"></i>
+
+<!-- Backdrop -->
+<div
+  class="mobile-nav-backdrop"
+  [ngClass]="sideNav"
+  (click)="back()"
+  aria-hidden="true"
+></div>
+
+<!-- Mobile Navigation Drawer -->
+<aside
+  class="mobile-nav"
+  [ngClass]="sideNav"
+  aria-label="Mobile navigation"
+>
+  <!-- Header -->
+  <div class="mobile-nav-header">
+
+    <a
+      routerLink="/home"
+      class="mobile-brand"
+      (click)="back()"
+    >
+      <span>Z</span>-STORE
+    </a>
+
+    <button
+      type="button"
+      class="mobile-close-btn"
+      (click)="back()"
+      aria-label="Close menu"
+    >
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+
   </div>
-  <ul class=" text-decoration-none list-unstyled">
-   <li class="nav-item">
-          <a class="nav-link" routerLink="/home">HOME</a>
-        </li>
-    <li class=" w-100 "><a routerLink="/Shop" class="d-flex justify-content-between w-100">SHOP </a>
-    </li>
-    <li class=" w-100" *ngIf="userdata?.role == 'Admin'"><a routerLink="/admin"
-        class="d-flex justify-content-between w-100">ADMIN</a>
-    </li>
-    <li><a>CONTACT</a>
-    </li>
-  </ul>
-</div>
+
+  <!-- User section -->
+  <div
+    *ngIf="userData"
+    class="mobile-user-card"
+  >
+    <div
+      class="mobile-user-avatar"
+      [style.background-image]="
+        'url(' + (userData.profilePic || 'assets/images/user.png') + ')'
+      "
+    ></div>
+
+    <div class="mobile-user-info">
+      <span>WELCOME BACK</span>
+
+      <strong>
+        {{ userData.userName || 'User' }}
+      </strong>
+    </div>
+
+    <a
+      routerLink="/userinfo/settings"
+      (click)="back()"
+      class="mobile-user-arrow"
+      aria-label="Account settings"
+    >
+      <i class="fa-solid fa-chevron-right"></i>
+    </a>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="mobile-links">
+
+    <a
+      routerLink="/home"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      (click)="back()"
+    >
+      <span class="mobile-link-left">
+        <i class="fa-solid fa-house"></i>
+        <span>HOME</span>
+      </span>
+
+      <i class="fa-solid fa-chevron-right mobile-link-arrow"></i>
+    </a>
+
+    <a
+      routerLink="/Shop"
+      routerLinkActive="active"
+      (click)="back()"
+    >
+      <span class="mobile-link-left">
+        <i class="fa-solid fa-bag-shopping"></i>
+        <span>SHOP</span>
+      </span>
+
+      <i class="fa-solid fa-chevron-right mobile-link-arrow"></i>
+    </a>
+
+    <a
+      routerLink="/blog"
+      routerLinkActive="active"
+      (click)="back()"
+    >
+      <span class="mobile-link-left">
+        <i class="fa-regular fa-newspaper"></i>
+        <span>BLOG</span>
+      </span>
+
+      <i class="fa-solid fa-chevron-right mobile-link-arrow"></i>
+    </a>
+
+    <a
+      *ngIf="userData?.role == 'Admin'"
+      routerLink="/admin"
+      routerLinkActive="active"
+      (click)="back()"
+    >
+      <span class="mobile-link-left">
+        <i class="fa-solid fa-gauge-high"></i>
+        <span>ADMIN</span>
+      </span>
+
+      <i class="fa-solid fa-chevron-right mobile-link-arrow"></i>
+    </a>
+
+    <a
+      href="#contact"
+      (click)="back()"
+    >
+      <span class="mobile-link-left">
+        <i class="fa-regular fa-envelope"></i>
+        <span>CONTACT</span>
+      </span>
+
+      <i class="fa-solid fa-chevron-right mobile-link-arrow"></i>
+    </a>
+
+  </nav>
+
+  <!-- Bottom actions -->
+  <div class="mobile-nav-footer">
+
+    <ng-container *ngIf="userData; else mobileLogin">
+
+      <a
+        routerLink="/userinfo/settings"
+        class="mobile-footer-action"
+        (click)="back()"
+      >
+        <i class="fa-regular fa-user"></i>
+        <span>MY ACCOUNT</span>
+      </a>
+
+      <button
+        type="button"
+        class="mobile-footer-action logout-action"
+        (click)="logout()"
+      >
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        <span>SIGN OUT</span>
+      </button>
+
+    </ng-container>
+
+    <ng-template #mobileLogin>
+      <a
+        routerLink="/login"
+        class="mobile-footer-action login-action"
+        (click)="back()"
+      >
+        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+        <span>SIGN IN</span>
+      </a>
+    </ng-template>
+
+  </div>
+
+</aside>

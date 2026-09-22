@@ -1,88 +1,237 @@
-<div class="loginPage  d-flex align-items-center justify-content-center p-0" style="background-image: url(./assets/white-abstract-background_23-2148817571.jpg);">
+<div class="login-page">
+  <div class="auth-background"></div>
 
+  <div class="auth-shell">
+    <!-- Visual Side -->
+    <section class="visual-panel">
+      <div class="visual-overlay"></div>
 
-  <div class=" container d-flex align-items-center justify-content-center h-100  m-0 p-0">
-    <img src="./assets/Hello-rafiki (4).svg" [ngClass]="hello" class="wow fadeInDown w-50 vh-100 "
-      data-wow-delay="0.3s" alt="">
+      <div class="visual-content">
+        <div class="brand">
+          <span class="brand-mark">Z</span>
 
-
-
-
-
-    <div  [ngClass]="login"
-      class="div-login bg-transparent  d-flex align-items-center bg-black justify-content-center  rounded-3 w-100 h-75 overflow-hidden container ">
-      <div class="row w-100 h-100 flex-wrap-reverse p-0">
-        <div class="col-md-6 col-sm-12 row leftHalf d-flex flex-column align-items-center justify-content-center m-0 ">
-          <div class=" col-10 d-flex flex-column align-items-center justify-content-center ">
-            <p *ngIf="errs.message!=''" class="text-danger text-start w-100 mb-0">{{errs.message}}</p>
-
-            <div class="input-group mb-3  ">
-              <span class="input-group-text bg-white"><i
-                  class="fa-solid fa-user text-black rounded-5 d-flex align-items-center justify-content-center"></i></span>
-              <input type="text" class="form-control" placeholder="Email" [(ngModel)]="email">
-              <p *ngIf="errs.emailErr!=''" class="text-danger text-start w-100 mb-0">{{errs.emailErr}}</p>
-
-            </div>
-
-            <div class="input-group   ">
-              <span class="input-group-text bg-white"><i
-                  class="fa-solid fa-lock text-black  d-flex align-items-center justify-content-center"></i></span>
-              <input type="password" class="form-control" placeholder="Password" [(ngModel)]="password">
-              <span class="input-group-text bg-white"><i
-                  class="fa-solid fa-eye-low-vision cursorPointer"></i></span>
-              <p *ngIf="errs.passwordErr != ''" class="text-danger text-start w-100 mb-0">{{errs.passwordErr}}</p>
-
-            </div>
-            <div class=" col-12  d-flex align-items-center justify-content-between row mt-md-3 mt-sm-0 ">
-              <div class="col-lg-6 col-sm-12 d-flex p-0"><input disabled class=" my-auto me-1" type="checkbox">
-                <p class=" my-auto mb-1 opacity-75 ">Remember me</p>
-              </div>
-              <div class=" col-lg-6 col-sm-12 p-0 ">
-                <button class="w-100 btn btn-danger text-white"(click)="logIn()"><p *ngIf="!loading">LOGIN</p>
-                  <div *ngIf="loading" class="spinner-border text-white" style="width: 20px; height: 20px;" role="status"> </div>
-                </button>
-              </div>
-            </div>
-
-
-
-
-
-
-            <div
-              class="col-12  d-flex align-items-center justify-content-between mt-3">
-              <div class=" d-flex text-primary opacity-75 cursorPointer">
-                <p routerLink="/signup">Regester</p>
-              </div>
-              <div class=" d-flex opacity-75 cursorPointer">
-                <p>ForgetPassword?</p>
-              </div>
-            </div>
-            <div class=" d-flex align-items-center justify-content-center  col-12 row ">
-              <div class="col-5  ">
-                <div class=" line "></div>
-              </div>
-              <p class="col-2  my-auto  text-center p-0">OR</p>
-              <div class="col-5">
-                <div class=" line "></div>
-              </div>
-            </div>
-          </div>
-          <div class=" mt-2 col-6">
-            <div class=" d-flex my-2 w-100 ">
-              <span class="input-group-text m-0 rounded-start rounded-0 border-0 faceBookBg" ><i
-                  class="fa-brands fa-facebook text-white  d-flex align-items-center justify-content-center"></i></span>
-              <button class=" btn  rounded-end rounded-0 m-0 border-0 py-2 px-0 text-white w-100 faceBookBg">FACEBOOK</button>
-            </div>
-            <div class=" d-flex my-2  w-100 ">
-            </div>
+          <div>
+            <span class="brand-name">Z-STORE</span>
+            <span class="brand-caption">SHOP SMART. LIVE BETTER.</span>
           </div>
         </div>
-        <div class="col-md-6 col-sm-12  rightHalf d-flex align-items-center justify-content-center">
-          <img src="./assets/Gen Z-pana.svg" class=" w-75" alt="">
+
+        <div class="visual-main">
+          <span class="eyebrow">WELCOME BACK</span>
+
+          <h1>
+            Your shopping
+            <span>starts here.</span>
+          </h1>
+
+          <p>
+            Sign in to continue shopping, manage your orders,
+            and keep everything in one place.
+          </p>
+
+          <div class="visual-illustration">
+            <img
+              src="./assets/Gen Z-pana.svg"
+              alt="Shopping illustration"
+            />
+          </div>
+        </div>
+
+        <div class="visual-footer">
+          <span class="footer-dot"></span>
+          <span>Secure shopping experience</span>
         </div>
       </div>
-    </div>
+    </section>
 
+    <!-- Form Side -->
+    <section class="form-panel">
+      <div class="form-wrapper">
+
+        <div class="mobile-brand">
+          <span class="brand-mark">Z</span>
+          <span class="brand-name">Z-STORE</span>
+        </div>
+
+        <div class="form-header">
+          <span class="form-eyebrow">ACCOUNT LOGIN</span>
+
+          <h2>Welcome back</h2>
+
+          <p>
+            Enter your email and password to access your account.
+          </p>
+        </div>
+
+        <form class="login-form" (ngSubmit)="logIn()" novalidate>
+
+          <!-- Server Error -->
+          <div
+            *ngIf="errs.message"
+            class="server-error"
+            role="alert"
+          >
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span>{{ errs.message }}</span>
+          </div>
+
+          <!-- Email -->
+          <div class="field-group">
+            <label for="login-email">Email address</label>
+
+            <div
+              class="field-control"
+              [class.has-error]="errs.emailErr"
+              [class.has-value]="email"
+            >
+              <span class="field-icon">
+                <i class="fa-regular fa-envelope"></i>
+              </span>
+
+              <input
+                id="login-email"
+                name="email"
+                type="email"
+                autocomplete="email"
+                placeholder="Enter your email"
+                [(ngModel)]="email"
+                (ngModelChange)="clearFieldError('emailErr')"
+              />
+            </div>
+
+            <span
+              *ngIf="errs.emailErr"
+              class="field-error"
+            >
+              <i class="fa-solid fa-circle-exclamation"></i>
+              {{ errs.emailErr }}
+            </span>
+          </div>
+
+          <!-- Password -->
+          <div class="field-group">
+            <label for="login-password">Password</label>
+
+            <div
+              class="field-control"
+              [class.has-error]="errs.passwordErr"
+              [class.has-value]="password"
+            >
+              <span class="field-icon">
+                <i class="fa-solid fa-lock"></i>
+              </span>
+
+              <input
+                id="login-password"
+                name="password"
+                [type]="passwordVisible ? 'text' : 'password'"
+                autocomplete="current-password"
+                placeholder="Enter your password"
+                [(ngModel)]="password"
+                (ngModelChange)="clearFieldError('passwordErr')"
+              />
+
+              <button
+                type="button"
+                class="password-toggle"
+                aria-label="Toggle password visibility"
+                (click)="togglePassword()"
+              >
+                <i
+                  [class]="passwordVisible
+                    ? 'fa-regular fa-eye'
+                    : 'fa-regular fa-eye-slash'"
+                ></i>
+              </button>
+            </div>
+
+            <span
+              *ngIf="errs.passwordErr"
+              class="field-error"
+            >
+              <i class="fa-solid fa-circle-exclamation"></i>
+              {{ errs.passwordErr }}
+            </span>
+          </div>
+
+          <!-- Options -->
+          <div class="form-options">
+            <label class="remember-option">
+              <input
+                type="checkbox"
+                [checked]="false"
+                disabled
+              />
+
+              <span class="custom-checkbox"></span>
+              <span>Remember me</span>
+            </label>
+
+            <button
+              type="button"
+              class="forgot-link"
+            >
+              Forgot password?
+            </button>
+          </div>
+
+          <!-- Submit -->
+          <button
+            type="submit"
+            class="login-button"
+            [disabled]="loading"
+          >
+            <span *ngIf="!loading">
+              LOGIN
+              <i class="fa-solid fa-arrow-right"></i>
+            </span>
+
+            <span
+              *ngIf="loading"
+              class="loading-state"
+            >
+              <span class="spinner"></span>
+              Signing in...
+            </span>
+          </button>
+
+        </form>
+
+        <!-- Divider -->
+        <div class="divider">
+          <span></span>
+          <p>OR</p>
+          <span></span>
+        </div>
+
+        <!-- Social -->
+        <div class="social-section">
+          <button
+            type="button"
+            class="social-button"
+            disabled
+          >
+            <i class="fa-brands fa-facebook-f"></i>
+            <span>Continue with Facebook</span>
+          </button>
+        </div>
+
+        <!-- Register -->
+        <div class="register-section">
+          <span>Don't have an account?</span>
+
+          <a routerLink="/signup">
+            Create account
+            <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </div>
+
+        <div class="form-footer">
+          <span>© Z-STORE</span>
+          <span>Secure &amp; reliable shopping</span>
+        </div>
+
+      </div>
+    </section>
   </div>
 </div>

@@ -1,182 +1,406 @@
-import { Component, Input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
+import { Subject, takeUntil } from 'rxjs';
+
 import { CategoryService } from './../../services/category.service';
-import { SharedService } from 'src/app/services/shared.service';
+import { CatalogStateService } from 'src/app/core/state/catalog-state.service';
+
+interface Category {
+  _id?: string;
+  name?: string;
+  image?: string;
+  createdBy?: {
+    userName?: string;
+  };
+}
 
 @Component({
   selector: 'app-category',
   templateUrl: './category.component.html',
   styleUrls: ['./category.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CategoryComponent {
+export class CategoryComponent
+  implements OnInit, OnDestroy
+{
+  @Input() allData: any;
+
   loading = false;
   openEdit = false;
 
-  allCategories: any[] = [];
-  categoryName: string = '';
-  categoryImg: File | null = null;
-  file: any;
-  newCategoryName: string = '';
-  categoryId: any;
-  editPreviewName: string = '';
-  placeholderImg = 'https://via.placeholder.com/150?text=No+Image';
+  allCategories: Category[] = [];
 
-  // pagination
+  categoryName = '';
+  categoryImg: File | null = null;
+
+  newCategoryName = '';
+  categoryId: string | null = null;
+
+  editPreviewName = '';
+  selectedCategoryImage = '';
+
+  readonly placeholderImg =
+    'https://via.placeholder.com/150?text=No+Image';
+
   itemsPerPage = 10;
   currentPage = 1;
   totalPages = 1;
 
-  @Input() allData: any;
+  private readonly destroy$ =
+    new Subject<void>();
+Math: any;
 
   constructor(
-    private CategoryService: CategoryService,
-    private SharedService: SharedService
+    private readonly categoryService: CategoryService,
+    private readonly catalogState: CatalogStateService,
+    private readonly cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    this.SharedService.currentAllCategories.subscribe((data: any) => {
-      this.allCategories = Array.isArray(data) ? data : [];
-      console.log(data);
+    this.catalogState.categories$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data: Category[]) => {
+        this.allCategories = Array.isArray(data)
+          ? data
+          : [];
 
-      this.resetPagination();
-    });
+        this.resetPagination();
+        this.cdr.markForCheck();
+      });
+
+    this.catalogState.refreshCategories();
   }
 
-  /***** upload handler (supports add/edit) *****/
-  upload(event: any, mode: 'add' | 'edit') {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
-    if (mode === 'add') {
-      this.categoryImg = file;
-    } else {
-      this.categoryImg = file;
-      this.editPreviewName = file.name;
+  upload(
+    event: Event,
+    mode: 'add' | 'edit'
+  ): void {
+    const input =
+      event.target as HTMLInputElement;
+
+    const file = input.files?.[0];
+
+    if (!file) {
+      return;
     }
+
+    if (!file.type.startsWith('image/')) {
+      input.value = '';
+      return;
+    }
+
+    this.categoryImg = file;
+
+    if (mode === 'edit') {
+      this.editPreviewName = file.name;
+    } else {
+      this.editPreviewName = '';
+    }
+
+    this.cdr.markForCheck();
   }
 
-  /***** Add category *****/
-  addCategory() {
-    if (!this.categoryName?.trim()) return;
+  addCategory(): void {
+    const name =
+      this.categoryName.trim();
+
+    if (!name || this.loading) {
+      return;
+    }
+
     this.loading = true;
-    const formdata = new FormData();
-    if (this.categoryImg) formdata.append('image', this.categoryImg);
-    formdata.append('name', this.categoryName);
+    this.cdr.markForCheck();
 
-    this.CategoryService.addCategory(formdata).subscribe({
-      next: (data: any) => {
-        if (data.message === 'created') {
-          this.SharedService.updateCategories();
-          this.categoryName = '';
-          this.categoryImg = null;
-        }
-        this.loading = false;
-      },
-      error: () => { this.loading = false; }
-    });
+    const formData = new FormData();
+
+    if (this.categoryImg) {
+      formData.append(
+        'image',
+        this.categoryImg
+      );
+    }
+
+    formData.append('name', name);
+
+    this.categoryService
+      .addCategory(formData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data: any) => {
+          if (data?.message === 'created') {
+            this.catalogState.refreshCategories();
+
+            this.categoryName = '';
+            this.categoryImg = null;
+
+            this.cdr.markForCheck();
+          }
+
+          this.loading = false;
+          this.cdr.markForCheck();
+        },
+
+        error: (error: any) => {
+          console.error(
+            'Add category failed:',
+            error
+          );
+
+          this.loading = false;
+          this.cdr.markForCheck();
+        },
+      });
   }
 
-  /***** Remove category *****/
-  removeCategory(id: any) {
-    if (!confirm('Are you sure you want to delete this category?')) return;
+  removeCategory(
+    id?: string
+  ): void {
+    if (!id || this.loading) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this category?'
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
     this.loading = true;
-    this.CategoryService.removeCategory(id).subscribe({
-      next: (data: any) => {
-        if (data.message === 'Deleted') {
-          this.SharedService.updateCategories();
-        }
-        this.loading = false;
-      },
-      error: () => { this.loading = false; }
-    });
+    this.cdr.markForCheck();
+
+    this.categoryService
+      .removeCategory(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data: any) => {
+          if (data?.message === 'Deleted') {
+            this.catalogState.refreshCategories();
+          }
+
+          this.loading = false;
+          this.cdr.markForCheck();
+        },
+
+        error: (error: any) => {
+          console.error(
+            'Remove category failed:',
+            error
+          );
+
+          this.loading = false;
+          this.cdr.markForCheck();
+        },
+      });
   }
 
-  /***** Open edit modal and set values *****/
-  openEditModal(item: any) {
+  openEditModal(
+    item: Category
+  ): void {
+    if (!item?._id) {
+      return;
+    }
+
     this.openEdit = true;
+
     this.categoryId = item._id;
-    this.newCategoryName = item.name;
-    this.editPreviewName = item.image ? '' : '';
+    this.newCategoryName =
+      item.name || '';
+
+    this.selectedCategoryImage =
+      item.image || '';
+
     this.categoryImg = null;
+    this.editPreviewName = '';
+
+    this.cdr.markForCheck();
   }
 
-  closeEditModal() {
+  closeEditModal(): void {
     this.openEdit = false;
     this.categoryId = null;
+
     this.newCategoryName = '';
     this.categoryImg = null;
     this.editPreviewName = '';
+    this.selectedCategoryImage = '';
+
+    this.cdr.markForCheck();
   }
 
-  /***** Edit category *****/
-  editCategory() {
-    if (!this.categoryId) return;
+  editCategory(): void {
+    if (
+      !this.categoryId ||
+      !this.newCategoryName.trim() ||
+      this.loading
+    ) {
+      return;
+    }
+
     this.loading = true;
-    const formdata = new FormData();
-    if (this.categoryImg) formdata.append('image', this.categoryImg);
-    formdata.append('name', this.newCategoryName || '');
+    this.cdr.markForCheck();
 
-    this.CategoryService.updateCategory(formdata, this.categoryId).subscribe({
-      next: (data: any) => {
-        if (data.message === 'Category is updated') {
-          this.SharedService.updateCategories();
-          this.closeEditModal();
-        }
-        this.loading = false;
-      },
-      error: () => { this.loading = false; }
-    });
+    const formData = new FormData();
+
+    if (this.categoryImg) {
+      formData.append(
+        'image',
+        this.categoryImg
+      );
+    }
+
+    formData.append(
+      'name',
+      this.newCategoryName.trim()
+    );
+
+    this.categoryService
+      .updateCategory(
+        formData,
+        this.categoryId
+      )
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data: any) => {
+          if (
+            data?.message ===
+            'Category is updated'
+          ) {
+            this.catalogState.refreshCategories();
+            this.closeEditModal();
+          }
+
+          this.loading = false;
+          this.cdr.markForCheck();
+        },
+
+        error: (error: any) => {
+          console.error(
+            'Update category failed:',
+            error
+          );
+
+          this.loading = false;
+          this.cdr.markForCheck();
+        },
+      });
   }
 
-  /***** Pagination helpers *****/
-  resetPagination() {
+  resetPagination(): void {
     this.currentPage = 1;
-    this.totalPages = Math.max(1, Math.ceil((this.allCategories?.length || 0) / this.itemsPerPage));
+
+    this.totalPages = Math.max(
+      1,
+      Math.ceil(
+        this.allCategories.length /
+          this.itemsPerPage
+      )
+    );
   }
 
-  pagedCategories() {
-    if (!this.allCategories) return [];
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    const end = start + this.itemsPerPage;
-    return this.allCategories.slice(start, end);
+  get pagedCategories(): Category[] {
+    const start =
+      (this.currentPage - 1) *
+      this.itemsPerPage;
+
+    const end =
+      start + this.itemsPerPage;
+
+    return this.allCategories.slice(
+      start,
+      end
+    );
   }
 
-  get currentPageStart() {
-    return (this.currentPage - 1) * this.itemsPerPage;
+  get currentPageStart(): number {
+    return (
+      (this.currentPage - 1) *
+      this.itemsPerPage
+    );
   }
 
-  goToPage(page: number) {
-    if (page < 1) page = 1;
-    if (page > this.totalPages) page = this.totalPages;
-    this.currentPage = page;
+  goToPage(page: number): void {
+    if (!this.totalPages) {
+      return;
+    }
+
+    this.currentPage = Math.min(
+      Math.max(page, 1),
+      this.totalPages
+    );
+
+    this.cdr.markForCheck();
   }
 
-  prevPage() {
-    if (this.currentPage > 1) this.currentPage--;
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.cdr.markForCheck();
+    }
   }
 
-  nextPage() {
-    if (this.currentPage < this.totalPages) this.currentPage++;
+  nextPage(): void {
+    if (
+      this.currentPage <
+      this.totalPages
+    ) {
+      this.currentPage++;
+      this.cdr.markForCheck();
+    }
   }
 
-  /**
-   * Return array of pages to show (smart: shows max 7 with current in center)
-   */
   pagesToShow(): number[] {
     const maxShow = 7;
-    const pages: number[] = [];
-    const total = this.totalPages;
-    if (total <= maxShow) {
-      for (let i = 1; i <= total; i++) pages.push(i);
-      return pages;
+
+    if (this.totalPages <= maxShow) {
+      return Array.from(
+        {
+          length: this.totalPages,
+        },
+        (_, index) => index + 1
+      );
     }
 
-    let start = Math.max(1, this.currentPage - Math.floor(maxShow / 2));
-    let end = start + maxShow - 1;
-    if (end > total) {
-      end = total;
-      start = end - maxShow + 1;
+    let start = Math.max(
+      1,
+      this.currentPage -
+        Math.floor(maxShow / 2)
+    );
+
+    let end =
+      start + maxShow - 1;
+
+    if (end > this.totalPages) {
+      end = this.totalPages;
+
+      start =
+        end - maxShow + 1;
     }
-    for (let p = start; p <= end; p++) pages.push(p);
-    return pages;
+
+    return Array.from(
+      {
+        length: end - start + 1,
+      },
+      (_, index) => start + index
+    );
+  }
+
+  trackByCategory(
+    index: number,
+    item: Category
+  ): string | number {
+    return item?._id ?? index;
   }
 }

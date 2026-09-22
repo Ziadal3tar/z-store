@@ -1,75 +1,200 @@
-<div class="product-form-card">
-  <h3>{{ isEditMode ? 'Edit product' : 'Add product' }}</h3>
-
-  <form (ngSubmit)="submit()" [formGroup]="form" class="form">
-    <div class="row">
-      <label>Name *</label>
-      <input formControlName="name" type="text" />
-      <small *ngIf="form.get('name')?.touched && form.get('name')?.invalid" class="err">Name required</small>
+<div class="product-form-page">
+  <div class="form-header">
+    <div>
+      <p class="eyebrow">Catalog management</p>
+      <h1>{{ isEditMode ? 'Edit product' : 'Add a product' }}</h1>
+      <p class="subtitle">Keep product information complete so customers can find and trust what they buy.</p>
     </div>
+    <span class="mode-pill">{{ isEditMode ? 'Editing' : 'New product' }}</span>
+  </div>
 
-    <div class="row">
-      <label>Description</label>
-      <textarea formControlName="description" rows="4"></textarea>
-    </div>
+  <div class="form-alert" *ngIf="error">
+    <i class="fa-solid fa-circle-exclamation"></i>
+    <span>{{ error }}</span>
+  </div>
 
-    <div class="row two-cols">
-      <div>
-        <label>Price *</label>
-        <input type="number" formControlName="price" />
-      </div>
-      <div>
-        <label>Discount (%)</label>
-        <input type="number" formControlName="discount" />
-      </div>
-    </div>
-
-    <div class="row two-cols">
-      <div>
-        <label>Total Items *</label>
-        <input type="number" formControlName="totalItems" />
-      </div>
-      <div>
-        <label>Category</label>
-        <input type="text" formControlName="categoryId" placeholder="category id or pick from list" />
-      </div>
-    </div>
-
-    <div class="row">
-      <label>Tags (comma separated)</label>
-      <input formControlName="tags" />
-    </div>
-
-    <div class="row">
-      <label>Attributes</label>
-      <div class="attrs" formArrayName="attributes">
-        <div class="attr-row" *ngFor="let ctrl of attributes.controls; let i = index" [formGroupName]="i">
-          <input formControlName="key" placeholder="Key (e.g. size)" />
-          <input formControlName="value" placeholder="Value (e.g. M)" />
-          <button type="button" class="btn small danger" (click)="removeAttribute(i)">Remove</button>
+  <div class="form-layout">
+    <form [formGroup]="form" (ngSubmit)="submit()" class="product-form" novalidate>
+      <section class="form-section">
+        <div class="section-heading">
+          <div>
+            <h2>Basic information</h2>
+            <p>These details appear across product cards and the product page.</p>
+          </div>
         </div>
 
-        <button type="button" class="btn small" (click)="addAttribute()">Add attribute</button>
-      </div>
-    </div>
+        <div class="field-grid">
+          <label class="field full">
+            <span>Product name <b>*</b></span>
+            <input formControlName="name" type="text" maxlength="120" placeholder="e.g. Premium Leather Backpack" />
+            <small *ngIf="form.get('name')?.touched && form.get('name')?.invalid">Enter a name between 2 and 120 characters.</small>
+          </label>
 
-    <div class="row">
-      <label>Images (max {{MAX_IMAGES}})</label>
-      <input type="file" (change)="onFilesSelected($event)" multiple accept="image/*" />
-      <div class="previews">
-        <div class="preview" *ngFor="let p of previews; let i = index">
-          <img [src]="p" alt="preview" />
-          <button type="button" class="btn small danger" (click)="removeImage(i)">Remove</button>
+          <label class="field full">
+            <span>Description</span>
+            <textarea formControlName="description" rows="5" maxlength="2000" placeholder="Describe the product, materials, fit, or use cases..."></textarea>
+            <small class="helper">{{ form.get('description')?.value?.length || 0 }}/2000</small>
+          </label>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="section-heading">
+          <div>
+            <h2>Pricing & inventory</h2>
+            <p>Use numeric values only; discount is entered as a percentage.</p>
+          </div>
+        </div>
+
+        <div class="field-grid three-cols">
+          <label class="field">
+            <span>Price <b>*</b></span>
+            <div class="input-prefix"><span>$</span><input type="number" min="0" step="0.01" formControlName="price" /></div>
+          </label>
+
+          <label class="field">
+            <span>Discount</span>
+            <div class="input-suffix"><input type="number" min="0" max="100" step="1" formControlName="discount" /><span>%</span></div>
+          </label>
+
+          <label class="field">
+            <span>Stock <b>*</b></span>
+            <input type="number" min="0" step="1" formControlName="totalItems" />
+          </label>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="section-heading">
+          <div>
+            <h2>Classification</h2>
+            <p>Structured metadata makes filtering and discovery easier.</p>
+          </div>
+          <span *ngIf="loadingOptions" class="loading-label"><i class="fa-solid fa-spinner fa-spin"></i> Loading options</span>
+        </div>
+
+        <div class="field-grid two-cols">
+          <label class="field">
+            <span>Category <b>*</b></span>
+            <select formControlName="categoryId">
+              <option [ngValue]="null">Select category</option>
+              <option *ngFor="let category of categories" [value]="category.id">{{ category.name }}</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Subcategory</span>
+            <select formControlName="subCategoryId">
+              <option [ngValue]="null">Select subcategory</option>
+              <option *ngFor="let item of filteredSubCategories" [value]="item.id">{{ item.name }}</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Brand</span>
+            <select formControlName="brandId">
+              <option [ngValue]="null">Select brand</option>
+              <option *ngFor="let brand of brands" [value]="brand.id">{{ brand.name }}</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Audience</span>
+            <select formControlName="gender">
+              <option value="All">All</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </label>
+
+          <label class="field full">
+            <span>Tags</span>
+            <input formControlName="tags" type="text" placeholder="summer, leather, travel, premium" />
+            <small class="helper">Separate tags with commas.</small>
+          </label>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <div class="section-heading">
+          <div>
+            <h2>Attributes</h2>
+            <p>Add reusable properties such as size, material, color, or dimensions.</p>
+          </div>
+          <button type="button" class="secondary-button" (click)="addAttribute()"><i class="fa-solid fa-plus"></i> Add attribute</button>
+        </div>
+
+        <div formArrayName="attributes" class="attribute-list">
+          <div class="attribute-row" *ngFor="let ctrl of attributes.controls; let i = index" [formGroupName]="i">
+            <input formControlName="key" placeholder="Key (e.g. Material)" />
+            <input formControlName="value" placeholder="Value (e.g. Genuine leather)" />
+            <button type="button" class="icon-button danger" (click)="removeAttribute(i)" aria-label="Remove attribute"><i class="fa-solid fa-trash"></i></button>
+          </div>
+
+          <div class="empty-attributes" *ngIf="attributes.length === 0">
+            <i class="fa-solid fa-sliders"></i>
+            <span>No attributes added yet.</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="form-actions">
+        <button type="button" class="secondary-button" (click)="cancel()">Cancel</button>
+        <button type="submit" class="primary-button" [disabled]="loading || loadingOptions">
+          <i *ngIf="loading" class="fa-solid fa-spinner fa-spin"></i>
+          {{ loading ? 'Saving...' : (isEditMode ? 'Save changes' : 'Create product') }}
+        </button>
+      </div>
+    </form>
+
+    <aside class="media-panel">
+      <div class="media-card">
+        <div class="media-heading">
+          <div>
+            <h2>Product media</h2>
+            <p>{{ imageCount }}/{{ MAX_IMAGES }} images</p>
+          </div>
+          <i class="fa-regular fa-image"></i>
+        </div>
+
+        <label class="upload-zone" [class.disabled]="imageCount >= MAX_IMAGES">
+          <input type="file" multiple accept="image/jpeg,image/png,image/webp,image/avif" (change)="onFilesSelected($event)" [disabled]="imageCount >= MAX_IMAGES" />
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+          <strong>Upload product images</strong>
+          <span>JPG, PNG, WEBP or AVIF · up to 5MB each</span>
+        </label>
+
+        <div class="upload-alert" *ngIf="uploadError">
+          <i class="fa-solid fa-triangle-exclamation"></i>{{ uploadError }}
+        </div>
+
+        <div class="image-group" *ngIf="existingImagePreviews.length">
+          <div class="group-label">Current images</div>
+          <div class="image-grid">
+            <div class="image-tile existing" *ngFor="let image of existingImagePreviews; let i = index">
+              <img [src]="image" [alt]="'Current product image ' + (i + 1)" loading="lazy" />
+              <span>Current</span>
+            </div>
+          </div>
+          <p class="media-note">Existing images are kept because the supplied backend does not expose a verified image-delete endpoint.</p>
+        </div>
+
+        <div class="image-group" *ngIf="newImagePreviews.length">
+          <div class="group-label">New images</div>
+          <div class="image-grid">
+            <div class="image-tile" *ngFor="let image of newImagePreviews; let i = index">
+              <img [src]="image" [alt]="'New product image ' + (i + 1)" />
+              <button type="button" class="remove-media" (click)="removeNewImage(i)" aria-label="Remove image"><i class="fa-solid fa-xmark"></i></button>
+              <span *ngIf="existingImagePreviews.length === 0 && i === 0">Main image</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="media-empty" *ngIf="imageCount === 0">
+          <img src="assets/placeholder.png" alt="Product placeholder" />
+          <p>Your first product image will appear here.</p>
         </div>
       </div>
-    </div>
-
-    <div class="row actions">
-      <div class="err" *ngIf="error">{{ error }}</div>
-      <button type="submit" class="btn primary" [disabled]="loading">
-        {{ loading ? 'Saving...' : (isEditMode ? 'Save changes' : 'Add product') }}
-      </button>
-      <button type="button" class="btn outline" (click)="cancel()">Cancel</button>
-    </div>
-  </form>
+    </aside>
+  </div>
 </div>

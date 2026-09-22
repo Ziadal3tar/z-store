@@ -1,230 +1,730 @@
-<app-navbar style="z-index: 10;" [cartlength]="cartlength" class="position-absolute top-0 end-0 start-0 "></app-navbar>
 
-<div class=" w-100 h-100 bg-black position-fixed top-0 bg-opacity-75 p-5 " [ngClass]="{'d-none': !openProductDetails}"
-  style="z-index: 9;">
-  <div class="container bg-white position-relative scrollStyle">
-    <div class=" position-absolute top-0 end-0 m-3 cursorPointer"><i (click)="openProductDetails = !openProductDetails"
-        class="bi bi-x-circle-fill"></i></div>
-    <app-products-details style="z-index: 99;" [productDetails]="productDetails"></app-products-details>
-  </div>
-</div>
+<app-navbar
+  [cartlength]="cartlength"
+  class="site-header"
+>
+</app-navbar>
 
-<div class=" w-100">
-  <div id="carouselExampleFade" class="carousel slide carousel-fade" data-bs-ride="carousel">
-    <div class="carousel-inner">
-      <div class="carousel-item active">
-        <div class=" position-relative imgCenter"
-          style="width: 100%; height: 100vh; background-image: url('https://preview.colorlib.com/theme/cozastore/images/slide-03.jpg');">
-          <div class=" position-relative top-50 w-50 start-0 row">
-            <div class=" d-flex flex-column align-items-start justify-content-between offset-3">
-              <p class=" line1 ">Men New-Season</p>
-              <p class="line2 fa text-capitalize">Jackets & Coats</p>
-              <button class="btnStyle m-0" routerLink="/Shop"><span>SHOP NOW</span></button>
-            </div>
+<main class="home-page">
+
+  <!-- =========================
+       HERO
+  ========================== -->
+
+  <section
+    class="hero"
+    aria-labelledby="hero-title"
+  >
+
+    <div class="hero-background">
+
+      <ng-container
+        *ngFor="let slide of heroSlides; let i = index"
+      >
+        <div
+          class="hero-slide"
+          [class.is-active]="i === currentHero"
+          [style.backgroundImage]="'url(' + slide.image + ')'"
+          aria-hidden="true"
+        ></div>
+      </ng-container>
+
+      <div class="hero-gradient"></div>
+      <div class="hero-noise"></div>
+
+    </div>
+
+    <div class="container hero-container">
+
+      <div class="hero-content">
+
+        <div class="hero-copy">
+
+          <div class="hero-eyebrow">
+            <span class="hero-line"></span>
+
+            <span>
+              {{ heroSlides[currentHero].eyebrow }}
+            </span>
+          </div>
+
+          <h1 id="hero-title">
+            {{ heroSlides[currentHero].title }}
+          </h1>
+
+          <p class="hero-description">
+            {{ heroSlides[currentHero].subtitle }}
+          </p>
+
+          <div class="hero-actions">
+
+            <a
+              class="hero-primary"
+              routerLink="/shop"
+            >
+              <span>Explore collection</span>
+              <i class="bi bi-arrow-up-right"></i>
+            </a>
+
+            <button
+              type="button"
+              class="hero-secondary"
+              (click)="nextHero()"
+            >
+              <span>Next story</span>
+              <i class="bi bi-arrow-right"></i>
+            </button>
+
+          </div>
+
+        </div>
+
+        <!-- Hero navigation -->
+        <div class="hero-navigation">
+
+          <button
+            type="button"
+            class="hero-arrow"
+            (click)="previousHero()"
+            aria-label="Previous story"
+          >
+            <i class="bi bi-arrow-left"></i>
+          </button>
+
+          <div class="hero-pagination">
+
+            <button
+              *ngFor="let slide of heroSlides; let i = index"
+              type="button"
+              class="hero-pagination-item"
+              [class.active]="i === currentHero"
+              (click)="selectHero(i)"
+              [attr.aria-label]="'Go to story ' + (i + 1)"
+            >
+              <span>
+                {{ slide.accent }}
+              </span>
+            </button>
+
+          </div>
+
+          <button
+            type="button"
+            class="hero-arrow"
+            (click)="nextHero()"
+            aria-label="Next story"
+          >
+            <i class="bi bi-arrow-right"></i>
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- Hero bottom information -->
+      <div class="hero-bottom">
+
+        <span>
+          SCROLL TO DISCOVER
+        </span>
+
+        <span class="hero-scroll-line"></span>
+
+        <span>
+          01 — 03
+        </span>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- =========================
+       TRUST STRIP
+  ========================== -->
+
+  <section class="trust-strip">
+
+    <div class="container trust-grid">
+
+      <div class="trust-item">
+        <div class="trust-icon">
+          <i class="bi bi-truck"></i>
+        </div>
+
+        <div>
+          <strong>Fast delivery</strong>
+          <span>Clear delivery information</span>
+        </div>
+      </div>
+
+      <div class="trust-item">
+        <div class="trust-icon">
+          <i class="bi bi-shield-check"></i>
+        </div>
+
+        <div>
+          <strong>Secure shopping</strong>
+          <span>Protected account & order flow</span>
+        </div>
+      </div>
+
+      <div class="trust-item">
+        <div class="trust-icon">
+          <i class="bi bi-stars"></i>
+        </div>
+
+        <div>
+          <strong>Curated products</strong>
+          <span>Focused collections for you</span>
+        </div>
+      </div>
+
+      <div class="trust-item">
+        <div class="trust-icon">
+          <i class="bi bi-headset"></i>
+        </div>
+
+        <div>
+          <strong>Customer support</strong>
+          <span>Clear post-purchase assistance</span>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- =========================
+       COLLECTIONS
+  ========================== -->
+
+  <section class="home-section collections-section">
+
+    <div class="container">
+
+      <div class="section-header">
+
+        <div>
+          <span class="section-eyebrow">
+            EXPLORE
+          </span>
+
+          <h2>
+            Shop by collection
+          </h2>
+
+          <p>
+            Start with a collection and discover pieces
+            selected for everyday style.
+          </p>
+        </div>
+
+        <a
+          routerLink="/shop"
+          class="section-link"
+        >
+          <span>View all</span>
+          <i class="bi bi-arrow-up-right"></i>
+        </a>
+
+      </div>
+
+      <div class="collection-grid">
+
+        <button
+          *ngFor="let collection of collections"
+          type="button"
+          class="collection-card"
+          (click)="shopCollection(collection.query)"
+        >
+
+          <img
+            [src]="collection.image"
+            [alt]="collection.title"
+            loading="lazy"
+            decoding="async"
+          />
+
+          <span class="collection-gradient"></span>
+
+          <span class="collection-number">
+            {{ collections.indexOf(collection) + 1 | number:'2.0' }}
+          </span>
+
+          <span class="collection-content">
+
+            <small>
+              {{ collection.subtitle }}
+            </small>
+
+            <strong>
+              {{ collection.title }}
+            </strong>
+
+            <span class="collection-action">
+              Explore
+              <i class="bi bi-arrow-up-right"></i>
+            </span>
+
+          </span>
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- =========================
+       SPECIAL OFFERS
+  ========================== -->
+
+  <section class="home-section offers-section">
+
+    <div class="container">
+
+      <div class="section-header">
+
+        <div>
+          <span class="section-eyebrow">
+            JUST IN
+          </span>
+
+          <h2>
+            Latest offers
+          </h2>
+
+          <p>
+            Current picks and offers available in the store.
+          </p>
+        </div>
+
+        <a
+          routerLink="/shop"
+          class="section-link"
+        >
+          <span>See all products</span>
+          <i class="bi bi-arrow-up-right"></i>
+        </a>
+
+      </div>
+
+      <!-- Loading -->
+      <div
+        class="offer-grid"
+        *ngIf="loadingOffers"
+      >
+        <div
+          class="product-skeleton"
+          *ngFor="let item of [1, 2, 3, 4]"
+        >
+          <div class="skeleton-image"></div>
+
+          <div class="skeleton-content">
+            <span></span>
+            <span></span>
+            <span></span>
           </div>
         </div>
       </div>
-      <div class="carousel-item ">
-        <div class=" position-relative imgCenter"
-          style="width: 100%; height: 100vh; background-image: url('https://preview.colorlib.com/theme/cozastore/images/slide-02.jpg');">
-          <div class=" position-relative top-50 w-50 start-0 row">
-            <div class=" d-flex flex-column align-items-start justify-content-between offset-3">
-              <p class="line1">Men Collection 2018</p>
-              <p class="line2 fa text-capitalize">New arrivals</p>
-              <button class="btnStyle m-0" routerLink="/Shop"><span>SHOP NOW</span></button>
+
+      <!-- Error -->
+      <div
+        class="state-card state-error"
+        *ngIf="!loadingOffers && offersError"
+      >
+
+        <div class="state-card-icon">
+          <i class="bi bi-cloud-slash"></i>
+        </div>
+
+        <div>
+          <strong>
+            We couldn't load the offers
+          </strong>
+
+          <p>
+            {{ offersError }}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          (click)="loadSpecialOffers()"
+        >
+          Try again
+          <i class="bi bi-arrow-repeat"></i>
+        </button>
+
+      </div>
+
+      <!-- Products -->
+      <div
+        class="product-grid"
+        *ngIf="
+          !loadingOffers &&
+          !offersError &&
+          specialOffers.length
+        "
+      >
+
+        <article
+          class="product-card"
+          *ngFor="
+            let product of specialOffers;
+            trackBy: trackByProductId
+          "
+        >
+
+          <button
+            type="button"
+            class="product-media"
+            (click)="openQuickView(product)"
+          >
+
+            <img
+              [src]="imageUrl(product)"
+              [alt]="product.name"
+              loading="lazy"
+              decoding="async"
+            />
+
+            <span
+              class="product-badge"
+              *ngIf="product.discount"
+            >
+              OFFER
+            </span>
+
+            <span class="product-hover">
+              Quick view
+              <i class="bi bi-arrow-up-right"></i>
+            </span>
+
+          </button>
+
+          <div class="product-body">
+
+            <div class="product-top">
+
+              <div class="product-heading">
+
+                <span class="product-category">
+                  {{
+                    product.category?.name ||
+                    'Collection'
+                  }}
+                </span>
+
+                <h3>
+                  {{ product.name }}
+                </h3>
+
+              </div>
+
+              <button
+                type="button"
+                class="wishlist-button"
+                [class.active]="ifInWishlist(product)"
+                (click)="
+                  addToFavorites(product);
+                  $event.stopPropagation()
+                "
+                [attr.aria-label]="
+                  ifInWishlist(product)
+                    ? 'Remove from wishlist'
+                    : 'Add to wishlist'
+                "
+              >
+                <i
+                  class="bi"
+                  [class.bi-heart]="!ifInWishlist(product)"
+                  [class.bi-heart-fill]="ifInWishlist(product)"
+                ></i>
+              </button>
+
             </div>
-          </div>
-        </div>
-      </div>
-      <div class="carousel-item ">
-        <div class=" position-relative imgCenter"
-          style="width: 100%; height: 100vh; background-image: url('https://preview.colorlib.com/theme/cozastore/images/slide-01.jpg');">
-          <div class=" position-relative top-50 w-50 start-0 row">
-            <div class=" d-flex flex-column align-items-start justify-content-between offset-3">
-              <p class="line1">Women Collection 2018</p>
-              <p class="line2 fa text-capitalize">NEW SEASON</p>
-              <button class="btnStyle m-0" routerLink="/Shop"><span>SHOP NOW</span></button>
+
+            <div class="product-price">
+
+              <strong>
+                {{ finalPrice(product) | currency }}
+              </strong>
+
+              <del
+                *ngIf="oldPrice(product) as oldPrice"
+              >
+                {{ oldPrice | currency }}
+              </del>
+
             </div>
+
+            <button
+              type="button"
+              class="add-to-cart-button"
+              (click)="addToCart(product)"
+            >
+              <span>Add to cart</span>
+              <i class="bi bi-arrow-right"></i>
+            </button>
+
           </div>
-        </div>
-      </div>
-    </div>
-    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleFade" data-bs-slide="prev">
-      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Previous</span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleFade" data-bs-slide="next">
-      <span class="carousel-control-next-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Next</span>
-    </button>
-  </div>
-</div>
 
-<div class=" container my-5 px-5">
-    <h3 class="section-title">Collections </h3>
-  <div class="row align-items-center justify-content-center">
-    <div class="col-12 col-md-6 col-lg-4 h-auto px-3 pb-4 cursorPointer  cards position-relative ">
-      <div class="imgCenter border position-relative"
-        style="height: 250px; background-image: url('https://preview.colorlib.com/theme/cozastore/images/banner-01.jpg');">
-        <div class="layer position-absolute w-100 h-100 bg-black bg-opacity-50">
-          <div class="position-absolute bottom-0 mb-5 ms-4" id="btn1"></div>
-        </div>
-        <div class=" position-absolute top-25 ms-4">
-          <p class="fw-bold fs-3 ">Women</p>
-          <p>spring 2018</p>
-        </div>
-      </div>
-    </div>
-
-
-    <div class="col-12 col-md-6 col-lg-4 h-auto px-3 pb-4 cursorPointer  cards position-relative ">
-      <div class="imgCenter border position-relative"
-        style="height: 250px; background-image: url('https://preview.colorlib.com/theme/cozastore/images/banner-02.jpg');">
-        <div class="layer position-absolute w-100 h-100 bg-black bg-opacity-50">
-          <div class="position-absolute bottom-0 mb-5 ms-4" id="btn2"></div>
-        </div>
-        <div class=" position-absolute top-25 ms-4">
-          <p class="fw-bold fs-3 ">Men</p>
-          <p>spring 2018</p>
-        </div>
-      </div>
-    </div>
-
-
-    <div class="col-12 col-md-6 col-lg-4 h-auto px-3 pb-4 cursorPointer  cards position-relative ">
-      <div class="imgCenter border position-relative"
-        style="height: 250px; background-image: url('	https://preview.colorlib.com/theme/cozastore/images/banner-03.jpg');">
-        <div class="layer position-absolute w-100 h-100 bg-black bg-opacity-75">
-          <div class="position-absolute bottom-0 mb-5 ms-4" id="btn3"></div>
-        </div>
-        <div class=" position-absolute top-25 ms-4">
-          <p class="fw-bold fs-3 ">Accessories</p>
-          <p>New Trend</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<div class=" container ">
-  <div class="row d-flex align-items-center justify-content-start mx-auto">
-    <div class="col-12 col-sm-6 col-md-4 col-lg-3 my-2 d-flex align-items-center justify-content-center flex-column "
-      *ngFor="let item of specialOffers">
-      <div class="SpecialOffers mx-auto overflow-hidden" style="background-image: url({{item.images[0]}});">
-        <div class="QuickViewBtn position-absolute w-100 h-25 d-flex align-items-center justify-content-center ">
-          <button class="btn bg-white text-black rounded-5 p-2 px-3" (click)="productDetails = item"
-            (click)="openProductDetails = !openProductDetails">Quick View</button>
-        </div>
-      </div>
-      <div class="mt-1" style="width: 225px;">
-        <div class=" w-100 d-flex align-items-center justify-content-between">
-          <p class=" m-0 text-gray fs-6"> {{item.name}}</p>
-          <i class="bi cursorPointer " [ngClass]="ifInWishlist(item)?'bi-heart-fill text-danger':'bi-heart'"
-            (click)="addToFavorites(item._id,$event)"></i>
-        </div>
-        <div class=" w-100 d-flex align-items-center justify-content-between">
-          <p class=" m-0 text-gray">{{item.finalPrice}}$ </p>
-
-        </div>
-
+        </article>
 
       </div>
-    </div>
-  </div>
-</div>
-<app-login-first *ngIf="loginFirst" (closeL)="loginFirst = $event"></app-login-first>
 
+      <!-- Empty -->
+      <div
+        class="empty-products"
+        *ngIf="
+          !loadingOffers &&
+          !offersError &&
+          !specialOffers.length
+        "
+      >
 
+        <div class="empty-products-icon">
+          <i class="bi bi-bag"></i>
+        </div>
 
-<!-- ===== Promotional full-width banner ===== -->
-<section class="promo-banner">
-  <div class="promo-inner container">
-    <div class="promo-text">
-      <h2>Spring Collection 2025</h2>
-      <p>اكتشف تشكيلتنا الجديدة — خصومات حصرية لفترة محدودة</p>
-      <a class="btn promo-btn" href="/shop">تسوق الآن</a>
-    </div>
-    <div class="promo-img">
-      <img src="https://preview.colorlib.com/theme/cozastore/images/banner-02.jpg" alt="Promo" />
-    </div>
-  </div>
-</section>
+        <div>
+          <strong>
+            No active offers right now
+          </strong>
 
+          <p>
+            Explore all available products instead.
+          </p>
+        </div>
 
+        <a routerLink="/shop">
+          Browse products
+          <i class="bi bi-arrow-right"></i>
+        </a>
 
+      </div>
 
-
-<!-- ===== Best Sellers (horizontal scroll) ===== -->
-<section class="best-sellers container">
-  <h3 class="section-title">Best seller</h3>
-  <div class="sellers-row">
-    <div class="seller-item"><img src="https://fakestoreapi.com/img/71li-ujtlUL._AC_UX679_t.png" alt="b1"/><p>Top Jacket</p></div>
-    <div class="seller-item"><img src="https://cdn.dummyjson.com/product-images/mens-shirts/blue-&-black-check-shirt/1.webp" alt="b2"/><p>Classic Tee</p></div>
-    <div class="seller-item"><img src="https://cdn.dummyjson.com/product-images/mens-shoes/nike-baseball-cleats/1.webp" alt="b3"/><p>Sport Shoes</p></div>
-    <div class="seller-item"><img src="https://cdn.dummyjson.com/product-images/womens-bags/heshe-women's-leather-bag/1.webp" alt="b4"/><p>Leather Bag</p></div>
-  </div>
-</section>
-
-<!-- ===== Testimonials ===== -->
-<section class="testimonials container">
-  <h3 class="section-title">Customer Reviews</h3>
-  <div class="testi-grid">
-    <blockquote class="testi-card">
-      <p>خدمة رائعة والمنتج مطابق للوصف. التوصيل كان سريعًا جداً.</p>
-      <footer>— أحمد، القاهرة</footer>
-    </blockquote>
-
-    <blockquote class="testi-card">
-      <p>جودة ممتازة وسعر مناسب. سأكرر الشراء بالتأكيد.</p>
-      <footer>— سارة، الإسكندرية</footer>
-    </blockquote>
-
-    <blockquote class="testi-card">
-      <p>التعامل كان احترافي وخدمة العملاء متعاونة.</p>
-      <footer>— كريم، الجيزة</footer>
-    </blockquote>
-  </div>
-</section>
-
-<!-- ===== Newsletter signup ===== -->
-<section class="newsletter container px-3 rounded-3">
-  <div class="newsletter-inner">
-    <div>
-      <h4>اشترك ليصلك كل جديد</h4>
-      <p>خصومات حصرية وعروض خاصة للمشتركين</p>
-    </div>
-    <form class="newsletter-form" action="#" method="post" onsubmit="return false;">
-      <input type="email" placeholder="أدخل بريدك الإلكتروني" required />
-      <button class="btn" type="submit">اشتراك</button>
-    </form>
-  </div>
-</section>
-
-<!-- ===== Footer (basic, extend as needed) ===== -->
-<footer class="site-footer">
-  <div class="footer-inner container">
-    <div class="footer-col">
-      <h5>Z-STORE</h5>
-      <p>متجر إلكتروني للملابس والاكسسوارات — توصيل سريع وخدمة عملاء 24/7.</p>
     </div>
 
-    <div class="footer-col">
-      <h6>روابط</h6>
-      <ul>
-        <li><a href="/shop">shop</a></li>
-        <li><a href="/blog">blog</a></li>
-        <li><a href="/contact">contact</a></li>
-      </ul>
+  </section>
+
+  <!-- =========================
+       RECENTLY VIEWED
+  ========================== -->
+
+  <section
+    class="home-section recent-section"
+    *ngIf="recentlyViewed.length"
+  >
+
+    <div class="container">
+
+      <div class="section-header">
+
+        <div>
+          <span class="section-eyebrow">
+            YOUR JOURNEY
+          </span>
+
+          <h2>
+            Recently viewed
+          </h2>
+
+          <p>
+            Pick up where you left off.
+          </p>
+        </div>
+
+        <a
+          routerLink="/shop"
+          class="section-link"
+        >
+          <span>Keep shopping</span>
+          <i class="bi bi-arrow-up-right"></i>
+        </a>
+
+      </div>
+
+      <div class="product-grid recently-viewed-grid">
+
+        <article
+          class="product-card"
+          *ngFor="
+            let product of recentlyViewed;
+            trackBy: trackByProductId
+          "
+        >
+
+          <button
+            type="button"
+            class="product-media"
+            (click)="viewProduct(product)"
+          >
+
+            <img
+              [src]="imageUrl(product)"
+              [alt]="product.name"
+              loading="lazy"
+              decoding="async"
+            />
+
+            <span class="product-hover">
+              Open product
+              <i class="bi bi-arrow-up-right"></i>
+            </span>
+
+          </button>
+
+          <div class="product-body">
+
+            <div class="product-top">
+
+              <div class="product-heading">
+
+                <span class="product-category">
+                  {{
+                    product.category?.name ||
+                    'Collection'
+                  }}
+                </span>
+
+                <h3>
+                  {{ product.name }}
+                </h3>
+
+              </div>
+
+            </div>
+
+            <div class="product-price">
+
+              <strong>
+                {{ finalPrice(product) | currency }}
+              </strong>
+
+              <del
+                *ngIf="oldPrice(product) as oldPrice"
+              >
+                {{ oldPrice | currency }}
+              </del>
+
+            </div>
+
+            <button
+              type="button"
+              class="add-to-cart-button secondary-product-button"
+              (click)="viewProduct(product)"
+            >
+              <span>View product</span>
+              <i class="bi bi-arrow-right"></i>
+            </button>
+
+          </div>
+
+        </article>
+
+      </div>
+
     </div>
 
-    <div class="footer-col">
-      <h6>تواصل</h6>
-      <p>support@zstore.com</p>
-      <p>+20 100 000 0000</p>
+  </section>
+
+  <!-- =========================
+       BRAND / CTA
+  ========================== -->
+
+  <section class="home-section brand-section">
+
+    <div class="container">
+
+      <div class="brand-banner">
+
+        <div class="brand-banner-content">
+
+          <span class="section-eyebrow light">
+            BUILT FOR BETTER SHOPPING
+          </span>
+
+          <h2>
+            Less friction.
+            <br />
+            More discovery.
+          </h2>
+
+          <p>
+            Search faster, discover clearly and move from
+            product to checkout with a smoother shopping journey.
+          </p>
+
+          <a
+            routerLink="/shop"
+            class="brand-button"
+          >
+            Start exploring
+            <i class="bi bi-arrow-up-right"></i>
+          </a>
+
+        </div>
+
+        <div class="brand-stat">
+
+          <strong>
+            04
+          </strong>
+
+          <span>
+            CORE SHOPPING FLOWS
+          </span>
+
+        </div>
+
+      </div>
+
     </div>
+
+  </section>
+
+  <!-- =========================
+       QUICK VIEW
+  ========================== -->
+
+  <div
+    class="quick-view-backdrop"
+    *ngIf="openProductDetails"
+    (click)="closeQuickView()"
+  >
+
+    <div
+      class="quick-view-dialog"
+      (click)="$event.stopPropagation()"
+    >
+
+      <button
+        type="button"
+        class="quick-close"
+        (click)="closeQuickView()"
+        aria-label="Close product preview"
+      >
+        <i class="bi bi-x-lg"></i>
+      </button>
+
+      <app-products-details
+        [productDetails]="productDetails"
+      >
+      </app-products-details>
+
+    </div>
+
   </div>
-  <div class="footer-bottom container">
-    <p>© 2025 Z-STORE. كل الحقوق محفوظة.</p>
-  </div>
-</footer>
+
+</main>
+
+<app-login-first
+  *ngIf="loginFirst"
+  (closeL)="loginFirst = $event"
+>
+</app-login-first>

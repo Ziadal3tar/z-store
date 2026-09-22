@@ -1,110 +1,446 @@
-<app-navbar></app-navbar>
-<app-loading *ngIf="loading"></app-loading>
 
-<div [ngClass]="{'d-none': !storDetails}" style="z-index: 9;"
-  class="  w-100 h-100 position-relative p-0 m-0 bg-black bg-opacity-75 top-0 position-fixed d-flex align-items-center justify-content-center">
-  <div class=" bg-white col-lg-5 col-md-7 col-sm-11  row position-absolute container p-3">
+<div class="account-page">
+  <app-navbar></app-navbar>
 
+  <app-loading *ngIf="loading"></app-loading>
 
-    <!-- <div class=" d-flex justify-content-between">
-      <h1 class="fs-2">STORE</h1>
-      <i (click)="storeBtn()" class="fa-solid fa-circle-xmark cursorPointer"></i>
-    </div> -->
+  <!-- Store Modal -->
+  <div
+    *ngIf="storDetails"
+    class="modal-backdrop"
+    (click)="storeBtn()"
+  >
+    <div
+      class="store-modal"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-icon">
+        <i class="fa-solid fa-store"></i>
+      </div>
 
-    <!-- <div class="d-flex row align-items-center justify-content-end col-12 container  m-0 p-0">
-      <input [(ngModel)]="storeName" class=" col-9 p-2 rounded-0 border-bottom border-0  " type="text"
-        placeholder="store's name">
+      <div class="modal-content">
+        <span class="modal-eyebrow">SELL WITH Z-STORE</span>
 
-      <div class=" col-2 offset-1 d-flex align-items-end justify-content-end p-0">
-        <input class="form-control rounded-5 mt-2 d-none" (change)="upload($event)" type="file" id="formFile">
-        <label class=" btn btn-light w-100" for="formFile"><i class="bi bi-image"></i></label>
+        <h2>Create your store</h2>
+
+        <p>
+          Add your store information and start managing your products.
+        </p>
+
+        <div class="store-fields">
+
+          <div class="field-group">
+            <label for="store-name">Store name</label>
+
+            <input
+              id="store-name"
+              type="text"
+              [(ngModel)]="storeName"
+              placeholder="Enter your store name"
+            />
+          </div>
+
+          <div class="field-group">
+            <label for="store-image">Store image</label>
+
+            <label
+              for="store-image"
+              class="file-picker"
+            >
+              <i class="fa-regular fa-image"></i>
+
+              <span>
+                {{ image?.name || 'Choose store image' }}
+              </span>
+
+              <input
+                id="store-image"
+                type="file"
+                accept="image/*"
+                (change)="upload($event)"
+              />
+            </label>
+          </div>
+
+        </div>
+
+        <div
+          *ngIf="errMessage"
+          class="modal-error"
+        >
+          <i class="fa-solid fa-circle-exclamation"></i>
+          {{ errMessage }}
+        </div>
+
+        <div class="modal-actions">
+          <button
+            type="button"
+            class="secondary-button"
+            (click)="storeBtn()"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            class="primary-button"
+            [disabled]="loading"
+            (click)="addStore()"
+          >
+            <span *ngIf="!loading">
+              Create store
+              <i class="fa-solid fa-arrow-right"></i>
+            </span>
+
+            <span
+              *ngIf="loading"
+              class="loading-content"
+            >
+              <span class="spinner"></span>
+              Creating...
+            </span>
+          </button>
+        </div>
       </div>
     </div>
-    <div class=" col-12 row d-flex align-items-center justify-content-end  p-0 m-0">
-      <p class=" m-0 text-danger col-12">{{errMessage}}</p>
-      <button (click)="addStore()" class=" btn btn-warning mt-3 rounded-0 col-lg-2 col-md-4 col-sm-6">Done</button>
-
-    </div> -->
-
-    <!-- <app-create-your-store></app-create-your-store> -->
   </div>
-</div>
 
-<div class=" container">
-  <div class="row" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-    <div class="col-lg-3 px-4 col-md-12 mt-5 ">
-      <div
-        class="col-12 border-bottom bg-white  d-flex align-items-center justify-content-around py-3 flex-column rounded-top ">
+  <div class="account-container">
 
-        <div class="position-relative  imgCenter overflow-hidden mb-2" style="width: 100px; height: 100px ; border-radius: 50%; z-index: 1;
-            background-image: url({{url}});">
+    <!-- Page Header -->
+    <header class="account-header">
+      <div>
+        <span class="section-eyebrow">MY ACCOUNT</span>
 
-          <div [ngClass]="{'opacity-100': updatedImg}"
-            class=" w-100 h-100 position-absolute bg-black bg-opacity-50 d-flex align-items-center justify-content-center opacity-0 layer">
-            <input type="file" value="" multiple (change)="updateUserImg($event)" id="userImg" class=" d-none">
-            <label for="userImg">
-              <i *ngIf="!updatedImg" class="fa-solid fa-pen-to-square text-white cursorPointer" style="z-index: 9;"></i>
-            </label>
-            <i *ngIf="updatedImg" class="bi bi-check-lg cursorPointer fs-4 text-white" (click)="save()"
-              style="z-index: 9;"></i>
+        <h1>Account dashboard</h1>
+
+        <p>
+          Manage your profile, orders, favorites and account settings.
+        </p>
+      </div>
+
+      <div class="account-status">
+        <span class="status-dot"></span>
+        Account active
+      </div>
+    </header>
+
+    <div class="account-layout">
+
+      <!-- Sidebar -->
+      <aside class="account-sidebar">
+
+        <!-- Profile Card -->
+        <section class="profile-card">
+
+          <div class="profile-image-wrapper">
+            <img
+              [src]="url || 'assets/user-placeholder.png'"
+              [alt]="userData?.userName || 'Profile image'"
+              class="profile-image"
+            />
+
+            <div class="profile-image-overlay">
+
+              <label
+                *ngIf="!updatedImg"
+                for="user-profile-image"
+                class="image-action"
+                title="Change profile picture"
+              >
+                <i class="fa-solid fa-camera"></i>
+              </label>
+
+              <button
+                *ngIf="updatedImg"
+                type="button"
+                class="image-action success"
+                title="Save profile picture"
+                (click)="save()"
+              >
+                <i class="fa-solid fa-check"></i>
+              </button>
+
+              <button
+                *ngIf="updatedImg"
+                type="button"
+                class="image-action cancel"
+                title="Cancel"
+                (click)="cancel()"
+              >
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+
+              <input
+                id="user-profile-image"
+                class="visually-hidden"
+                type="file"
+                accept="image/*"
+                (change)="updateUserImg($event)"
+              />
+            </div>
+          </div>
+
+          <div class="profile-info">
+            <h2>
+              {{ userData?.userName || 'User' }}
+            </h2>
+
+            <p>
+              {{ userData?.email || 'No email available' }}
+            </p>
+
+            <span class="member-since">
+              Member since
+              {{ userData?.createdAt | date:'MMM yyyy' }}
+            </span>
+          </div>
+
+          <div class="profile-stats">
+            <div class="profile-stat">
+              <strong>
+                {{ userData?.wishlist?.length || 0 }}
+              </strong>
+              <span>Favorites</span>
+            </div>
+
+            <div class="stat-divider"></div>
+
+            <div class="profile-stat">
+              <strong>
+                {{ ordersCount || 0 }}
+              </strong>
+              <span>Orders</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Navigation -->
+        <nav class="account-nav">
+
+          <button
+            type="button"
+            class="nav-item"
+            [class.active]="activeSection === 'orders'"
+            (click)="selectSection('orders')"
+          >
+            <span class="nav-icon">
+              <i class="fa-solid fa-box"></i>
+            </span>
+
+            <span class="nav-copy">
+              <strong>Orders</strong>
+              <small>Track your purchases</small>
+            </span>
+
+            <span
+              *ngIf="ordersCount"
+              class="nav-count"
+            >
+              {{ ordersCount }}
+            </span>
+
+            <i class="fa-solid fa-chevron-right nav-arrow"></i>
+          </button>
+
+          <button
+            type="button"
+            class="nav-item"
+            [class.active]="activeSection === 'favorites'"
+            (click)="selectSection('favorites')"
+          >
+            <span class="nav-icon">
+              <i class="fa-solid fa-heart"></i>
+            </span>
+
+            <span class="nav-copy">
+              <strong>Favorites</strong>
+              <small>Products you saved</small>
+            </span>
+
+            <span
+              *ngIf="userData?.wishlist?.length"
+              class="nav-count"
+            >
+              {{ userData.wishlist.length }}
+            </span>
+
+            <i class="fa-solid fa-chevron-right nav-arrow"></i>
+          </button>
+
+          <button
+            type="button"
+            class="nav-item"
+            [class.active]="activeSection === 'personal'"
+            (click)="selectSection('personal')"
+          >
+            <span class="nav-icon">
+              <i class="fa-regular fa-user"></i>
+            </span>
+
+            <span class="nav-copy">
+              <strong>Personal info</strong>
+              <small>Manage your information</small>
+            </span>
+
+            <i class="fa-solid fa-chevron-right nav-arrow"></i>
+          </button>
+
+          <button
+            type="button"
+            class="nav-item"
+            [class.active]="activeSection === 'settings'"
+            (click)="selectSection('settings')"
+          >
+            <span class="nav-icon">
+              <i class="fa-solid fa-sliders"></i>
+            </span>
+
+            <span class="nav-copy">
+              <strong>Settings</strong>
+              <small>Security and preferences</small>
+            </span>
+
+            <i class="fa-solid fa-chevron-right nav-arrow"></i>
+          </button>
+
+        </nav>
+
+        <!-- Store -->
+        <!-- <section class="store-card">
+          <div class="store-card-icon">
+            <i class="fa-solid fa-store"></i>
+          </div>
+
+          <div class="store-copy">
+            <span class="store-eyebrow">SELL ON Z-STORE</span>
+
+            <h3>
+              {{ userData?.storeId ? 'Your store' : 'Start selling' }}
+            </h3>
+
+            <p>
+              {{
+                userData?.storeId
+                  ? 'Manage your store and products.'
+                  : 'Create your own store and start selling.'
+              }}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            class="store-button"
+            (click)="storeBtn()"
+          >
+            {{ userData?.storeId ? 'Open store' : 'Create store' }}
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+
+          <button
+            *ngIf="userData?.storeId"
+            type="button"
+            class="delete-store-button"
+            (click)="deleteStore()"
+          >
+            <i class="fa-regular fa-trash-can"></i>
+            Delete store
+          </button>
+        </section> -->
+
+      </aside>
+
+      <!-- Main Content -->
+      <main class="account-content">
+
+        <div class="content-header">
+          <div>
+            <span class="content-eyebrow">
+              {{
+                activeSection === 'orders'
+                  ? 'PURCHASE HISTORY'
+                  : activeSection === 'favorites'
+                  ? 'SAVED PRODUCTS'
+                  : activeSection === 'personal'
+                  ? 'PROFILE INFORMATION'
+                  : 'ACCOUNT PREFERENCES'
+              }}
+            </span>
+
+            <h2>
+              {{
+                activeSection === 'orders'
+                  ? 'Your orders'
+                  : activeSection === 'favorites'
+                  ? 'Your favorites'
+                  : activeSection === 'personal'
+                  ? 'Personal information'
+                  : 'Settings'
+              }}
+            </h2>
+          </div>
+
+          <div class="content-indicator">
+            <span></span>
+            {{
+              activeSection === 'orders'
+                ? 'Orders'
+                : activeSection === 'favorites'
+                ? 'Favorites'
+                : activeSection === 'personal'
+                ? 'Personal'
+                : 'Settings'
+            }}
           </div>
         </div>
 
+        <div class="content-body">
 
+          <!-- Orders -->
+          <div
+            *ngIf="activeSection === 'orders'"
+            class="content-panel"
+          >
+            <app-orders
+              [userData]="userData"
+            ></app-orders>
+          </div>
 
-        <div class=" d-flex flex-column align-items-center  position-relative "
-          style="height: 60px!important; width: 200px;">
-          <p class=" fs-5 position-absolute top-0">{{userData.userName }}</p>
-          <p class=" opacity-50 position-absolute bottom-0">{{userData.createdAt}}</p>
+          <!-- Favorites -->
+          <div
+            *ngIf="activeSection === 'favorites'"
+            class="content-panel"
+          >
+            <app-favorites
+              [userData]="userData"
+            ></app-favorites>
+          </div>
+
+          <!-- Personal -->
+          <div
+            *ngIf="activeSection === 'personal'"
+            class="content-panel"
+          >
+            <app-personal
+              [userData]="userData"
+            ></app-personal>
+          </div>
+
+          <!-- Settings -->
+          <div
+            *ngIf="activeSection === 'settings'"
+            class="content-panel"
+          >
+            <app-settings
+              [userData]="userData"
+            ></app-settings>
+          </div>
+
         </div>
 
-
-
-
-        <div class="col-12 container ">
-
-          <button class=" btn btn-light border col-12 active" id="v-pills-setting-tab" data-bs-toggle="pill"
-            data-bs-target="#v-pills-setting" type="button" role="tab" aria-controls="v-pills-setting"
-            aria-selected="false">settings</button>
-
-
-          <!-- <button *ngIf="userData.storeId" class="col-12 mt-2  btn btn-light border "
-            (click)="deleteStore()">deleteStore
-          </button> -->
-        </div>
-      </div>
-
-      <div class="navPerInfo bg-white py-2  rounded-bottom">
-
-        <div class=" d-flex flex-column  h-auto">
-          <p class="nav-link" id="v-pills-orders-tab" data-bs-toggle="pill" data-bs-target="#v-pills-orders"
-            type="button" role="tab" aria-controls="v-pills-orders" aria-selected="true">orders</p>
-          <p class="nav-link" id="v-pills-favorites-tab" data-bs-toggle="pill" data-bs-target="#v-pills-favorites"
-            type="button" role="tab" aria-controls="v-pills-favorites" aria-selected="false">
-            favorites({{userData?.wishlist?.length}})</p>
-          <p class="nav-link" id="v-pills-personal-tab" data-bs-toggle="pill" data-bs-target="#v-pills-personal"
-            type="button" role="tab" aria-controls="v-pills-personal" aria-selected="false">personal</p>
-        </div>
-
-      </div>
-      <div>
-        <!-- <button (click)="storeBtn()" class=" contanier btn btn-dark w-100 mt-2">{{storeTitle}}</button> -->
-      </div>
-    </div>
-    <div class="col-lg-9 col-md-12 mt-5 px-4 scrollStyle" style="height: 80vh;">
-      <div class="tab-content" id="v-pills-tabContent">
-        <div class="tab-pane fade" id="v-pills-orders" role="tabpanel" aria-labelledby="v-pills-orders-tab"
-          tabindex="0"> <app-orders [userData]="userData"></app-orders> </div>
-        <div class="tab-pane fade" id="v-pills-favorites" role="tabpanel" aria-labelledby="v-pills-favorites-tab"
-          tabindex="0"><app-favorites [userData]="userData"></app-favorites>
-        </div>
-        <div class="tab-pane fade" id="v-pills-personal" role="tabpanel" aria-labelledby="v-pills-personal-tab"
-          tabindex="0"><app-personal [userData]="userData"></app-personal></div>
-        <div class="tab-pane fade show active" id="v-pills-setting" role="tabpanel"
-          aria-labelledby="v-pills-setting-tab" tabindex="0"> <app-settings [userData]="userData"></app-settings> </div>
-
-      </div>
+      </main>
 
     </div>
   </div>
 </div>
+

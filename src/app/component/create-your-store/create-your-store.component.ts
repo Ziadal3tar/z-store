@@ -1,91 +1,109 @@
 import {
-  Component,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
+  Component,
+  ElementRef,
   OnDestroy,
+  ViewChild,
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
-import { SharedService } from 'src/app/services/shared.service';
+import { Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
+
+import { User } from 'src/app/core/models/user.model';
+import { UserStateService } from 'src/app/core/state/user-state.service';
 import { StoresService } from 'src/app/services/stores.service';
 
-@Component({
+interface CreateStoreResponse {
+  message?: string;
+  updateUser?: User;
+  newStore?: string | { _id?: string };
+}
 
-    selector: 'app-create-your-store',
+@Component({
+  selector: 'app-create-your-store',
   templateUrl: './create-your-store.component.html',
   styleUrls: ['./create-your-store.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CreateYourStoreComponent implements OnDestroy {
+  @ViewChild('fileInput')
+  private fileInput?: ElementRef<HTMLInputElement>;
+
   form: FormGroup;
-  previewUrl: string | ArrayBuffer | null = null;
+  previewUrl: string | null = null;
   imageFile: File | null = null;
   loading = false;
   error = '';
-  private subs: Subscription[] = [];
+  isDragging = false;
 
-  // قيود بسيطة للصورة
-  readonly MAX_IMAGE_SIZE_BYTES = 3 * 1024 * 1024; // 3MB
+  readonly MAX_IMAGE_SIZE_BYTES = 3 * 1024 * 1024;
   readonly ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
 
+  private readonly destroy$ = new Subject<void>();
+
   constructor(
-    private fb: FormBuilder,
-    private storesSvc: StoresService,
-    private router: Router,
-    private shared: SharedService,
-    private cdr: ChangeDetectorRef
+    private readonly fb: FormBuilder,
+    private readonly storesService: StoresService,
+    private readonly router: Router,
+    private readonly userStateService: UserStateService,
+    private readonly cdr: ChangeDetectorRef,
   ) {
     this.form = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(80)]],
       description: ['', [Validators.maxLength(1000)]],
     });
   }
-openHome(): void {
-  this.router.navigate(['/']);
-}
+
+  openHome(): void {
+    if (this.loading) return;
+    this.router.navigate(['/']);
+  }
+
+  openFilePicker(): void {
+    if (this.loading) return;
+    this.fileInput?.nativeElement.click();
+  }
+
   onFileChange(event: Event): void {
-    this.error = '';
-    const file = (event.target as HTMLInputElement).files?.[0] ?? null;
-    if (!file) {
-      this.imageFile = null;
-      this.previewUrl = null;
-      this.cdr.markForCheck();
-      return;
-    }
+    const input = event.target as HTMLInputElement;
+    this.handleSelectedFile(input.files?.[0] ?? null);
+  }
 
-    if (!this.ACCEPTED_TYPES.includes(file.type)) {
-      this.error = 'Please upload an image (png, jpg, webp).';
-      this.cdr.markForCheck();
-      return;
-    }
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    if (this.loading) return;
+    this.isDragging = true;
+    this.cdr.markForCheck();
+  }
 
-    if (file.size > this.MAX_IMAGE_SIZE_BYTES) {
-      this.error = 'Image is too large. Max 3MB allowed.';
-      this.cdr.markForCheck();
-      return;
-    }
+  onDragLeave(): void {
+    this.isDragging = false;
+    this.cdr.markForCheck();
+  }
 
-    this.imageFile = file;
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragging = false;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.previewUrl = reader.result;
-      this.cdr.markForCheck();
-    };
-    reader.readAsDataURL(file);
+    if (this.loading) return;
+
+    this.handleSelectedFile(event.dataTransfer?.files?.[0] ?? null);
   }
 
   submit(): void {
     this.error = '';
 
     if (this.loading) return;
+
     if (this.form.invalid) {
-      this.error = 'Please fill required fields correctly.';
-      Object.values(this.form.controls).forEach(control => control.markAsTouched());
+      this.form.markAllAsTouched();
+      this.error = 'Please fill in the required fields correctly.';
       this.cdr.markForCheck();
       return;
     }
+
     if (!this.imageFile) {
       this.error = 'Please select a store image.';
       this.cdr.markForCheck();
@@ -95,54 +113,105 @@ openHome(): void {
     this.loading = true;
     this.cdr.markForCheck();
 
-    const fd = new FormData();
-    fd.append('image', this.imageFile);
-    fd.append('name', this.form.value.name.trim());
-    fd.append('description', this.form.value.description?.trim() ?? '');
+    const formData = new FormData();
+    formData.append('image', this.imageFile);
+    formData.append('name', this.form.get('name')?.value?.trim() ?? '');
+    formData.append('description', this.form.get('description')?.value?.trim() ?? '');
 
-    const sub = this.storesSvc.addStores(fd).subscribe({
-      next: (res: any) => {
-        if (res?.updateUser && typeof (this.shared as any).setUserData === 'function') {
-          (this.shared as any).setUserData(res.updateUser);
-        } else if (res?.newStore && typeof (this.shared as any).setUserData === 'function') {
-          const patchedUser = { ...(this.shared as any).currentUserData ?? {}, storeId: res.newStore._id };
-          (this.shared as any).setUserData(patchedUser);
-        } else if ((this.shared as any).updateUserData) {
-          (this.shared as any).updateUserData();
-        }
+    this.storesService
+      .addStores(formData)
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+          this.cdr.markForCheck();
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (response: CreateStoreResponse) => {
+          if (response.updateUser) {
+            this.userStateService.setUserData(response.updateUser);
+          } else {
+            this.userStateService.refresh();
+          }
 
-        const storeId = res?.newStore?._id ?? res?.newStore;
-        if (storeId) {
-          
-          this.router.navigate([`/store/${storeId}/admin`]);
-        } else {
-          this.router.navigate(['/yourStore']);
-        }
-      },
-      error: (err: any) => {
-        console.error('createStore error', err);
-        this.error = err?.error?.message ?? 'Failed to create store. Try again later.';
-        this.loading = false;
-        this.cdr.markForCheck();
-      },
-      complete: () => {
-        this.loading = false;
-        this.cdr.markForCheck();
-      }
-    });
+          const storeId = typeof response.newStore === 'string'
+            ? response.newStore
+            : response.newStore?._id;
 
-    this.subs.push(sub);
+          if (storeId) {
+            this.router.navigate([`/store/${storeId}/admin`]);
+            return;
+          }
+
+          this.router.navigate(['/store/create']);
+        },
+        error: (err: { error?: { message?: string }; message?: string }) => {
+          console.error('createStore error', err);
+          this.error = err.error?.message ?? err.message ?? 'Failed to create store. Please try again later.';
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   removeImage(): void {
     this.imageFile = null;
     this.previewUrl = null;
-    const input = document.querySelector<HTMLInputElement>('#store-image-input');
-    if (input) input.value = '';
+    this.error = '';
+
+    if (this.fileInput?.nativeElement) {
+      this.fileInput.nativeElement.value = '';
+    }
+
     this.cdr.markForCheck();
   }
 
+  private handleSelectedFile(file: File | null): void {
+    this.error = '';
+
+    if (!file) return;
+
+    if (!this.ACCEPTED_TYPES.includes(file.type)) {
+      this.error = 'Please upload a PNG, JPG or WEBP image.';
+      this.clearFileInput();
+      this.cdr.markForCheck();
+      return;
+    }
+
+    if (file.size > this.MAX_IMAGE_SIZE_BYTES) {
+      this.error = 'Image is too large. Maximum size is 3MB.';
+      this.clearFileInput();
+      this.cdr.markForCheck();
+      return;
+    }
+
+    this.imageFile = file;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.previewUrl = typeof reader.result === 'string' ? reader.result : null;
+      this.cdr.markForCheck();
+    };
+    reader.onerror = () => {
+      this.previewUrl = null;
+      this.error = 'Unable to preview this image. Please try another file.';
+      this.cdr.markForCheck();
+    };
+
+    reader.readAsDataURL(file);
+    this.cdr.markForCheck();
+  }
+
+  private clearFileInput(): void {
+    if (this.fileInput?.nativeElement) {
+      this.fileInput.nativeElement.value = '';
+    }
+    this.imageFile = null;
+    this.previewUrl = null;
+  }
+
   ngOnDestroy(): void {
-    this.subs.forEach(s => s.unsubscribe());
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

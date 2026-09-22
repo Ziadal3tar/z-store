@@ -1,78 +1,621 @@
+import { getAuthToken } from 'src/app/core/auth-token.util';
 
-import { Component, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 
-interface Product {
-  id: string;
-  title: string;
-  price: number;
-  rating: number;
-  category: string;
-  image: string;
-  badge?: string;
-  description?: string;
+import {
+  ActivatedRoute,
+  Router,
+} from '@angular/router';
+
+import {
+  Subject,
+  Subscription,
+} from 'rxjs';
+
+import {
+  debounceTime,
+  distinctUntilChanged,
+} from 'rxjs/operators';
+
+import {
+  CartService,
+} from '../../../services/cart.service';
+
+import {
+  UserStateService,
+} from '../../../core/state/user-state.service';
+
+import {
+  Product,
+  ProductsService,
+} from '../../services/products.service';
+
+import {
+  StoresService,
+} from '../../services/stores.service';
+
+interface CategoryOption {
+  value: string;
+  label: string;
 }
 
 @Component({
   selector: 'app-storefront',
   templateUrl: './storefront.component.html',
   styleUrls: ['./storefront.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class StorefrontComponent implements OnInit {
-  search = '';
-  selectedCategory = 'All';
-  sortBy: 'popular' | 'new' | 'price-asc' | 'price-desc' = 'popular';
-  cart: Product[] = [];
+export class StorefrontComponent
+  implements OnInit, OnDestroy {
 
-  categories = ['All', 'Electronics', 'Home', 'Fashion', 'Outdoors', 'Toys'];
+  storeId = '';
 
-  fakeProducts: Product[] = [
-    { id: 'p1', title: 'Wireless Headphones', price: 89, rating: 4.5, category: 'Electronics', image: 'https://picsum.photos/seed/head/600/400', badge: 'Top' },
-    { id: 'p2', title: 'Modern Table Lamp', price: 45, rating: 4.2, category: 'Home', image: 'https://picsum.photos/seed/lamp/600/400' },
-    { id: 'p3', title: 'Athletic Sneakers', price: 120, rating: 4.7, category: 'Fashion', image: 'https://picsum.photos/seed/shoes/600/400', badge: 'New' },
-    { id: 'p4', title: 'Camping Tent (2p)', price: 199, rating: 4.3, category: 'Outdoors', image: 'https://picsum.photos/seed/tent/600/400' },
-    { id: 'p5', title: 'Wooden Serving Board', price: 29, rating: 4.1, category: 'Home', image: 'https://picsum.photos/seed/board/600/400' },
-    { id: 'p6', title: 'Smartwatch Series 5', price: 249, rating: 4.6, category: 'Electronics', image: 'https://picsum.photos/seed/watch/600/400', badge: 'Hot' },
-    { id: 'p7', title: 'Kids Building Blocks', price: 34, rating: 4.4, category: 'Toys', image: 'https://picsum.photos/seed/blocks/600/400' },
-    { id: 'p8', title: 'Cozy Knit Sweater', price: 79, rating: 4.0, category: 'Fashion', image: 'https://picsum.photos/seed/sweater/600/400' }
+  store: any = null;
+
+  products: Product[] = [];
+  filteredProducts: Product[] = [];
+
+  categories: CategoryOption[] = [
+    {
+      value: 'all',
+      label: 'All',
+    },
   ];
 
-  constructor() { }
+  search = '';
 
-  ngOnInit(): void { }
+  selectedCategory = 'all';
 
-  get filteredProducts() {
-    const q = this.search.trim().toLowerCase();
-    let list = this.fakeProducts.filter(p =>
-      (this.selectedCategory === 'All' || p.category === this.selectedCategory) &&
-      (!q || p.title.toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q))
+  sortBy:
+    | 'popular'
+    | 'new'
+    | 'price-asc'
+    | 'price-desc' =
+    'popular';
+
+  minPrice: number | null = null;
+  maxPrice: number | null = null;
+
+  loading = true;
+  error = '';
+
+  cartCount = 0;
+
+  filtersOpen = false;
+
+  addingProductId: string | null = null;
+
+  readonly skeletonItems = [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+  ];
+
+  private readonly search$ =
+    new Subject<string>();
+
+  private readonly subscriptions =
+    new Subscription();
+
+  constructor(
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly productsService: ProductsService,
+    private readonly storesService: StoresService,
+    private readonly cartService: CartService,
+    private readonly userStateService: UserStateService,
+    private readonly cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit(): void {
+    this.subscriptions.add(
+      this.route.paramMap.subscribe(
+        (params) => {
+          const id =
+            params.get('id') ?? '';
+
+          if (
+            !id ||
+            id === 'create'
+          ) {
+            this.storeId = '';
+            this.loading = false;
+            this.error =
+              'This store could not be found.';
+            this.cdr.markForCheck();
+
+            return;
+          }
+
+          if (
+            id === this.storeId
+          ) {
+            return;
+          }
+
+          this.storeId = id;
+
+          this.loadStore();
+          this.loadProducts();
+        }
+      )
     );
+
+    this.subscriptions.add(
+      this.search$
+        .pipe(
+          debounceTime(250),
+          distinctUntilChanged()
+        )
+        .subscribe((value) => {
+          this.search =
+            value.trim().toLowerCase();
+
+          this.applyFilters();
+          this.cdr.markForCheck();
+        })
+    );
+
+    this.subscriptions.add(
+      this.cartService.cart$
+        .subscribe((cart: any) => {
+          this.cartCount =
+            cart?.cart?.products?.reduce(
+              (
+                total: number,
+                item: any
+              ) =>
+                total +
+                (item?.quantity ?? 0),
+              0
+            ) ??
+            cart?.items?.reduce(
+              (
+                total: number,
+                item: any
+              ) =>
+                total +
+                (item?.quantity ?? 0),
+              0
+            ) ??
+            0;
+
+          this.cdr.markForCheck();
+        })
+    );
+  }
+
+  private loadStore(): void {
+    this.storesService
+      .getStore(this.storeId)
+      .subscribe({
+        next: (response: any) => {
+          this.store =
+            response?.store ??
+            response;
+
+          this.cdr.markForCheck();
+        },
+
+        error: () => {
+          this.error =
+            'Unable to load this store.';
+
+          this.cdr.markForCheck();
+        },
+      });
+  }
+
+  loadProducts(): void {
+    if (!this.storeId) {
+      return;
+    }
+
+    this.loading = true;
+    this.error = '';
+
+    this.productsService
+      .getStoreProducts(
+        this.storeId,
+        {
+          page: 1,
+          limit: 48,
+        }
+      )
+      .subscribe({
+        next: (response: any) => {
+          this.products =
+            response?.products ?? [];
+
+          this.buildCategories();
+          this.applyFilters();
+
+          this.loading = false;
+
+          this.cdr.markForCheck();
+        },
+
+        error: () => {
+          this.products = [];
+          this.filteredProducts = [];
+
+          this.loading = false;
+
+          this.error =
+            'Unable to load products right now.';
+
+          this.cdr.markForCheck();
+        },
+      });
+  }
+
+  private buildCategories(): void {
+    const categoryMap =
+      new Map<string, string>();
+
+    for (
+      const product of this.products
+    ) {
+      const category =
+        (product as any).category;
+
+      const value =
+        product.categoryId ??
+        category?._id;
+
+      const label =
+        category?.name ??
+        product.categoryId;
+
+      if (
+        value &&
+        label
+      ) {
+        categoryMap.set(
+          String(value),
+          String(label)
+        );
+      }
+    }
+
+    this.categories = [
+      {
+        value: 'all',
+        label: 'All',
+      },
+      ...Array.from(
+        categoryMap,
+        ([value, label]) => ({
+          value,
+          label,
+        })
+      ),
+    ];
+  }
+
+  private applyFilters(): void {
+    const query =
+      this.search;
+
+    let result =
+      this.products.filter(
+        (product) => {
+          const categoryValue =
+            product.categoryId ??
+            (product as any)
+              .category?._id ??
+            '';
+
+          const categoryMatch =
+            this.selectedCategory ===
+              'all' ||
+            String(categoryValue) ===
+              this.selectedCategory;
+
+          const searchable = [
+            product.name,
+            product.description,
+            ...(product.tags ?? []),
+          ]
+            .filter(Boolean)
+            .join(' ')
+            .toLowerCase();
+
+          const searchMatch =
+            !query ||
+            searchable.includes(query);
+
+          const price =
+            this.finalPrice(product);
+
+          const minMatch =
+            this.minPrice == null ||
+            price >= this.minPrice;
+
+          const maxMatch =
+            this.maxPrice == null ||
+            price <= this.maxPrice;
+
+          return (
+            categoryMatch &&
+            searchMatch &&
+            minMatch &&
+            maxMatch
+          );
+        }
+      );
 
     switch (this.sortBy) {
       case 'new':
-        // fake stable order — in real app sort by createdAt
-        list = list.slice().reverse();
+        result =
+          result
+            .slice()
+            .sort(
+              (a, b) =>
+                (
+                  b.createdAt ?? ''
+                ).localeCompare(
+                  a.createdAt ?? ''
+                )
+            );
         break;
+
       case 'price-asc':
-        list = list.slice().sort((a,b)=> a.price - b.price);
+        result =
+          result
+            .slice()
+            .sort(
+              (a, b) =>
+                this.finalPrice(a) -
+                this.finalPrice(b)
+            );
         break;
+
       case 'price-desc':
-        list = list.slice().sort((a,b)=> b.price - a.price);
+        result =
+          result
+            .slice()
+            .sort(
+              (a, b) =>
+                this.finalPrice(b) -
+                this.finalPrice(a)
+            );
         break;
-      case 'popular':
+
       default:
-        list = list.slice().sort((a,b)=> b.rating - a.rating);
+        result =
+          result
+            .slice()
+            .sort(
+              (a, b) =>
+                (
+                  b.soldItems ?? 0
+                ) -
+                (
+                  a.soldItems ?? 0
+                )
+            );
     }
 
-    return list;
+    this.filteredProducts =
+      result;
   }
 
-  selectCategory(cat: string) {
-    this.selectedCategory = cat;
+  onSearch(value: string): void {
+    this.search$.next(value);
   }
 
-  addToCart(p: Product) {
-    this.cart.push(p);
-    // For demo: simple alert (replace with a toast in real app)
-    alert(`"${p.title}" added to cart.`);
+  clearSearch(): void {
+    this.search = '';
+
+    this.search$.next('');
+
+    this.cdr.markForCheck();
+  }
+
+  onSortChange(
+    value: string
+  ): void {
+    this.sortBy =
+      value as StorefrontComponent[
+        'sortBy'
+      ];
+
+    this.applyFilters();
+  }
+
+  onCategoryChange(
+    category: string
+  ): void {
+    this.selectedCategory =
+      category;
+
+    this.applyFilters();
+
+    this.filtersOpen = false;
+
+    this.cdr.markForCheck();
+  }
+
+  onPriceChange(): void {
+    this.normalizePriceRange();
+    this.applyFilters();
+  }
+
+  clearFilters(): void {
+    this.search = '';
+
+    this.selectedCategory =
+      'all';
+
+    this.sortBy =
+      'popular';
+
+    this.minPrice = null;
+    this.maxPrice = null;
+
+    this.filtersOpen = false;
+
+    this.search$.next('');
+
+    this.applyFilters();
+
+    this.cdr.markForCheck();
+  }
+
+  finalPrice(
+    product: Product
+  ): number {
+    const discount =
+      Number(
+        product.discount ?? 0
+      );
+
+    return Math.max(
+      0,
+      Number(
+        product.price ?? 0
+      ) - discount
+    );
+  }
+
+  imageUrl(
+    product: Product
+  ): string {
+    const image =
+      product.images?.[0];
+
+    return typeof image === 'string'
+      ? image
+      : image?.url ??
+          'assets/placeholder.png';
+  }
+
+  addToCart(
+    product: Product
+  ): void {
+    if (
+      !product?._id ||
+      (product.totalItems ?? 0) <= 0 ||
+      this.addingProductId ===
+        product._id
+    ) {
+      return;
+    }
+
+    if (!getAuthToken()) {
+      this.router.navigate(
+        ['/login'],
+        {
+          queryParams: {
+            returnUrl:
+              this.router.url,
+          },
+        }
+      );
+
+      return;
+    }
+
+    this.addingProductId =
+      product._id;
+
+    this.error = '';
+
+    this.cdr.markForCheck();
+
+    this.cartService
+      .addToCart({
+        productId:
+          product._id,
+        quantity: 1,
+      })
+      .subscribe({
+        next: () => {
+          this.userStateService.refresh();
+
+          this.addingProductId =
+            null;
+
+          this.cdr.markForCheck();
+        },
+
+        error: () => {
+          this.addingProductId =
+            null;
+
+          this.error =
+            'Unable to add this product to the cart.';
+
+          this.cdr.markForCheck();
+        },
+      });
+  }
+
+  scrollToProducts(): void {
+    const element =
+      document.getElementById(
+        'products-section'
+      );
+
+    element?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  }
+
+  trackByProductId(
+    _: number,
+    product: Product
+  ): string {
+    return (
+      product._id ??
+      product.name
+    );
+  }
+
+  private normalizePriceRange(): void {
+    if (
+      this.minPrice != null &&
+      this.minPrice < 0
+    ) {
+      this.minPrice = 0;
+    }
+
+    if (
+      this.maxPrice != null &&
+      this.maxPrice < 0
+    ) {
+      this.maxPrice = 0;
+    }
+
+    if (
+      this.minPrice != null &&
+      this.maxPrice != null &&
+      this.minPrice >
+        this.maxPrice
+    ) {
+      const currentMin =
+        this.minPrice;
+
+      this.minPrice =
+        this.maxPrice;
+
+      this.maxPrice =
+        currentMin;
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 }

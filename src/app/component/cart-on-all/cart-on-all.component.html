@@ -1,33 +1,154 @@
-<div class="main  h-100 bg-white position-fixed top-0  m-0 p-0  " [ngClass]="sideCart"
-  style="z-index: 99; scrollbar-gutter: stable; overflow-y: auto; right:  -85%; transition: 1s; ">
-  <div class="w-100 border-bottom d-flex justify-content-between align-items-center p-3 mb-4 ">
-    <p class=" fs-3">Cart</p>
-    <i (click)="backCart()" class=" delete d-block fa-solid fa-xmark fs-4 "></i>
-  </div>
-  <div >
-    <div class="product d-flex mb-3 border-bottom " *ngFor="let item of userData?.cartId?.products let i = index">
-      <div class="col-3 offset-1"><img class=" w-100 my-auto" src="{{item?.productId?.images[0]}}" alt=""></div>
-      <div class="col-6 offset-1 d-flex flex-column h-100 justify-content-center h-50">
-        <p style="font-size: 11px;" class="">{{item?.productId?.category}}</p>
-        <h5 class="title">{{item?.productId?.name}}</h5>
-        <div  class=" d-flex ">
-          <p>${{item?.productId?.finalPrice}}</p>
-          <p style="font-size: 11px;" class=" opacity-50 ms-2">{{item?.quantity}} * ${{item?.productId?.finalPrice}}</p>
-        </div>
-      </div>
-      <div class="col-1 delete " (click)="deleteFromCart(item?.productId?._id)"> <i class="fa-solid fa-xmark  "></i>
-      </div>
-    </div>
-  </div>
-  <div>
-    <div class="m-0 row my-3 d-flex flex-row align-items-center justify-content-around p-0">
-      <p class=" opacity-50 fs-3 col-5">Subtotal</p>
-      <p class=" fs-3  col-3 offset-5 me-0 text-end">${{subtotal}}</p>
-    </div>
-    <div class="buttons d-flex row  align-items-center justify-content-evenly col-12 p-0">
-      <button routerLink="/cart" class="btn btn-light border col-10 offset-1 ">VIEWCART</button>
+<div
+  class="cart-drawer"
+  [class.is-open]="sideCart === 'open'"
+  [class.is-closed]="sideCart !== 'open'"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Shopping cart"
+>
+  <button
+    type="button"
+    class="cart-backdrop"
+    aria-label="Close cart"
+    (click)="backCart()"
+  ></button>
 
-      <button class="btn btn-danger   mt-2 col-10 offset-1">CHEACKOUT</button>
+  <aside class="cart-panel">
+    <header class="cart-header">
+      <div class="cart-heading">
+        <span class="cart-kicker">YOUR BAG</span>
+        <h2>Shopping Cart</h2>
+        <span class="cart-count" *ngIf="cartItems.length">
+          {{ cartItems.length }} {{ cartItems.length === 1 ? 'item' : 'items' }}
+        </span>
+      </div>
+
+
+  <button
+    type="button"
+    class="close-button"
+    aria-label="Close shopping cart"
+    (click)="backCart()"
+  >
+    <i class="fa-solid fa-xmark"></i>
+  </button>
+</header>
+
+<div class="cart-content">
+  <ng-container *ngIf="cartItems.length; else emptyCart">
+    <div class="cart-items">
+      <article
+        class="cart-item"
+        *ngFor="let item of cartItems; trackBy: trackByProduct"
+      >
+        <div class="product-image-wrap">
+          <img
+            class="product-image"
+            [src]="imageUrl(item)"
+            [alt]="item?.productId?.name || 'Product image'"
+            loading="lazy"
+          />
+        </div>
+
+        <div class="product-content">
+          <span class="product-category">
+            {{ item?.productId?.category || 'Product' }}
+          </span>
+
+          <a
+            class="product-title"
+            [routerLink]="['/product', item?.productId?._id]"
+            (click)="backCart()"
+          >
+            {{ item?.productId?.name || 'Unnamed product' }}
+          </a>
+
+          <div class="product-meta">
+            <span class="product-price">
+              ${{ item?.productId?.finalPrice || 0 }}
+            </span>
+
+            <span class="product-quantity">
+              Qty {{ item?.quantity || 0 }}
+            </span>
+          </div>
+
+          <div class="product-total">
+            ${{ itemTotal(item) }}
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="remove-button"
+          aria-label="Remove product from cart"
+          (click)="deleteFromCart(item?.productId?._id)"
+        >
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+      </article>
     </div>
-  </div>
+
+    <div class="cart-summary">
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <strong>${{ displayedSubtotal }}</strong>
+      </div>
+
+      <p class="summary-note">
+        Shipping and taxes are calculated at checkout.
+      </p>
+    </div>
+  </ng-container>
+
+  <ng-template #emptyCart>
+    <div class="empty-cart">
+      <div class="empty-icon">
+        <i class="fa-solid fa-bag-shopping"></i>
+      </div>
+
+      <span class="empty-kicker">YOUR BAG IS EMPTY</span>
+      <h3>Nothing here yet</h3>
+
+      <p>
+        Discover our latest products and add something you love to your
+        cart.
+      </p>
+
+      <button
+        type="button"
+        class="shop-button"
+        routerLink="/shop"
+        (click)="backCart()"
+      >
+        <span>Continue Shopping</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+  </ng-template>
+</div>
+
+<footer class="cart-footer" *ngIf="cartItems.length">
+  <button
+    type="button"
+    class="secondary-action"
+    routerLink="/cart"
+    (click)="backCart()"
+  >
+    View Cart
+  </button>
+
+  <button
+    type="button"
+    class="primary-action"
+    routerLink="/checkout"
+    (click)="backCart()"
+  >
+    <span>Checkout</span>
+    <i class="fa-solid fa-arrow-right"></i>
+  </button>
+</footer>
+
+
+  </aside>
 </div>

@@ -1,1 +1,67 @@
-<p>orders-list works!</p>
+<section class="orders-page">
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">SALES</span>
+      <h2>Orders</h2>
+      <p>Keep track of recent customer orders and their status.</p>
+    </div>
+    <button class="ghost-action" type="button" (click)="refresh$.next()">
+      <i class="bi bi-arrow-clockwise"></i>
+      Refresh
+    </button>
+  </header>
+
+  <div class="error-state" *ngIf="error">
+    <i class="bi bi-exclamation-circle"></i>
+    <span>{{ error }}</span>
+  </div>
+
+  <div class="table-shell">
+    <div class="loading-bar" *ngIf="loading"></div>
+
+    <ng-container *ngIf="response$ | async as response">
+      <div class="table-wrap" *ngIf="response.orders.length; else emptyState">
+        <table>
+          <thead>
+            <tr>
+              <th>Order</th>
+              <th>Customer</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Payment</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let order of response.orders; trackBy: trackById">
+              <td><strong>#{{ order.orderNumber || order._id || '—' }}</strong></td>
+              <td>{{ customerName(order) }}</td>
+              <td>{{ itemCount(order) }}</td>
+              <td>{{ (order.total ?? order.subtotal ?? 0) | currency }}</td>
+              <td>{{ order.paymentMethod || order.paymentStatus || '—' }}</td>
+              <td><span class="status" [ngClass]="statusClass(order.status)">{{ order.status || 'Pending' }}</span></td>
+              <td>{{ order.createdAt ? (order.createdAt | date:'mediumDate') : '—' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ng-template #emptyState>
+        <div class="empty-state">
+          <div class="empty-icon"><i class="bi bi-receipt"></i></div>
+          <h3>No orders yet</h3>
+          <p>When customers place orders, they will appear here.</p>
+        </div>
+      </ng-template>
+    </ng-container>
+  </div>
+
+  <footer class="pagination" *ngIf="total > pageSize">
+    <span>Page {{ page$.value }} of {{ totalPages }}</span>
+    <div>
+      <button class="ghost-action" type="button" [disabled]="page$.value === 1" (click)="previousPage()">Previous</button>
+      <button class="ghost-action" type="button" [disabled]="page$.value === totalPages" (click)="nextPage()">Next</button>
+    </div>
+  </footer>
+</section>

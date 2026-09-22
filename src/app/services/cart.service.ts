@@ -1,11 +1,13 @@
+import { getAuthToken } from 'src/app/core/auth-token.util';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, tap } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 
 @Injectable({ providedIn: 'root' })
 export class CartService {
-  private baseUrl = 'https://z-store-apis-b6lh.vercel.app/cart';
+  private baseUrl = `${environment.apiUrl}/cart`;
 
   private cartSubject = new BehaviorSubject<any>(null);
   cart$ = this.cartSubject.asObservable();
@@ -24,7 +26,7 @@ export class CartService {
 
       {
         headers: {
-          authorization: `Bearer__${localStorage.getItem('userToken')}`,
+          authorization: `Bearer__${getAuthToken()}`,
         },
       }).pipe(
       tap(cart => this.cartSubject.next(cart))

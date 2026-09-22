@@ -1,114 +1,483 @@
 <app-loading *ngIf="loading"></app-loading>
 
-<div class=" container d-flex row p-3">
-  <p class=" m-0 p-0 fa my-4 d-flex align-items-center justify-content-center fs-4 ">subCategory</p>
-
-  <div class="col-md-6 col-sm-12">
-    <p class="fa col-12">add subCategory</p>
-    <div class=" d-flex  col-12">
+<main class="subcategory-page">
+  <header class="subcategory-header">
+    <div>
+      <span class="eyebrow">ADMIN / CATALOG</span>
 
 
+  <h2>Subcategories</h2>
+
+  <p>
+    Organize products beneath their parent categories and keep your catalog
+    easy to navigate.
+  </p>
+</div>
+
+<div class="subcategory-stat">
+  <span>ALL SUBCATEGORIES</span>
+  <strong>{{ allSubCategories.length }}</strong>
+</div>
 
 
-      <input type="text" class="border-0 col-9  p-2  rounded-2 border-bottom" placeholder="Sub Category"  [(ngModel)]="subCategoryName">
-      <label for="subCaregoryImg" class=" col-1 offset-1">
-        <div class=" cursorPointer bg-danger h-100 p-0 d-flex align-items-center justify-content-center rounded-5"><i
-            class="bi bi-image text-white fs-5"></i></div>
-      </label>
-      <input type="file" class=" d-none" id="subCaregoryImg" (change)="upload($event)">
+  </header>
+
+  <section class="subcategory-layout">
+
+
+<!-- ADD SUBCATEGORY -->
+<article class="subcategory-card add-card">
+  <header class="card-header">
+    <div>
+      <span class="card-kicker">CATALOG SETUP</span>
+      <h3>Add subcategory</h3>
+      <p>
+        Select a parent category and create a new subcategory.
+      </p>
     </div>
 
+    <div class="card-icon">
+      <i class="bi bi-diagram-3"></i>
+    </div>
+  </header>
 
-    <div class=" position-relative d-flex col-12 mt-4">
+  <form
+    class="subcategory-form"
+    (ngSubmit)="addSubCategory()"
+    novalidate
+  >
+    <label class="field">
+      <span>Parent category</span>
 
+      <select
+        id="categoryId"
+        [(ngModel)]="categoryId"
+        name="categoryId"
+        (ngModelChange)="selectCategory($event)"
+      >
+        <option value="">Select category</option>
 
+        <option
+          *ngFor="let item of allCategories; trackBy: trackByCategory"
+          [value]="item._id"
+        >
+          {{ item.name }}
+        </option>
+      </select>
 
-      <button class=" btn col-1 offset-10 p-0" (click)="addSubCategory()">ADD
-        <i class="bi bi-arrow-right"></i></button>
+      <i class="bi bi-chevron-down select-icon"></i>
+    </label>
+
+    <label class="field">
+      <span>Subcategory name</span>
+
+      <input
+        type="text"
+        [(ngModel)]="subCategoryName"
+        name="subCategoryName"
+        placeholder="e.g. T-Shirts"
+        autocomplete="off"
+      />
+    </label>
+
+    <div class="upload-box">
+      <label
+        for="subCategoryImgAdd"
+        class="upload-trigger"
+        [class.has-file]="SubCategoryImg"
+      >
+        <div class="upload-icon">
+          <i
+            class="bi"
+            [class.bi-image]="!SubCategoryImg"
+            [class.bi-check-lg]="SubCategoryImg"
+          ></i>
+        </div>
+
+        <div>
+          <strong>
+            {{
+              SubCategoryImg
+                ? SubCategoryImg.name
+                : 'Choose subcategory image'
+            }}
+          </strong>
+
+          <span>
+            {{
+              SubCategoryImg
+                ? 'Image selected'
+                : 'JPG, PNG or WEBP'
+            }}
+          </span>
+        </div>
+
+        <i class="bi bi-arrow-up-right upload-arrow"></i>
+      </label>
+
+      <input
+        id="subCategoryImgAdd"
+        type="file"
+        class="file-input"
+        accept="image/*"
+        (change)="upload($event)"
+      />
+    </div>
+
+    <p
+      class="form-error"
+      *ngIf="errMessage"
+    >
+      <i class="bi bi-exclamation-circle"></i>
+      {{ errMessage }}
+    </p>
+
+    <button
+      type="submit"
+      class="primary-button"
+      [disabled]="
+        !categoryId ||
+        !subCategoryName?.trim() ||
+        loading
+      "
+    >
+      <span>Create subcategory</span>
+      <i class="bi bi-arrow-right"></i>
+    </button>
+  </form>
+</article>
+
+<!-- SUBCATEGORY LIST -->
+<article class="subcategory-card list-card">
+  <header class="card-header">
+    <div>
+      <span class="card-kicker">CATALOG</span>
+      <h3>Subcategories</h3>
+      <p>
+        Select a category to view and manage its subcategories.
+      </p>
+    </div>
+
+    <div class="results-count">
+      {{
+        filteredSubCategories.length
+      }}
+      {{
+        filteredSubCategories.length === 1
+          ? 'subcategory'
+          : 'subcategories'
+      }}
+    </div>
+  </header>
+
+  <div class="category-filter">
+    <label class="field compact-field">
+      <span>View category</span>
+
+      <div class="select-wrapper">
+        <select
+          [(ngModel)]="categoryId"
+          name="listCategoryId"
+          (ngModelChange)="selectCategory($event)"
+        >
+          <option value="">Select category</option>
+
+          <option
+            *ngFor="
+              let item of allCategories;
+              trackBy: trackByCategory
+            "
+            [value]="item._id"
+          >
+            {{ item.name }}
+          </option>
+        </select>
+
+        <i class="bi bi-chevron-down"></i>
+      </div>
+    </label>
+
+    <div
+      class="selected-category"
+      *ngIf="selectedCategory"
+    >
+      <span>Viewing</span>
+      <strong>{{ selectedCategory.name }}</strong>
     </div>
   </div>
 
-
-
-  <div class="col-md-6 col-sm-12 mt-sm-3 scrollStyle" style="height: 80vh; ">
-    <div class="col-12 d-flex align-items-center justify-content-between">
-      <p class="fa w-100">all subcategories</p>
-    <div class=" col-6">
-      <select class=" w-100 p-2 rounded-3 border-0 border-bottom" id="categoryId" (change)="selectCategory()" >
-        <option selected >Select category:</option>
-        <option *ngFor="let item of allCategories let i = index" [ngClass]="{'bg-light': ((i % 2) == 0) }" value="{{item._id}}"  >{{item.name}}</option>
-      </select>
-      <p class=" text-danger position-absolute ms-2 p-0">{{errMessage}}</p>
-    </div>
-    </div>
-<div *ngIf="!categoryId || categoryId=='Select category:'" class=" d-flex justify-content-center h-50 align-items-center fa">select category</div>
-    <table class="table" *ngIf="categoryId && categoryId!='Select category:'">
+  <div
+    class="table-wrapper"
+    *ngIf="categoryId && filteredSubCategories.length"
+  >
+    <table class="subcategory-table">
       <thead>
         <tr>
-          <th scope="col" class=" text-center">#</th>
-          <th scope="col" class=" text-center">Name</th>
-          <th scope="col" class=" text-center">Category</th>
-          <th scope="col" class=" text-center">Created By</th>
-          <th scope="col" class=" text-center">Image</th>
-          <th scope="col" class=" text-center">Delete</th>
-          <th scope="col" class=" text-center">Update</th>
-
+          <th>#</th>
+          <th>Subcategory</th>
+          <th>Parent</th>
+          <th>Created by</th>
+          <th>Image</th>
+          <th></th>
         </tr>
       </thead>
-      <tbody>
-        <tr  *ngFor="let item of allSubCategories let i = index"  [ngClass]="{'d-none': item.categoryId?._id != categoryId ,'bg-light': ((i % 2) == 0) }">
-          <th class="text-center" scope="row">{{i+1}}</th>
-          <th class="text-center" scope="row">{{item.name}}</th>
-          <td class="text-center">
-            <div class=" my-auto">{{item?.categoryId?.name}}</div>
-          </td>
-          <td class="text-center">{{item?.createdBy?.userName}}</td>
 
-          <td class="text-center">
-            <div class="img rounded-3 m-auto "
-              style="background-size: cover; background-position: center center; background-image: url({{item.image}});">
+      <tbody>
+        <tr
+          *ngFor="
+            let item of filteredSubCategories;
+            let i = index;
+            trackBy: trackBySubCategory
+          "
+        >
+          <td class="index-cell">
+            {{ i + 1 }}
+          </td>
+
+          <td>
+            <div class="subcategory-name">
+              <strong>{{ item.name }}</strong>
+              <span>Catalog subcategory</span>
             </div>
           </td>
 
-          <td class="text-center">
-            <div class="d-flex align-items-center justify-content-center cursorPointer" (click)="removeSubCategory(item._id)"><i
-                class="bi bi-trash2-fill bgbtns p-1 py-2 text-danger rounded-3"></i></div>
+          <td>
+            <span class="parent-name">
+              {{ item.categoryId?.name || '—' }}
+            </span>
           </td>
-          <td class="text-center">
-            <div (click)="openEdit = !openEdit" (click)="subCategoryId = item._id" class="d-flex align-items-center justify-content-center cursorPointer" >
-              <i class="bi bi-pen-fill bgbtns p-1 py-2 text-black rounded-3"></i>
+
+          <td>
+            <span class="created-by">
+              {{ item.createdBy?.userName || '—' }}
+            </span>
+          </td>
+
+          <td>
+            <div
+              class="subcategory-image"
+              [style.backgroundImage]="
+                'url(' +
+                (item.image || placeholderImg) +
+                ')'
+              "
+            ></div>
+          </td>
+
+          <td>
+            <div class="table-actions">
+              <button
+                type="button"
+                class="table-action"
+                (click)="openEditModal(item)"
+                aria-label="Edit subcategory"
+                title="Edit subcategory"
+              >
+                <i class="bi bi-pencil"></i>
+              </button>
+
+              <button
+                type="button"
+                class="table-action danger"
+                (click)="removeSubCategory(item._id)"
+                aria-label="Delete subcategory"
+                title="Delete subcategory"
+              >
+                <i class="bi bi-trash3"></i>
+              </button>
             </div>
           </td>
         </tr>
-
       </tbody>
     </table>
   </div>
 
-
-
-</div>
-
-<div [ngClass]="{'d-none': openEdit}"
-  class=" position-absolute vw-100 vh-100 row bg-black bg-opacity-50 top-0 start-0  d-flex align-items-center justify-content-center">
-
+  <!-- NO CATEGORY SELECTED -->
   <div
-    class=" position-relative py-3 col-lg-4 col-sm-6 h-auto bg-light rounded-3 d-flex align-items-center justify-content-around flex-column row position-relative">
-    <p class=" fa">edit category</p>
-    <div class="position-absolute top-0 end-0 p-0 w-auto m-2 cursorPointer " (click)="openEdit = !openEdit"><i
-        class="bi bi-x fs-5"></i></div>
-    <div class=" d-flex ">
-      <input type="text" class="border-0 col-9  p-2 mx-1 rounded-2 border-bottom" placeholder="category" [(ngModel)]="newSubCategoryName">
-      <label for="subCaregoryImg" class=" col-1 offset-1">
-        <div class=" cursorPointer bg-danger h-100 p-0 d-flex align-items-center justify-content-center rounded-5"><i
-            class="bi bi-image text-white fs-5"></i></div>
-      </label>
-
-
-      <input type="file" class="col-12 d-none" id="subCaregoryImg" (change)="upload($event)">
+    class="empty-state"
+    *ngIf="!categoryId"
+  >
+    <div class="empty-icon">
+      <i class="bi bi-folder2-open"></i>
     </div>
 
-    <button class=" btn col-3 btn-primary w-25 mt-3 position-static end-0" (click)="editSubCategory()">Edit</button>
+    <span class="empty-kicker">
+      CHOOSE A CATEGORY
+    </span>
+
+    <h4>Select a parent category</h4>
+
+    <p>
+      Choose a category above to see all subcategories belonging to it.
+    </p>
   </div>
 
+  <!-- NO SUBCATEGORIES -->
+  <div
+    class="empty-state"
+    *ngIf="categoryId && !filteredSubCategories.length"
+  >
+    <div class="empty-icon">
+      <i class="bi bi-diagram-3"></i>
+    </div>
+
+    <span class="empty-kicker">
+      EMPTY CATEGORY
+    </span>
+
+    <h4>No subcategories yet</h4>
+
+    <p>
+      Create the first subcategory for
+      {{ selectedCategory?.name || 'this category' }}.
+    </p>
+  </div>
+</article>
+
+
+  </section>
+</main>
+
+<!-- EDIT MODAL -->
+
+<div
+  class="edit-overlay"
+  *ngIf="openEdit"
+  (click)="closeEditModal()"
+>
+  <section
+    class="edit-card"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="edit-header">
+      <div>
+        <span class="modal-kicker">
+          SUBCATEGORY MANAGEMENT
+        </span>
+
+
+    <h3>Edit subcategory</h3>
+  </div>
+
+  <button
+    type="button"
+    class="modal-close"
+    (click)="closeEditModal()"
+    aria-label="Close"
+  >
+    <i class="bi bi-x-lg"></i>
+  </button>
+</header>
+
+<form
+  class="edit-form"
+  (ngSubmit)="editSubCategory()"
+  novalidate
+>
+  <label class="field">
+    <span>Subcategory name</span>
+
+    <input
+      type="text"
+      [(ngModel)]="newSubCategoryName"
+      name="newSubCategoryName"
+      placeholder="Subcategory name"
+      required
+    />
+  </label>
+
+  <div class="current-parent">
+    <span>Parent category</span>
+
+    <strong>
+      {{ editingSubCategory?.categoryId?.name || '—' }}
+    </strong>
+  </div>
+
+  <div
+    class="current-image"
+    *ngIf="editingSubCategory?.image"
+  >
+    <div
+      class="current-image-preview"
+      [style.backgroundImage]="
+        'url(' + editingSubCategory?.image + ')'
+      "
+    ></div>
+
+    <div>
+      <span>Current image</span>
+      <strong>Subcategory artwork</strong>
+    </div>
+  </div>
+
+  <div class="upload-box edit-upload">
+    <label
+      for="subCategoryImgEdit"
+      class="upload-trigger"
+      [class.has-file]="SubCategoryImg"
+    >
+      <div class="upload-icon">
+        <i
+          class="bi"
+          [class.bi-image]="!SubCategoryImg"
+          [class.bi-check-lg]="SubCategoryImg"
+        ></i>
+      </div>
+
+      <div>
+        <strong>
+          {{
+            SubCategoryImg
+              ? SubCategoryImg.name
+              : 'Replace subcategory image'
+          }}
+        </strong>
+
+        <span>
+          {{
+            SubCategoryImg
+              ? 'New image selected'
+              : 'Optional'
+          }}
+        </span>
+      </div>
+
+      <i class="bi bi-arrow-up-right upload-arrow"></i>
+    </label>
+
+    <input
+      id="subCategoryImgEdit"
+      type="file"
+      class="file-input"
+      accept="image/*"
+      (change)="upload($event)"
+    />
+  </div>
+
+  <div class="edit-actions">
+    <button
+      type="button"
+      class="secondary-button"
+      (click)="closeEditModal()"
+    >
+      Cancel
+    </button>
+
+    <button
+      type="submit"
+      class="primary-button"
+      [disabled]="
+        !newSubCategoryName?.trim() ||
+        loading
+      "
+    >
+      <i class="bi bi-check-lg"></i>
+      <span>Save changes</span>
+    </button>
+  </div>
+</form>
+
+
+  </section>
 </div>

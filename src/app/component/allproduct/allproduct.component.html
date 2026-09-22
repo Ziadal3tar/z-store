@@ -1,86 +1,535 @@
-<app-navbar [cartlength]="cartlength"></app-navbar>
+<app-navbar></app-navbar>
 
+<main class="shop-page">
+  <section class="shop-hero">
+    <div class="container shop-hero-inner">
+      <div class="hero-copy">
+        <span class="eyebrow">Z-STORE / COLLECTION</span>
 
+        <h1>Find pieces that fit your style.</h1>
 
-<div class=" w-100 h-100 bg-black position-fixed top-0 bg-opacity-75 p-0 p-sm-5 " [ngClass]="{'d-none': !openProductDetails}"
-  style="z-index: 99;">
-  <div class="container bg-white position-relative ">
-    <div class=" position-absolute top-0 end-0 m-3 cursorPointer" (click)="productdetails.indexx = 0"><i
-        (click)="openProductDetails = !openProductDetails" class="bi bi-x-circle-fill"></i></div>
-    <app-products-details #productdetails style="z-index: 99;" [productDetails]="productDetails"></app-products-details>
-  </div>
+        <p>
+          Explore the full collection, refine your search and discover products
+          selected for everyday use and lasting style.
+        </p>
 
-</div>
+        <div class="hero-actions">
+          <a class="hero-link" routerLink="/shop">
+            <span>Explore collection</span>
+            <i class="bi bi-arrow-down-right"></i>
+          </a>
 
-<div class=" col-12 row mt-5 px-md-5 d-flex ">
-  <div class=" d-flex position-relative px-5">
-<app-filter-btn
-  [products]="allProducts"
-  (productsChanged)="onProductsChange($event)">
-</app-filter-btn>
-<app-search-btn
-  class="ms-2"
-  (searchChanged)="onSearchChange($event)">
-</app-search-btn>  </div>
-</div>
+          <span class="hero-note">
+            Curated products · Easy shopping
+          </span>
+        </div>
+      </div>
 
-<div class="row m-0  mt-5 p-5">
-  <div
-    class=" col-xl-3 col-lg-3  col-md-4 col-sm-6 mb-5 d-flex align-items-center justify-content-center justify-content-md-start flex-column"
-    *ngFor="let slide of products let i = index; trackBy: trackById">
-    <div style="width: 225px; height: 300px;" class="  position-relative">
-      <div class="rounded-3 position-relative rounded-3 overflow-hidden product" style=" width: 225px; height: 300px; ">
+      <div class="hero-stat">
+        <span class="stat-label">AVAILABLE NOW</span>
 
-        <img [src]="slide.images[0]" loading="lazy" decoding="async" class="product-img" (click)="openDetails(slide)" />
+        <strong>{{ totalProducts }}</strong>
 
-        <div
-          class="layer position-absolute w-100 h-25 bg-black bg-opacity-50 d-lg-flex align-items-center justify-content-center d-none "
-          style="bottom: -25%; ">
-          <i (click)="addToCart(slide._id)" class="mood fab fa-opencart text-white fs-4 cursorPointer"></i>
+        <span class="stat-caption">
+          {{ totalProducts === 1 ? 'product' : 'products' }}
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <section class="container shop-content">
+    <div class="shop-toolbar">
+      <div class="toolbar-left">
+        <label class="search-field">
+          <span class="sr-only">Search products</span>
+
+          <i class="bi bi-search"></i>
+
+          <input
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearchChange($event)"
+            type="search"
+            placeholder="Search products, brands or categories..."
+            autocomplete="off"
+            aria-label="Search products"
+          />
+
+          <button
+            *ngIf="searchTerm"
+            type="button"
+            class="search-clear"
+            aria-label="Clear search"
+            (click)="clearSearch()"
+          >
+            <i class="bi bi-x"></i>
+          </button>
+        </label>
+
+        <span class="result-count">
+          {{ totalProducts }}
+          {{ totalProducts === 1 ? 'result' : 'results' }}
+        </span>
+      </div>
+
+      <div class="toolbar-right">
+        <button
+          type="button"
+          class="filter-toggle"
+          [class.active]="showFilters"
+          (click)="showFilters = !showFilters"
+          aria-label="Toggle filters"
+        >
+          <i class="bi bi-sliders2"></i>
+          <span>Filters</span>
+
+          <span
+            class="filter-indicator"
+            *ngIf="hasActiveFilters"
+            aria-hidden="true"
+          ></span>
+        </button>
+
+        <label class="sort-control">
+          <span>Sort</span>
+
+          <select
+            [(ngModel)]="sortBy"
+            (ngModelChange)="onSortChange($event)"
+            aria-label="Sort products"
+          >
+            <option value="featured">Featured</option>
+            <option value="newest">Newest</option>
+            <option value="price-low">Price: low to high</option>
+            <option value="price-high">Price: high to low</option>
+            <option value="name">Name</option>
+          </select>
+
+          <i class="bi bi-chevron-down"></i>
+        </label>
+      </div>
+    </div>
+
+    <div class="filter-panel" *ngIf="showFilters">
+      <div class="filter-group">
+        <div class="filter-title-row">
+          <div>
+            <span class="filter-kicker">FILTER</span>
+            <strong>Price range</strong>
+          </div>
+
+          <button
+            type="button"
+            class="clear-link"
+            (click)="clearPriceFilter()"
+          >
+            Clear
+          </button>
         </div>
 
-
-
-
+        <div class="chips">
+          <button
+            *ngFor="let item of priceRanges"
+            type="button"
+            class="chip"
+            [class.active]="
+              selectedPrice.min === item.range.min &&
+              selectedPrice.max === item.range.max
+            "
+            (click)="selectPrice(item.range)"
+          >
+            {{ item.label }}
+          </button>
+        </div>
       </div>
 
+      <div class="filter-divider"></div>
+
+      <div class="filter-group">
+        <div class="filter-title-row">
+          <div>
+            <span class="filter-kicker">FILTER</span>
+            <strong>Color</strong>
+          </div>
+
+          <button
+            type="button"
+            class="clear-link"
+            (click)="clearColorFilter()"
+          >
+            Clear
+          </button>
+        </div>
+
+        <div class="color-chips">
+          <button
+            *ngFor="let color of colors"
+            type="button"
+            class="color-chip"
+            [class.active]="selectedColor === color"
+            [attr.aria-label]="'Filter by ' + color"
+            (click)="selectColor(color)"
+          >
+            <span
+              class="color-dot"
+              [style.backgroundColor]="color"
+            ></span>
+
+            <span>{{ color }}</span>
+
+            <i
+              *ngIf="selectedColor === color"
+              class="bi bi-check2"
+              aria-hidden="true"
+            ></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="filter-footer">
+        <span class="filter-summary">
+          {{ products.length }} matching products on this page
+        </span>
+
+        <button
+          type="button"
+          class="reset-filters"
+          (click)="resetFilters()"
+        >
+          Reset all
+        </button>
+      </div>
     </div>
-    <div class="mt-1" style="width: 225px;">
-      <div class=" w-100 d-flex align-items-center justify-content-between">
-        <p class=" m-0 text-gray fs-6"> {{slide.name}}</p>
-        <i class="bi cursorPointer " [ngClass]="ifInWishlist(slide)?'bi-heart-fill text-danger':'bi-heart'"
-          (click)="addToFavorites(slide._id,$event)"></i>
-      </div>
-      <div class=" w-100 d-flex align-items-center justify-content-between">
-        <p class=" m-0 text-gray">{{slide.finalPrice}}$ </p>
-        <i (click)="addToCart(slide._id)" class="fab fa-opencart text-black cursorPointer d-block d-lg-none"></i>
 
-      </div>
+    <div class="active-filters" *ngIf="hasActiveFilters">
+      <span class="active-label">Active:</span>
 
+      <button
+        *ngIf="searchTerm"
+        type="button"
+        class="active-filter"
+        (click)="clearSearch()"
+      >
+        Search: {{ searchTerm }}
+        <i class="bi bi-x"></i>
+      </button>
 
+      <button
+        *ngIf="selectedColor"
+        type="button"
+        class="active-filter"
+        (click)="clearColorFilter()"
+      >
+        Color: {{ selectedColor }}
+        <i class="bi bi-x"></i>
+      </button>
+
+      <button
+        *ngIf="selectedPrice.min != null || selectedPrice.max != null"
+        type="button"
+        class="active-filter"
+        (click)="clearPriceFilter()"
+      >
+        Price:
+        {{ selectedPrice.min == null ? '$0' : ('$' + selectedPrice.min) }}
+        –
+        {{ selectedPrice.max == null ? 'up' : ('$' + selectedPrice.max) }}
+        <i class="bi bi-x"></i>
+      </button>
+
+      <button
+        type="button"
+        class="clear-all-link"
+        (click)="resetFilters()"
+      >
+        Clear all
+      </button>
     </div>
+
+    <div
+      class="section-heading"
+      *ngIf="!isLoading && products.length"
+    >
+      <div>
+        <span class="section-kicker">THE COLLECTION</span>
+        <h2>Selected for you</h2>
+      </div>
+
+      <span class="page-indicator" *ngIf="totalPages > 1">
+        Page {{ currentPage }} of {{ totalPages }}
+      </span>
+    </div>
+
+    <div class="shop-skeleton" *ngIf="isLoading">
+      <div class="skeleton-card" *ngFor="let item of skeletonItems">
+        <div class="skeleton-media"></div>
+
+        <div class="skeleton-content">
+          <span></span>
+          <strong></strong>
+          <div></div>
+        </div>
+      </div>
+    </div>
+
+    <section
+      class="product-grid"
+      *ngIf="!isLoading && products.length"
+      aria-label="Products"
+    >
+      <article
+        class="product-card"
+        *ngFor="
+          let product of products;
+          trackBy: trackByProductId
+        "
+      >
+        <div class="product-media">
+          <button
+            type="button"
+            class="image-button"
+            (click)="viewProduct(product)"
+            [attr.aria-label]="'View ' + product.name"
+          >
+            <img
+              [src]="imageUrl(product)"
+              [alt]="product.name || 'Product image'"
+              loading="lazy"
+              decoding="async"
+            />
+          </button>
+
+          <span
+            class="product-badge"
+            *ngIf="discountPercent(product) > 0"
+          >
+            -{{ discountPercent(product) }}%
+          </span>
+
+          <span
+            class="stock-badge"
+            *ngIf="product.stock === 0"
+          >
+            Out of stock
+          </span>
+
+          <button
+            type="button"
+            class="favorite-button"
+            [class.is-favorite]="ifInWishlist(product)"
+            [class.is-busy]="isFavoriteBusy(product)"
+            [disabled]="isFavoriteBusy(product)"
+            (click)="addToFavorites(product)"
+            [attr.aria-label]="
+              ifInWishlist(product)
+                ? 'Remove from wishlist'
+                : 'Add to wishlist'
+            "
+          >
+            <i
+              class="bi"
+              [class.bi-heart]="!ifInWishlist(product)"
+              [class.bi-heart-fill]="ifInWishlist(product)"
+            ></i>
+          </button>
+
+          <button
+            type="button"
+            class="quick-view-button"
+            (click)="openQuickView(product)"
+          >
+            <i class="bi bi-eye"></i>
+            <span>Quick view</span>
+          </button>
+        </div>
+
+        <div class="product-body">
+          <div class="product-meta">
+            <span>
+              {{
+                product.brand?.name ||
+                product.category?.name ||
+                'Collection'
+              }}
+            </span>
+
+            <span
+              class="availability"
+              [class.out-of-stock]="product.stock === 0"
+            >
+              {{
+                product.stock === 0
+                  ? 'Out of stock'
+                  : product.stock !== undefined
+                    ? 'In stock'
+                    : 'Available'
+              }}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            class="product-title-button"
+            (click)="viewProduct(product)"
+          >
+            <h2>{{ product.name }}</h2>
+          </button>
+
+          <p class="product-description">
+            {{
+              product.description ||
+                'A carefully selected piece from the Z-Store collection.'
+            }}
+          </p>
+
+          <div class="product-bottom">
+            <div class="price-block">
+              <strong>
+                {{ finalPrice(product) | currency }}
+              </strong>
+
+              <del *ngIf="oldPrice(product) as oldPrice">
+                {{ oldPrice | currency }}
+              </del>
+            </div>
+
+            <button
+              type="button"
+              class="add-button"
+              [class.loading]="isCartBusy(product)"
+              [disabled]="
+                product.stock === 0 ||
+                isCartBusy(product)
+              "
+              (click)="addToCart(product)"
+            >
+              <ng-container
+                *ngIf="!isCartBusy(product)"
+              >
+                <i class="bi bi-bag-plus"></i>
+                <span>Add</span>
+              </ng-container>
+
+              <ng-container
+                *ngIf="isCartBusy(product)"
+              >
+                <span class="button-spinner"></span>
+                <span>Adding</span>
+              </ng-container>
+            </button>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section
+      class="empty-state"
+      *ngIf="!isLoading && !products.length"
+    >
+      <div class="empty-icon">
+        <i class="bi bi-search"></i>
+      </div>
+
+      <span class="empty-kicker">NOTHING FOUND</span>
+
+      <h2>No products match your filters.</h2>
+
+      <p>
+        Try a different search term, choose another price range or clear the
+        filters to browse the complete collection.
+      </p>
+
+      <button
+        type="button"
+        class="primary-action"
+        (click)="resetFilters()"
+      >
+        <span>Show all products</span>
+        <i class="bi bi-arrow-right"></i>
+      </button>
+    </section>
+
+    <nav
+      class="pagination"
+      *ngIf="!isLoading && totalPages > 1"
+      aria-label="Products pagination"
+    >
+      <button
+        type="button"
+        class="page-nav"
+        [disabled]="currentPage === 1"
+        (click)="goToPage(currentPage - 1)"
+      >
+        <i class="bi bi-arrow-left"></i>
+        <span>Prev</span>
+      </button>
+
+      <div class="page-list">
+        <ng-container
+          *ngFor="let page of paginationPages"
+        >
+          <span
+            *ngIf="page === '…'"
+            class="dots"
+            aria-hidden="true"
+          >
+            …
+          </span>
+
+          <button
+            *ngIf="page !== '…'"
+            type="button"
+            class="page-number"
+            [class.active]="page === currentPage"
+            [attr.aria-current]="
+              page === currentPage
+                ? 'page'
+                : null
+            "
+            (click)="goToPage(+page)"
+          >
+            {{ page }}
+          </button>
+        </ng-container>
+      </div>
+
+      <button
+        type="button"
+        class="page-nav"
+        [disabled]="currentPage === totalPages"
+        (click)="goToPage(currentPage + 1)"
+      >
+        <span>Next</span>
+        <i class="bi bi-arrow-right"></i>
+      </button>
+    </nav>
+  </section>
+</main>
+
+<div
+  class="quick-view-backdrop"
+  *ngIf="openProductDetails"
+  (click)="closeQuickView()"
+>
+  <div
+    class="quick-view-dialog"
+    (click)="$event.stopPropagation()"
+  >
+    <button
+      type="button"
+      class="quick-close"
+      (click)="closeQuickView()"
+      aria-label="Close quick view"
+    >
+      <i class="bi bi-x-lg"></i>
+    </button>
+
+    <app-products-details
+      [productDetails]="productDetails"
+    ></app-products-details>
   </div>
 </div>
 
-<div class="pagination-wrapper">
-  <button class="nav-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
-    ‹ Prev
-  </button>
-
-  <ng-container *ngFor="let page of paginationPages">
-    <button *ngIf="page !== '...'; else dots" class="page-btn" [class.active]="page === currentPage"
-      (click)="goToPage(page)">
-      {{ page }}
-    </button>
-
-    <ng-template #dots>
-      <span class="dots">…</span>
-    </ng-template>
-  </ng-container>
-
-  <button class="nav-btn" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
-    Next ›
-  </button>
-</div>
-
-<app-login-first *ngIf="loginFirst" (closeL)="loginFirst = $event"></app-login-first>
+<app-login-first
+  *ngIf="loginFirst"
+  (closeL)="loginFirst = $event"
+></app-login-first>

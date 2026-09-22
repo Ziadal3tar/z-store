@@ -1,1 +1,24 @@
-<p>product-card works!</p>
+<article class="product-card">
+  <button class="media" type="button" (click)="open.emit(product._id ?? '')" [attr.aria-label]="'View ' + product.name">
+    <img [src]="imageUrl" [alt]="product.name" loading="lazy" decoding="async" />
+    <span class="stock-badge" *ngIf="outOfStock">Out of stock</span>
+  </button>
+
+  <div class="product-body">
+    <span class="category">{{ $any(product).category?.name || product.categoryId || 'Collection' }}</span>
+    <h3>{{ product.name }}</h3>
+    <p>{{ product.description || 'Premium selection from this store.' }}</p>
+
+    <div class="price-row">
+      <strong>{{ finalPrice | currency }}</strong>
+      <del *ngIf="product.discount">{{ product.price | currency }}</del>
+    </div>
+
+    <div class="actions">
+      <button class="add-button" type="button" [disabled]="outOfStock" (click)="add.emit(product._id ?? '')">
+        {{ outOfStock ? 'Out of stock' : 'Add to cart' }}
+      </button>
+      <button class="wish-button" type="button" (click)="wish.emit(product._id ?? '')" aria-label="Add to wishlist">♡</button>
+    </div>
+  </div>
+</article>

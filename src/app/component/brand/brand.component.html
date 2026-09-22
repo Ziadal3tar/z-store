@@ -1,98 +1,372 @@
 <app-loading *ngIf="loading"></app-loading>
 
-<div class=" container d-flex row p-3">
-  <p class=" m-0 p-0 fa my-4 d-flex align-items-center justify-content-center fs-4 ">brand</p>
-
-  <div class="col-md-6 col-sm-12">
-    <p class="fa col-12">add brand</p>
-    <div class=" d-flex  col-12">
+<main class="brand-page">
+  <header class="brand-header">
+    <div>
+      <span class="eyebrow">ADMIN / CATALOG</span>
 
 
+  <h2>Brands</h2>
+
+  <p>
+    Manage the brands available across your product catalog and keep
+    storefront branding consistent.
+  </p>
+</div>
+
+<div class="brand-stat">
+  <span>ALL BRANDS</span>
+  <strong>{{ allBrands.length }}</strong>
+</div>
 
 
-      <input type="text" class="border-0 col-9  p-2  rounded-2 border-bottom" placeholder="brand"  [(ngModel)]="brandName">
-      <label for="brandImg" class=" col-1 offset-1">
-        <div class=" cursorPointer bg-danger h-100 p-0 d-flex align-items-center justify-content-center rounded-5"><i
-            class="bi bi-image text-white fs-5"></i></div>
+  </header>
+
+  <section class="brand-layout">
+
+
+<!-- ADD BRAND -->
+<article class="brand-card add-card">
+  <header class="card-header">
+    <div>
+      <span class="card-kicker">CATALOG SETUP</span>
+      <h3>Add brand</h3>
+      <p>
+        Create a brand with a name and optional visual identity.
+      </p>
+    </div>
+
+    <div class="card-icon">
+      <i class="bi bi-award"></i>
+    </div>
+  </header>
+
+  <form
+    class="brand-form"
+    (ngSubmit)="addBrand()"
+    novalidate
+  >
+    <label class="field">
+      <span>Brand name</span>
+
+      <input
+        type="text"
+        [(ngModel)]="brandName"
+        name="brandName"
+        placeholder="e.g. Nike"
+        autocomplete="off"
+      />
+    </label>
+
+    <div class="upload-box">
+      <label
+        for="brandImgAdd"
+        class="upload-trigger"
+        [class.has-file]="brandImg"
+      >
+        <div class="upload-icon">
+          <i
+            class="bi"
+            [class.bi-image]="!brandImg"
+            [class.bi-check-lg]="brandImg"
+          ></i>
+        </div>
+
+        <div>
+          <strong>
+            {{
+              brandImg
+                ? brandImg.name
+                : 'Choose brand image'
+            }}
+          </strong>
+
+          <span>
+            {{
+              brandImg
+                ? 'Image selected'
+                : 'JPG, PNG or WEBP'
+            }}
+          </span>
+        </div>
+
+        <i class="bi bi-arrow-up-right upload-arrow"></i>
       </label>
-      <input type="file" class=" d-none" id="brandImg" (change)="upload($event)">
+
+      <input
+        id="brandImgAdd"
+        type="file"
+        class="file-input"
+        accept="image/*"
+        (change)="upload($event)"
+      />
     </div>
 
+    <button
+      type="submit"
+      class="primary-button"
+      [disabled]="!brandName?.trim() || loading"
+    >
+      <span>Create brand</span>
+      <i class="bi bi-arrow-right"></i>
+    </button>
+  </form>
 
-    <div class=" position-relative d-flex col-12 mt-4">
+  <div class="form-hint">
+    <i class="bi bi-info-circle"></i>
 
-
-
-      <button class=" btn col-1 offset-10 p-0" (click)="addBrand()">ADD
-        <i class="bi bi-arrow-right"></i></button>
-    </div>
+    <span>
+      Uploading a brand image makes the brand easier to recognize across
+      the store.
+    </span>
   </div>
+</article>
 
-
-
-  <div class="col-md-6 col-sm-12 mt-sm-3 scrollStyle" style="height: 80vh; ">
-    <div class="col-12 d-flex align-items-center justify-content-between">
-      <p class="fa w-100">all brands</p>
-
+<!-- BRAND LIST -->
+<article class="brand-card list-card">
+  <header class="card-header list-card-header">
+    <div>
+      <span class="card-kicker">CATALOG</span>
+      <h3>All brands</h3>
+      <p>
+        Review brand information and update or remove entries.
+      </p>
     </div>
-    <table class="table" >
+
+    <div class="results-count">
+      {{ allBrands.length }}
+      {{ allBrands.length === 1 ? 'brand' : 'brands' }}
+    </div>
+  </header>
+
+  <div
+    class="brand-table-wrap"
+    *ngIf="allBrands.length"
+  >
+    <table class="brand-table">
       <thead>
         <tr>
-          <th scope="col" class=" text-center">#</th>
-          <th scope="col" class=" text-center">Name</th>
-          <th scope="col" class=" text-center">Created By</th>
-          <th scope="col" class=" text-center">Image</th>
-          <th scope="col" class=" text-center">Delete</th>
-          <th scope="col" class=" text-center">Update</th>
+          <th>#</th>
+          <th>Brand</th>
+          <th>Created by</th>
+          <th>Image</th>
+          <th></th>
         </tr>
       </thead>
+
       <tbody>
-        <tr  *ngFor="let item of allBrands let i = index"  [ngClass]="{'bg-light': ((i % 2) == 0) }">
-          <th class="text-center" scope="row">{{i+1}}</th>
-          <th class="text-center" scope="row">{{item.name}}</th>
+        <tr
+          *ngFor="
+            let item of allBrands;
+            let i = index;
+            trackBy: trackByBrand
+          "
+        >
+          <td class="index-cell">
+            {{ i + 1 }}
+          </td>
 
-          <td class="text-center">{{item?.createdBy?.userName}}</td>
-
-          <td class="text-center">
-            <div class="img rounded-3 m-auto "
-              style="background-size: cover; background-position: center center; background-image: url({{item.image}});">
+          <td>
+            <div class="brand-name">
+              <strong>{{ item.name }}</strong>
+              <span>Catalog brand</span>
             </div>
           </td>
 
-          <td class="text-center">
-            <div class="d-flex align-items-center justify-content-center cursorPointer" (click)="removebrand(item._id)"><i
-                class="bi bi-trash2-fill bgbtns p-1 py-2 text-danger rounded-3"></i></div>
+          <td>
+            <span class="created-by">
+              {{ item.createdBy?.userName || '—' }}
+            </span>
           </td>
-          <td class="text-center">
-            <div (click)="openEdit = !openEdit" (click)="brandId = item._id" class="d-flex align-items-center justify-content-center cursorPointer" >
-              <i class="bi bi-pen-fill bgbtns p-1 py-2 text-black rounded-3"></i>
+
+          <td>
+            <div
+              class="brand-image"
+              [style.backgroundImage]="
+                'url(' +
+                (item.image || placeholderImg) +
+                ')'
+              "
+            ></div>
+          </td>
+
+          <td>
+            <div class="table-actions">
+              <button
+                type="button"
+                class="table-action"
+                (click)="openEditModal(item)"
+                aria-label="Edit brand"
+                title="Edit brand"
+              >
+                <i class="bi bi-pencil"></i>
+              </button>
+
+              <button
+                type="button"
+                class="table-action danger"
+                (click)="removeBrand(item._id)"
+                aria-label="Delete brand"
+                title="Delete brand"
+              >
+                <i class="bi bi-trash3"></i>
+              </button>
             </div>
           </td>
         </tr>
-
       </tbody>
     </table>
   </div>
-</div>
-
-<div [ngClass]="{'d-none': openEdit}"
-  class=" position-absolute vw-100 vh-100 row bg-black bg-opacity-50 top-0 start-0  d-flex align-items-center justify-content-center">
 
   <div
-    class=" position-relative py-3 col-lg-4 col-sm-6 h-auto bg-light rounded-3 d-flex align-items-center justify-content-around flex-column row position-relative">
-    <p class=" fa">edit category</p>
-    <div class="position-absolute top-0 end-0 p-0 w-auto m-2 cursorPointer " (click)="openEdit = !openEdit"><i
-        class="bi bi-x fs-5"></i></div>
-    <div class=" d-flex ">
-      <input type="text" class="border-0 col-9  p-2 mx-1 rounded-2 border-bottom" placeholder="category" [(ngModel)]="newBrandName">
-      <label for="brandImg" class=" col-1 offset-1">
-        <div class=" cursorPointer bg-danger h-100 p-0 d-flex align-items-center justify-content-center rounded-5"><i
-            class="bi bi-image text-white fs-5"></i></div>
-      </label>
-      <input type="file" class="col-12 d-none" id="brandImg" (change)="upload($event)">
+    class="empty-state"
+    *ngIf="!allBrands.length"
+  >
+    <div class="empty-icon">
+      <i class="bi bi-award"></i>
     </div>
 
-    <button class=" btn col-3 btn-primary w-25 mt-3 position-static end-0" (click)="editBrand()">Edit</button>
+    <span class="empty-kicker">EMPTY CATALOG</span>
+
+    <h4>No brands yet</h4>
+
+    <p>
+      Create your first brand from the panel on the left.
+    </p>
+  </div>
+</article>
+
+
+  </section>
+</main>
+
+<!-- EDIT MODAL -->
+
+<div
+  class="edit-overlay"
+  *ngIf="openEdit"
+  (click)="closeEditModal()"
+>
+  <section
+    class="edit-card"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="edit-header">
+      <div>
+        <span class="modal-kicker">BRAND MANAGEMENT</span>
+
+
+    <h3>Edit brand</h3>
   </div>
 
+  <button
+    type="button"
+    class="modal-close"
+    (click)="closeEditModal()"
+    aria-label="Close"
+  >
+    <i class="bi bi-x-lg"></i>
+  </button>
+</header>
+
+<form
+  class="edit-form"
+  (ngSubmit)="editBrand()"
+  novalidate
+>
+  <label class="field">
+    <span>Brand name</span>
+
+    <input
+      type="text"
+      [(ngModel)]="newBrandName"
+      name="newBrandName"
+      placeholder="Brand name"
+      required
+    />
+  </label>
+
+  <div
+    class="current-image"
+    *ngIf="editingBrand?.image"
+  >
+    <div
+      class="current-image-preview"
+      [style.backgroundImage]="
+        'url(' + editingBrand?.image + ')'
+      "
+    ></div>
+
+    <div>
+      <span>Current image</span>
+      <strong>Brand artwork</strong>
+    </div>
+  </div>
+
+  <div class="upload-box edit-upload">
+    <label
+      for="brandImgEdit"
+      class="upload-trigger"
+      [class.has-file]="brandImg"
+    >
+      <div class="upload-icon">
+        <i
+          class="bi"
+          [class.bi-image]="!brandImg"
+          [class.bi-check-lg]="brandImg"
+        ></i>
+      </div>
+
+      <div>
+        <strong>
+          {{
+            brandImg
+              ? brandImg.name
+              : 'Replace brand image'
+          }}
+        </strong>
+
+        <span>
+          {{
+            brandImg
+              ? 'New image selected'
+              : 'Optional'
+          }}
+        </span>
+      </div>
+
+      <i class="bi bi-arrow-up-right upload-arrow"></i>
+    </label>
+
+    <input
+      id="brandImgEdit"
+      type="file"
+      class="file-input"
+      accept="image/*"
+      (change)="upload($event)"
+    />
+  </div>
+
+  <div class="edit-actions">
+    <button
+      type="button"
+      class="secondary-button"
+      (click)="closeEditModal()"
+    >
+      Cancel
+    </button>
+
+    <button
+      type="submit"
+      class="primary-button"
+      [disabled]="!newBrandName?.trim() || loading"
+    >
+      <i class="bi bi-check-lg"></i>
+      <span>Save changes</span>
+    </button>
+  </div>
+</form>
+
+
+  </section>
 </div>

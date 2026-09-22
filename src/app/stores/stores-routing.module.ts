@@ -4,62 +4,58 @@ import { StoreDashboardComponent } from './pages/store-dashboard/store-dashboard
 import { StorefrontComponent } from './pages/storefront/storefront.component';
 import { ProductFormComponent } from './components/product-form/product-form.component';
 import { ProductsListComponent } from './components/products-list/products-list.component';
+import { OrdersListComponent } from './components/orders-list/orders-list.component';
+import { LogingurdGuard } from '../services/logingurd.guard';
 
 const routes: Routes = [
   {
     path: '',
     redirectTo: 'create',
-    pathMatch: 'full'
+    pathMatch: 'full',
   },
-
-  // صفحة إنشاء المتجر
   {
     path: 'create',
-    component: StorefrontComponent
+    component: StorefrontComponent,
+    data: { title: 'Create your store' },
   },
-
-  // Storefront
-  {
-    path: ':id',
-    component: StorefrontComponent
-  },
-
-  // Dashboard (admin)
   {
     path: ':id/admin',
     component: StoreDashboardComponent,
+    canActivate: [LogingurdGuard],
+    canActivateChild: [LogingurdGuard],
+    data: { title: 'Store dashboard' },
     children: [
-      // Products list
       {
         path: 'products',
-        component: ProductsListComponent
+        component: ProductsListComponent,
+        data: { title: 'Products management' },
       },
-
-      // Add product
       {
         path: 'products/new',
-        component: ProductFormComponent
+        component: ProductFormComponent,
+        data: { title: 'Add product' },
       },
-
-      // Edit product
       {
         path: 'products/:productId/edit',
-        component: ProductFormComponent
+        component: ProductFormComponent,
+        data: { title: 'Edit product' },
       },
-
-      // Default child
       {
-        path: '',
-        redirectTo: 'products',
-        pathMatch: 'full'
-      }
-    ]
-  }
+        path: 'orders',
+        component: OrdersListComponent,
+        data: { title: 'Orders management' },
+      },
+    ],
+  },
+  {
+    path: ':id',
+    component: StorefrontComponent,
+    data: { title: 'Store' },
+  },
 ];
-
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class StoresRoutingModule { }
+export class StoresRoutingModule {}

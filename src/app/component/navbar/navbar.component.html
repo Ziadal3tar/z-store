@@ -1,79 +1,250 @@
-<nav [ngClass]="[onScroll]" id="nav" style=" transition: 0.5s; z-index: 9 !important;"
-  class="my-3 w-100 d-flex align-items-center justify-content-center nav navbar-expand-lg mx-auto ">
-  <div class="   container d-flex justify-content-between align-items-center  flex-wrap " style="z-index: 9;">
-    <i (click)=" showNav()" class="fa-solid fa-bars header-toggle col-md-4 fs-3 d-none cursorPointer "></i>
-    <div class=" col-lg-2  col-md-4 offset-lg-0 d-flex justify-content-center ">
-      <a routerLink="/home" class="  navbar-brand text-danger fw-bold fs-1 ">Z-STORE</a>
-    </div>
-    <div class=" navitem col-md-4  col-lg-6 d-flex align-items-center justify-content-around offset-lg-1   ">
-      <ul class="navbar-nav nav-list  d-flex justify-content-lg-around  justify-content-lg-between w-75 ">
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/home">HOME</a>
-        </li>
-        <li class="nav-item ">
-          <a routerLink="/Shop" class="nav-link">SHOP </a>
-        </li>
-        <li class="nav-item  ">
-          <a id="setting" routerLink="/blog" class="nav-link d-flex align-items-center">BLOG</a>
-        </li>
-        <li class="nav-item " *ngIf="userData?.role == 'Admin'">
-          <a class="nav-link " routerLink="/admin">ADMIN </a>
-        </li>
-        <li class="nav-item ">
-          <a class="nav-link "> CONTACT</a>
-        </li>
-      </ul>
-    </div>
-    <div class="user-details  d-flex  align-items-center justify-content-end col-md-4  col-lg-3  ">
-      <i (click)="openSearch = !openSearch" class="fa-solid fa-magnifying-glass  fs-5"></i>
-      <div class="userImg d-flex align-items-center justify-content-around position-relative  " style="  width: 80px;">
-        <div *ngIf="userData && userData != ''" alt="" routerLink="/userinfo/settings" style="width: 40px;height: 40px;border-radius: 50%; cursor: pointer; background-position: center center; background-size: cover;
-          background-image: url({{userData.profilePic}});"></div>
+<nav
+  id="nav"
+  [ngClass]="onScroll"
+  class="site-navbar"
+  aria-label="Main navigation"
+>
+  <div class="container">
+    <div class="navbar-shell">
 
+      <!-- Mobile menu -->
+      <button
+        type="button"
+        class="mobile-menu-btn"
+        (click)="showNav()"
+        aria-label="Open menu"
+      >
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+      <!-- Logo -->
+      <a
+        routerLink="/home"
+        class="brand-logo"
+        aria-label="Z-Store Home"
+      >
+        <span>Z</span>-STORE
+      </a>
+
+      <!-- Desktop Navigation -->
+      <div class="desktop-nav">
+        <ul class="nav-links">
+          <li>
+            <a
+              routerLink="/home"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: true }"
+            >
+              HOME
+            </a>
+          </li>
+
+          <li>
+            <a
+              routerLink="/Shop"
+              routerLinkActive="active"
+            >
+              SHOP
+            </a>
+          </li>
+
+          <li>
+            <a
+              routerLink="/blog"
+              routerLinkActive="active"
+            >
+              BLOG
+            </a>
+          </li>
+
+          <li *ngIf="userData?.role == 'Admin'">
+            <a
+              routerLink="/admin"
+              routerLinkActive="active"
+            >
+              ADMIN
+            </a>
+          </li>
+
+          <li>
+            <a href="#contact">
+              CONTACT
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Actions -->
+      <div class="navbar-actions">
+
+        <!-- Search -->
+        <button
+          type="button"
+          class="icon-btn"
+          (click)="openSearch = !openSearch"
+          aria-label="Search"
+        >
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+
+        <!-- User -->
+        <ng-container *ngIf="userData; else loginLink">
+
+          <a
+            routerLink="/userinfo/settings"
+            class="user-avatar"
+            aria-label="Account settings"
+            [style.background-image]="'url(' + (userData.profilePic || 'assets/images/user.png') + ')'"
+          >
+          </a>
+
+          <!-- Cart -->
+          <button
+            type="button"
+            class="cart-btn"
+            (click)="sideCart = 'open'; Subtotal()"
+            aria-label="Shopping cart"
+          >
+            <i class="fa-solid fa-bag-shopping"></i>
+
+            <span
+              *ngIf="userData?.cartId?.products?.length"
+              class="cart-badge"
+            >
+             {{ userData.cartId?.products?.length ?? 0 }}
+            </span>
+          </button>
+
+        </ng-container>
+
+        <!-- Login -->
+        <ng-template #loginLink>
+          <a
+            routerLink="/login"
+            class="login-btn"
+          >
+            SIGN IN
+          </a>
+        </ng-template>
 
       </div>
 
-
-      <i *ngIf="userData && userData != ''" style="cursor: pointer;"
-        class="fs-5 mood fab fa-opencart d-flex align-items-center justify-content-center" (click)="sideCart='open'" (click)="Subtotal()">
-        <p *ngIf="userData.cart?.products?.length!=0 && userData.cart"
-          class="bg-danger rounded-5 d-flex align-items-center justify-content-center p-2 text-white"
-          style="width:auto ;height: auto; font-size: 10px; ">{{userData?.cartId?.products?.length}}</p>
-      </i>
-      <li *ngIf="!userData" class="nav-item right-0 ">
-        <a class="nav-link  text-decoration-none list-unstyled text-black" routerLink="/login">SIGN</a>
-      </li>
     </div>
   </div>
 </nav>
 
+<!-- Search Backdrop -->
+<div
+  *ngIf="openSearch"
+  class="search-backdrop"
+  (click)="openSearch = false"
+></div>
 
+<!-- Search Panel -->
+<div
+  *ngIf="openSearch"
+  class="search-panel"
+>
+  <div class="container">
+    <div class="search-box">
 
-<div *ngIf="openSearch"
-  class=" position-fixed mb-3 w-100  d-flex justify-content-center align-items-center flex-column  "
-  style="z-index: 9; top: 10%;">
-  <input [(ngModel)]="nameSearch" (keyup)="search()" style="outline: none" type="search" name="" id=""
-    class="w-50 p-3 border-0 rounded-top bg-light " placeholder="SEARCH...">
+      <div class="search-input-wrapper">
+        <i class="fa-solid fa-magnifying-glass"></i>
 
+        <input
+          [(ngModel)]="nameSearch"
+          (keyup)="search()"
+          type="search"
+          placeholder="Search stores..."
+          autocomplete="off"
+        />
 
+        <button
+          type="button"
+          class="search-close"
+          (click)="openSearch = false"
+          aria-label="Close search"
+        >
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
 
-  <div routerLink="/yourStore/{{item._id}}" style="cursor: pointer;"
-    class="stores d-flex justify-content-center align-items-center w-50 bg-white px-3 "
-    *ngFor="let item of searched let i = index" [ngClass]="{'bg-light': ((i % 2) == 0) }"
-    [ngClass]="{'rounded-bottom': i+1 == searched.length}">
-    <div class=" d-flex align-items-center justify-content-between w-100 my-2">
-      <img class="position-relative " style="width: 50px; height: 50px; border-radius: 50%;"
-        src='{{item?.storeImage}}' alt="">
-      <p class=" fw-bolder fa mt-1">{{item.name}}</p>
-    </div>
-    <div (click)="removeStore(item._id)" *ngIf="userData.role =='admin'"><i class="fa-solid fa-ban fs-4"></i>
+      <!-- Search Results -->
+      <div
+        *ngIf="searched?.length"
+        class="search-results"
+      >
+
+        <a
+          *ngFor="let item of searched; let i = index"
+          [routerLink]="'/yourStore/' + item._id"
+          class="store-search-item"
+          [ngClass]="{
+            'last-item': i === searched.length - 1
+          }"
+        >
+          <div class="store-search-info">
+
+            <div
+              class="store-image"
+              [style.background-image]="'url(' + item?.storeImage + ')'"
+            ></div>
+
+            <div class="store-content">
+              <span class="store-label">
+                STORE
+              </span>
+
+              <strong>
+                {{ item.name }}
+              </strong>
+            </div>
+
+          </div>
+
+          <div
+            *ngIf="userData?.role == 'admin'"
+            class="store-delete"
+            (click)="$event.preventDefault(); $event.stopPropagation(); removeStore(item._id)"
+            title="Remove store"
+          >
+            <i class="fa-solid fa-ban"></i>
+          </div>
+        </a>
+
+      </div>
+
+      <!-- Empty Search -->
+      <div
+        *ngIf="nameSearch && !searched?.length"
+        class="search-empty"
+      >
+        <i class="fa-solid fa-store-slash"></i>
+
+        <h6>No stores found</h6>
+
+        <p>
+          Try searching with another name.
+        </p>
+      </div>
+
     </div>
   </div>
 </div>
 
+<!-- Cart -->
+<app-cart-on-all
+  [sideCart]="sideCart"
+  [subtotal]="subtotal"
+  [userData]="userData"
+  (getlength)="cartlength = $event"
+  (closeCart)="sideCart = $event"
+>
+</app-cart-on-all>
 
-
-
-<app-cart-on-all [sideCart]="sideCart" [subtotal]="subtotal" [userData]="userData" (getlength)="cartlength = $event"
-  (closeCart)="sideCart = $event"></app-cart-on-all>
-<app-res-nav [sideNav]="sideNav" (backNav)="sideNav = $event"></app-res-nav>
+<!-- Responsive Navigation -->
+<app-res-nav
+  [sideNav]="sideNav"
+  (backNav)="sideNav = $event"
+>
+</app-res-nav>

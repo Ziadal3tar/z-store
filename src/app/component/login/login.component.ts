@@ -1,90 +1,176 @@
-import { SharedService } from 'src/app/services/shared.service';
-import { Router } from '@angular/router';
-import { UserService } from './../../services/user.service';
-import { Component, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+} from '@angular/core';
+import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
+
+import { setAuthToken } from 'src/app/core/auth-token.util';
+import { UserStateService } from 'src/app/core/state/user-state.service';
+import { UserService } from './../../services/user.service';
+
+interface LoginErrors {
+  emailErr: string;
+  passwordErr: string;
+  message: string;
+}
+
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LoginComponent implements OnInit {
-  hello: any;
-  login = 'd-none';
-  email: any;
-  password: any;
-  loading:Boolean=false
-  errs = {
+export class LoginComponent implements OnDestroy {
+  email = '';
+  password = '';
+
+  loading = false;
+  passwordVisible = false;
+
+  errs: LoginErrors = {
     emailErr: '',
     passwordErr: '',
     message: '',
   };
 
-  constructor(private UserService: UserService, private router: Router,private SharedService:SharedService) {}
+  private readonly destroy$ = new Subject<void>();
 
-  ngOnInit(): void {
-    setTimeout(() => {
-      this.hello = 'opacity-0 transition';
-      setTimeout(() => {
-        this.hello = 'd-none';
-        setTimeout(() => {
-          this.login = ' opacity-0';
-          setTimeout(() => {
-            this.login = 'transition opacity-100';
-          }, 100);
-        }, 10);
-      }, 500);
-    }, 2000);
-   alert(
-  'Login Info\n' +
-  'Email: admin@gmail.com\n' +
-  'Password: admin'
-);
+  constructor(
+    private readonly userService: UserService,
+    private readonly userStateService: UserStateService,
+    private readonly router: Router,
+    private readonly cdr: ChangeDetectorRef
+  ) {}
 
-  }
+  logIn(): void {
+    this.clearErrors();
 
-  logIn() {
-this.loading = !this.loading
+    const email = this.email.trim();
+    const password = this.password;
+
+    if (!email) {
+      this.errs.emailErr = 'Email is required.';
+      this.cdr.markForCheck();
+      return;
+    }
+
+    if (!this.isValidEmail(email)) {
+      this.errs.emailErr = 'Please enter a valid email address.';
+      this.cdr.markForCheck();
+      return;
+    }
+
+    if (!password) {
+      this.errs.passwordErr = 'Password is required.';
+      this.cdr.markForCheck();
+      return;
+    }
+
+    this.loading = true;
+    this.cdr.markForCheck();
+
     const data = {
-      email: this.email,
-      password: this.password,
+      email,
+      password,
     };
 
-    this.UserService.login(data).subscribe(
-      (data: any) => {
+    this.userService
+      .login(data)
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+          this.cdr.markForCheck();
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (response: any) => {
+          if (response?.message === 'welcome' && response?.token) {
+            setAuthToken(response.token);
+            this.userStateService.refresh();
 
-        this.errs.emailErr = '';
-        this.errs.passwordErr = '';
-        if (data) {
-          if (data.message == 'welcome') {
-            this.loading = !this.loading
-
-            localStorage.setItem('userToken', data.token);
-            this.router.navigate([`/home`]);
+            this.router.navigate(['/home']);
+            return;
           }
+
+          this.errs.message =
+            response?.message ?? 'Unable to sign in. Please try again.';
+
+          this.cdr.markForCheck();
+        },
+
+        error: (err: HttpErrorResponse) => {
+          this.handleLoginError(err);
+          this.cdr.markForCheck();
+        },
+      });
+  }
+
+  togglePassword(): void {
+    this.passwordVisible = !this.passwordVisible;
+  }
+
+  clearFieldError(field: 'emailErr' | 'passwordErr'): void {
+    this.errs[field] = '';
+    this.errs.message = '';
+  }
+
+  private handleLoginError(err: HttpErrorResponse): void {
+    const validation = Array.isArray(err.error?.validationArr)
+      ? err.error.validationArr[0]
+      : [];
+
+    if (validation.length) {
+      for (const element of validation) {
+        const message = element?.message;
+
+        if (!message) {
+          continue;
+        }
+
+        const field = this.extractFieldFromMessage(message);
+
+        if (field === 'email') {
+          this.errs.emailErr = message;
+        }
+
+        if (field === 'password') {
+          this.errs.passwordErr = message;
         }
       }
-      ,
-      (err: HttpErrorResponse) => {
-        this.loading = !this.loading
 
-        if (err.error.validationArr) {
-          let arr = err.error.validationArr[0];
+      return;
+    }
 
-          for (let i = 0; i < arr.length; i++) {
-            const element = arr[i];
-            if (element.message.split(' ')[0].slice(1, -1) == 'email') {
-              this.errs.emailErr = element.message;
-            } else if (
-              element.message.split(' ')[0].slice(1, -1) == 'password'
-            ) {
-              this.errs.passwordErr = element.message;
-            }
-          }
-        } else {
-          this.errs.message = err.error.message;
-        }
-      }
-    );
+    this.errs.message =
+      err.error?.message ?? 'Unable to sign in. Please try again.';
+  }
+
+  private extractFieldFromMessage(message: string): string {
+    const fieldMatch = message.match(/^["']?([a-zA-Z]+)["']?\s/);
+
+    return fieldMatch?.[1]?.toLowerCase() ?? '';
+  }
+
+  private isValidEmail(email: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  private clearErrors(): void {
+    this.errs = {
+      emailErr: '',
+      passwordErr: '',
+      message: '',
+    };
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

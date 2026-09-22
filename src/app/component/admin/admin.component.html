@@ -1,40 +1,117 @@
 <app-navbar></app-navbar>
-<div class=" container">
 
-  <ul class="nav nav-tabs d-flex align-items-center justify-content-start" id="myTab" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin" type="button"
-        role="tab" aria-controls="admin" aria-selected="true">admin</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link " id="addCoupon-tab" data-bs-toggle="tab" data-bs-target="#addCoupon" type="button"
-        role="tab" aria-controls="addCoupon" aria-selected="true">addCoupon</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="addCategory-tab" data-bs-toggle="tab" data-bs-target="#addCategory" type="button"
-        role="tab" aria-controls="addCategory" aria-selected="false">addCategory</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="addSubCategory-tab" data-bs-toggle="tab" data-bs-target="#addSubCategory"
-        type="button" role="tab" aria-controls="addSubCategory" aria-selected="false">addSubCategory</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="addBrand-tab" data-bs-toggle="tab" data-bs-target="#addBrand" type="button"
-        role="tab" aria-controls="addBrand" aria-selected="false">addBrand</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="addProduct-tab" data-bs-toggle="tab" data-bs-target="#addProduct" type="button"
-        role="tab" aria-controls="addProduct" aria-selected="false">addProduct</button>
-    </li>
-  </ul>
+<main class="admin-page">
+  <section class="admin-shell">
+    <header class="admin-header">
+      <div class="admin-heading">
+        <span class="eyebrow">Z-STORE / ADMIN</span>
 
-  <div class="tab-content" id="myTabContent">
-    <div class="tab-pane fade show active" style="height: 70vh !important;" id="admin" role="tabpanel" aria-labelledby="admin-tab"><app-admins-control></app-admins-control> </div>
-    <div class="tab-pane fade" id="addCoupon" role="tabpanel" aria-labelledby="addCoupon-tab"><app-coupons></app-coupons> </div>
-    <div class="tab-pane fade" id="addCategory" role="tabpanel" aria-labelledby="addCategory-tab"><app-category></app-category></div>
-    <div class="tab-pane fade" id="addSubCategory" role="tabpanel" aria-labelledby="addSubCategory-tab"><app-sup-category></app-sup-category></div>
-    <div class="tab-pane fade" id="addBrand" role="tabpanel" aria-labelledby="addBrand-tab"><app-brand></app-brand></div>
-    <div class="tab-pane fade" id="addProduct" role="tabpanel" aria-labelledby="addProduct-tab"><app-add-product></app-add-product></div>
+
+    <h1>Store management</h1>
+
+    <p>
+      Manage your store content, catalog and promotional settings from one
+      place.
+    </p>
   </div>
 
-</div>
+  <div class="admin-status">
+    <span class="status-dot"></span>
+    <span>Admin workspace</span>
+  </div>
+</header>
+
+<nav
+  class="admin-navigation"
+  aria-label="Admin sections"
+  role="tablist"
+>
+  <button
+    *ngFor="let tab of tabs"
+    type="button"
+    class="admin-tab"
+    [class.active]="activeTab === tab.id"
+    [attr.aria-selected]="activeTab === tab.id"
+    [attr.aria-controls]="tab.id + '-panel'"
+    [id]="tab.id + '-tab'"
+    role="tab"
+    (click)="selectTab(tab.id)"
+  >
+    <span class="tab-icon">
+      <i [class]="tab.icon"></i>
+    </span>
+
+    <span class="tab-copy">
+      <strong>{{ tab.label }}</strong>
+      <small>{{ tab.description }}</small>
+    </span>
+
+    <i class="bi bi-arrow-up-right tab-arrow"></i>
+  </button>
+</nav>
+
+<section class="admin-content">
+  <div
+    *ngIf="activeTab === 'dashboard'"
+    id="dashboard-panel"
+    class="admin-panel"
+    role="tabpanel"
+    aria-labelledby="dashboard-tab"
+  >
+    <app-admins-control></app-admins-control>
+  </div>
+
+  <div
+    *ngIf="activeTab === 'coupons'"
+    id="coupons-panel"
+    class="admin-panel"
+    role="tabpanel"
+    aria-labelledby="coupons-tab"
+  >
+    <app-coupons></app-coupons>
+  </div>
+
+  <div
+    *ngIf="activeTab === 'categories'"
+    id="categories-panel"
+    class="admin-panel"
+    role="tabpanel"
+    aria-labelledby="categories-tab"
+  >
+    <app-category></app-category>
+  </div>
+
+  <div
+    *ngIf="activeTab === 'subcategories'"
+    id="subcategories-panel"
+    class="admin-panel"
+    role="tabpanel"
+    aria-labelledby="subcategories-tab"
+  >
+    <app-sup-category></app-sup-category>
+  </div>
+
+  <div
+    *ngIf="activeTab === 'brands'"
+    id="brands-panel"
+    class="admin-panel"
+    role="tabpanel"
+    aria-labelledby="brands-tab"
+  >
+    <app-brand></app-brand>
+  </div>
+
+  <div
+    *ngIf="activeTab === 'products'"
+    id="products-panel"
+    class="admin-panel"
+    role="tabpanel"
+    aria-labelledby="products-tab"
+  >
+    <app-add-product></app-add-product>
+  </div>
+</section>
+
+
+  </section>
+</main>

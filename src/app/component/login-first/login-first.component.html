@@ -1,7 +1,81 @@
-<section class="vh-100 vw-100  position-fixed d-flex align-items-center justify-content-center top-0">
-  <div class="position-relative bg-white w-50 h-25 box-shadow rounded-3  d-flex align-items-center justify-content-center">
-    <i (click)="close()" class=" cursorPointer fa-solid fa-x position-absolute top-0 end-0 m-3"></i>
-    <p class="fs-2">You need to <a routerLink="/login"
-        class="text-decoration-underline text-primary cursorPointer">LOGIN</a> first</p>
+
+<section
+  class="login-first-overlay"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="login-required-title"
+  (click)="close()"
+  (keydown.escape)="close()"
+>
+  <div
+    class="login-first-modal"
+    (click)="$event.stopPropagation()"
+  >
+
+    <!-- Close -->
+    <button
+      type="button"
+      class="close-button"
+      aria-label="Close"
+      title="Close"
+      (click)="close()"
+    >
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+
+    <!-- Icon -->
+    <div class="modal-icon">
+      <i class="fa-solid fa-lock"></i>
+    </div>
+
+    <!-- Content -->
+    <div class="modal-content">
+
+      <span class="modal-eyebrow">
+        ACCOUNT REQUIRED
+      </span>
+
+      <h2 id="login-required-title">
+        Login required
+      </h2>
+
+      <p>
+        You need to be logged in to continue.
+        Sign in to access your account and complete this action.
+      </p>
+
+      <div class="modal-actions">
+
+        <a
+          routerLink="/login"
+          class="login-button"
+          (click)="$event.stopPropagation()"
+        >
+          <span>
+            Login now
+            <i class="fa-solid fa-arrow-right"></i>
+          </span>
+        </a>
+
+        <button
+          type="button"
+          class="cancel-button"
+          (click)="close()"
+        >
+          Maybe later
+        </button>
+
+      </div>
+
+      <div class="security-note">
+        <i class="fa-solid fa-shield-halved"></i>
+
+        <span>
+          Your account information stays protected.
+        </span>
+      </div>
+
+    </div>
   </div>
 </section>
+

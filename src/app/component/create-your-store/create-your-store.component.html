@@ -1,49 +1,439 @@
-<div class="store-create-card">
-  <h2>Create your store</h2>
 
-  <form [formGroup]="form" (ngSubmit)="submit()" class="form" novalidate>
-    <div class="form-row">
-      <label for="name">Store name <span class="required">*</span></label>
-      <input id="name" type="text" formControlName="name" [class.invalid]="form.get('name')?.invalid && form.get('name')?.touched" />
-      <small class="hint" *ngIf="form.get('name')?.touched && form.get('name')?.invalid">
-        <span *ngIf="form.get('name')?.errors?.['required']">Name is required.</span>
-        <span *ngIf="form.get('name')?.errors?.['minlength']">At least 3 characters.</span>
-        <span *ngIf="form.get('name')?.errors?.['maxlength']">Max 80 characters.</span>
-      </small>
-    </div>
+<div class="store-page">
 
-    <div class="form-row">
-      <label for="description">Description</label>
-      <textarea id="description" formControlName="description" rows="4" placeholder="Optional description (max 1000 chars)"></textarea>
-    </div>
+  <div class="store-container">
 
-    <div class="form-row">
-      <label>Store image <span class="required">*</span></label>
-      <div class="image-uploader">
-        <input id="store-image-input" type="file" accept="image/*" (change)="onFileChange($event)" />
-        <div class="preview" *ngIf="previewUrl; else uploadPlaceholder">
-          <img [src]="previewUrl" alt="preview" />
+    <!-- Header -->
+    <header class="store-header">
+      <div>
+        <span class="section-eyebrow">SELL ON Z-STORE</span>
 
-          <button type="button" class="btn-small danger" (click)="removeImage()">Remove</button>
+        <h1>Create your store</h1>
+
+        <p>
+          Set up your store and start building your presence on Z-STORE.
+        </p>
+      </div>
+
+      <div class="setup-progress">
+        <span class="progress-dot active"></span>
+        <span class="progress-line"></span>
+        <span class="progress-dot"></span>
+
+        <span class="progress-label">
+          Store setup
+        </span>
+      </div>
+    </header>
+
+    <div class="store-layout">
+
+      <!-- Form -->
+      <main class="form-card">
+
+        <div class="card-header">
+          <div class="card-icon">
+            <i class="fa-solid fa-store"></i>
+          </div>
+
+          <div>
+            <h2>Store information</h2>
+
+            <p>
+              Add the basic information customers will see.
+            </p>
+          </div>
         </div>
 
-        <ng-template #uploadPlaceholder>
-          <div class="placeholder">
-            <p>Click to select an image (png, jpg, webp). Max 3MB.</p>
+        <form
+          [formGroup]="form"
+          (ngSubmit)="submit()"
+          class="store-form"
+          novalidate
+        >
+
+          <!-- Store Name -->
+          <div class="form-group">
+            <div class="label-row">
+              <label for="name">
+                Store name
+                <span class="required">*</span>
+              </label>
+
+              <span class="character-count">
+                {{ form.get('name')?.value?.length || 0 }}/80
+              </span>
+            </div>
+
+            <div
+              class="field-control"
+              [class.invalid]="
+                form.get('name')?.invalid &&
+                form.get('name')?.touched
+              "
+              [class.valid]="
+                form.get('name')?.valid &&
+                form.get('name')?.touched
+              "
+            >
+              <i class="fa-solid fa-store field-icon"></i>
+
+              <input
+                id="name"
+                type="text"
+                formControlName="name"
+                autocomplete="organization"
+                placeholder="Enter your store name"
+              />
+
+              <i
+                *ngIf="
+                  form.get('name')?.valid &&
+                  form.get('name')?.touched
+                "
+                class="fa-solid fa-check field-status"
+              ></i>
+            </div>
+
+            <div
+              *ngIf="
+                form.get('name')?.touched &&
+                form.get('name')?.invalid
+              "
+              class="field-error"
+            >
+              <i class="fa-solid fa-circle-exclamation"></i>
+
+              <span
+                *ngIf="form.get('name')?.errors?.['required']"
+              >
+                Store name is required.
+              </span>
+
+              <span
+                *ngIf="form.get('name')?.errors?.['minlength']"
+              >
+                Store name must be at least 3 characters.
+              </span>
+
+              <span
+                *ngIf="form.get('name')?.errors?.['maxlength']"
+              >
+                Store name cannot exceed 80 characters.
+              </span>
+            </div>
           </div>
-        </ng-template>
-      </div>
+
+          <!-- Description -->
+          <div class="form-group">
+            <div class="label-row">
+              <label for="description">
+                Store description
+              </label>
+
+              <span class="character-count">
+                {{ form.get('description')?.value?.length || 0 }}/1000
+              </span>
+            </div>
+
+            <div class="textarea-control">
+              <textarea
+                id="description"
+                formControlName="description"
+                rows="6"
+                maxlength="1000"
+                placeholder="Tell customers what your store is about..."
+              ></textarea>
+            </div>
+
+            <div class="field-helper">
+              Optional. A clear description helps customers understand
+              what your store offers.
+            </div>
+          </div>
+
+          <!-- Image -->
+          <div class="form-group">
+
+            <label class="upload-label">
+              Store image
+              <span class="required">*</span>
+            </label>
+
+            <div
+              class="upload-zone"
+              [class.has-image]="previewUrl"
+              [class.has-error]="error && !imageFile"
+              (click)="openFilePicker()"
+              (dragover)="onDragOver($event)"
+              (dragleave)="onDragLeave()"
+              (drop)="onDrop($event)"
+              [class.dragging]="isDragging"
+            >
+
+              <input
+                #fileInput
+                id="store-image-input"
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                hidden
+                (change)="onFileChange($event)"
+              />
+
+              <!-- Preview -->
+              <ng-container *ngIf="previewUrl; else uploadPlaceholder">
+
+                <div class="image-preview">
+
+                  <img
+                    [src]="previewUrl"
+                    alt="Store image preview"
+                  />
+
+                  <div class="preview-overlay">
+
+                    <div class="preview-info">
+                      <span class="preview-title">
+                        Image selected
+                      </span>
+
+                      <span
+                        *ngIf="imageFile"
+                        class="preview-name"
+                      >
+                        {{ imageFile.name }}
+                      </span>
+                    </div>
+
+                    <div class="preview-actions">
+
+                      <button
+                        type="button"
+                        class="image-action"
+                        (click)="openFilePicker(); $event.stopPropagation()"
+                      >
+                        <i class="fa-solid fa-pen"></i>
+                        Change
+                      </button>
+
+                      <button
+                        type="button"
+                        class="image-action danger"
+                        (click)="removeImage(); $event.stopPropagation()"
+                      >
+                        <i class="fa-solid fa-trash"></i>
+                        Remove
+                      </button>
+
+                    </div>
+
+                  </div>
+                </div>
+
+              </ng-container>
+
+              <!-- Placeholder -->
+              <ng-template #uploadPlaceholder>
+
+                <div class="upload-placeholder">
+
+                  <div class="upload-icon">
+                    <i class="fa-regular fa-image"></i>
+                  </div>
+
+                  <h3>
+                    Upload your store image
+                  </h3>
+
+                  <p>
+                    Drag &amp; drop your image here or
+                    <strong>browse</strong>
+                  </p>
+
+                  <span class="upload-hint">
+                    PNG, JPG or WEBP · Maximum 3MB
+                  </span>
+
+                </div>
+
+              </ng-template>
+
+            </div>
+
+          </div>
+
+          <!-- Error -->
+          <div
+            *ngIf="error"
+            class="form-error"
+            role="alert"
+          >
+            <i class="fa-solid fa-circle-exclamation"></i>
+
+            <span>
+              {{ error }}
+            </span>
+          </div>
+
+          <!-- Actions -->
+          <div class="form-actions">
+
+            <button
+              type="button"
+              class="secondary-button"
+              [disabled]="loading"
+              (click)="openHome()"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              class="primary-button"
+              [disabled]="loading"
+            >
+              <span *ngIf="!loading">
+                Create store
+                <i class="fa-solid fa-arrow-right"></i>
+              </span>
+
+              <span
+                *ngIf="loading"
+                class="loading-state"
+              >
+                <span class="spinner"></span>
+                Creating store...
+              </span>
+            </button>
+
+          </div>
+
+        </form>
+
+      </main>
+
+      <!-- Preview / Info -->
+      <aside class="store-sidebar">
+
+        <!-- Live Preview -->
+        <section class="preview-card">
+
+          <div class="preview-header">
+            <div>
+              <span class="preview-eyebrow">
+                LIVE PREVIEW
+              </span>
+
+              <h2>Your store</h2>
+            </div>
+
+            <span class="preview-status">
+              <span></span>
+              Preview
+            </span>
+          </div>
+
+          <div class="store-preview">
+
+            <div class="preview-cover">
+              <img
+                *ngIf="previewUrl"
+                [src]="previewUrl"
+                alt="Store preview"
+              />
+
+              <div
+                *ngIf="!previewUrl"
+                class="empty-cover"
+              >
+                <i class="fa-solid fa-store"></i>
+              </div>
+            </div>
+
+            <div class="preview-body">
+
+              <div class="preview-avatar">
+                <img
+                  *ngIf="previewUrl"
+                  [src]="previewUrl"
+                  alt="Store avatar"
+                />
+
+                <span *ngIf="!previewUrl">
+                  Z
+                </span>
+              </div>
+
+              <div class="preview-store-info">
+
+                <h3>
+                  {{
+                    form.get('name')?.value?.trim() ||
+                    'Your store name'
+                  }}
+                </h3>
+
+                <p>
+                  {{
+                    form.get('description')?.value?.trim() ||
+                    'Your store description will appear here.'
+                  }}
+                </p>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- Tips -->
+        <section class="tips-card">
+
+          <div class="tips-icon">
+            <i class="fa-solid fa-lightbulb"></i>
+          </div>
+
+          <h3>
+            Make your store stand out
+          </h3>
+
+          <p>
+            A strong store name and clear image help customers
+            recognize your brand quickly.
+          </p>
+
+          <div class="tip">
+            <span></span>
+            Use a memorable store name.
+          </div>
+
+          <div class="tip">
+            <span></span>
+            Upload a clean, high-quality image.
+          </div>
+
+          <div class="tip">
+            <span></span>
+            Keep the description clear and useful.
+          </div>
+
+        </section>
+
+        <!-- Security -->
+        <div class="security-note">
+          <i class="fa-solid fa-shield-halved"></i>
+
+          <span>
+            Your store information is handled securely.
+          </span>
+        </div>
+
+      </aside>
+
     </div>
 
-    <div class="form-row actions">
-      <div class="error" *ngIf="error">{{ error }}</div>
-
-      <button type="submit" class="btn primary" [disabled]="loading">
-        <span *ngIf="!loading">Create store</span>
-        <span *ngIf="loading">Creating...</span>
-      </button>
-
-      <button type="button" class="btn outline" (click)="openHome()" [disabled]="loading">Cancel</button>
-    </div>
-  </form>
+  </div>
 </div>
+

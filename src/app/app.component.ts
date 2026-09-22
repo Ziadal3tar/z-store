@@ -1,44 +1,50 @@
-import { SharedService } from 'src/app/services/shared.service';
-import { Router } from '@angular/router';
-import { Component, OnInit } from '@angular/core';
-import { UserService } from './services/user.service';
-import { HttpErrorResponse } from '@angular/common/http';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { filter, Subscription } from 'rxjs';
+import { SeoService } from './core/services/seo.service';
 
+declare const AOS: {
+  init: (options?: { once?: boolean; duration?: number; offset?: number }) => void;
+};
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
+ 
 })
-export class AppComponent implements OnInit {
-  cartlength: any;
-  userdata: any;
+export class AppComponent implements OnInit, OnDestroy {
+  private readonly subscriptions = new Subscription();
+
   constructor(
-  ) {
-  }
+    private readonly router: Router,
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly seo: SeoService,
+  ) {}
 
   ngOnInit(): void {
-  //   if (localStorage.getItem('userToken')) {
-  //     this.SharedService.updateAllData()
+    AOS.init({ once: true, duration: 650, offset: 60 });
+    this.seo.setPage('Home');
 
+    this.subscriptions.add(
+      this.router.events
+        .pipe(filter(event => event instanceof NavigationEnd))
+        .subscribe(() => this.updateRouteSeo()),
+    );
+  }
 
-  //   }
+  private updateRouteSeo(): void {
+    let route = this.activatedRoute;
+    while (route.firstChild) {
+      route = route.firstChild;
+    }
 
+    const title = route.snapshot.data['title'] ?? 'Shop';
+    const description = route.snapshot.data['description'];
+    this.seo.setPage(title, description);
+  }
 
-  //   if (localStorage.getItem('userToken')) {
-  //     this.getdata();
-  //   }
-  // }
-
-  // getdata() {
-  //   const token = localStorage.getItem('userToken');
-  //   this.UserService.getUserData(token).subscribe((data: any) => {
-  //     this.cartlength = data.userData?.cart.length;
-  //     this.userdata = data.userData;
-  //     // this.updateSocketId();
-  //   });
-  // }
-  // updateSocketId() {
-  //   this.ChatService.emit('updateSocketId', this.userdata?._id);
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 }

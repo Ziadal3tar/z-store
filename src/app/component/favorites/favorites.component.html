@@ -1,30 +1,205 @@
-<div class=" bg-white "  cdkDropList (cdkDropListDropped)="ondrop($event)" [cdkDropListData]="favoriteProducts">
-  <p class=" border-bottom w-100 fs-2 p-3 fa">favorites</p>
-  <div class="favorites container col-12 py-3 border-bottom "
-    *ngFor="let item of userData?.wishlist let i = index" cdkDrag >
-    <div class="row ">
-      <div class=" d-flex col-md-9 col-sm-12 ">
-        <div class="col-4 d-flex align-items-center imgCenter rounded-3"
-          style="background-image: url({{item.images[0]}});">
+<section class="favorites-page">
+  <div class="favorites-container">
+
+    <!-- Header -->
+    <header class="favorites-header">
+      <div>
+        <span class="section-eyebrow">MY ACCOUNT</span>
+
+        <h1>Favorites</h1>
+
+        <p>
+          Products you saved to come back to later.
+        </p>
+      </div>
+
+      <div class="favorites-count">
+        <span class="count-number">{{ favoriteProducts.length }}</span>
+        <span class="count-label">
+          {{ favoriteProducts.length === 1 ? 'item' : 'items' }}
+        </span>
+      </div>
+    </header>
+
+    <!-- Empty State -->
+    <div
+      *ngIf="favoriteProducts.length === 0"
+      class="empty-state"
+    >
+      <div class="empty-icon">
+        <i class="fa-regular fa-heart"></i>
+      </div>
+
+      <h2>Your favorites are empty</h2>
+
+      <p>
+        Save products you love and they will appear here.
+      </p>
+
+      <a
+        routerLink="/allproducts"
+        class="browse-button"
+      >
+        Browse products
+        <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+
+    <!-- Favorites List -->
+    <div
+      *ngIf="favoriteProducts.length > 0"
+      class="favorites-list"
+      cdkDropList
+      [cdkDropListData]="favoriteProducts"
+      (cdkDropListDropped)="ondrop($event)"
+    >
+
+      <article
+        *ngFor="let item of favoriteProducts; let i = index; trackBy: trackByProductId"
+        class="favorite-card"
+        cdkDrag
+      >
+
+        <!-- Drag Placeholder -->
+        <div
+          class="drag-placeholder"
+          *cdkDragPlaceholder
+        ></div>
+
+        <!-- Drag Handle -->
+        <div
+          class="drag-handle"
+          cdkDragHandle
+          title="Drag to reorder"
+        >
+          <i class="fa-solid fa-grip-vertical"></i>
         </div>
-        <div class="col-md-6 col-sm-5  offset-1 mt-sm-2 mt-md-0">
-          <p class=" opacity-50">{{item.categoryId.name}}</p>
-          <h2>{{item.name}}</h2>
-          <p class=" opacity-75">{{item.description}} </p>
-          <p>{{item.discount}}%</p>
-          <p>{{item.brandId.name}}</p>
-          <div class=" d-flex ">
+
+        <!-- Product Image -->
+        <div class="product-image-wrapper">
+          <img
+            [src]="imageUrl(item)"
+            [alt]="item.name"
+            class="product-image"
+            loading="lazy"
+          />
+
+          <span
+            *ngIf="(item.discount ?? 0) > 0"
+            class="discount-badge"
+          >
+            -{{ item.discount }}%
+          </span>
+
+          <button
+            type="button"
+            class="remove-favorite-button"
+            [disabled]="removingProductId === item._id"
+            aria-label="Remove from favorites"
+            title="Remove from favorites"
+            (click)="removeFavorite(item._id, $event)"
+          >
+            <span
+              *ngIf="removingProductId !== item._id"
+            >
+              <i class="fa-solid fa-heart"></i>
+            </span>
+
+            <span
+              *ngIf="removingProductId === item._id"
+              class="mini-spinner"
+            ></span>
+          </button>
+        </div>
+
+        <!-- Product Details -->
+        <div class="product-details">
+
+          <div class="product-meta">
+            <span>{{ item.category?.name || 'Category' }}</span>
+
+            <span class="meta-divider">•</span>
+
+            <span>{{ item.brand?.name || 'Brand' }}</span>
+          </div>
+
+          <h2 class="product-name">
+            {{ item.name }}
+          </h2>
+
+          <p class="product-description">
+            {{ item.description }}
+          </p>
+
+          <div class="product-footer">
+            <div class="price-section">
+
+              <span
+                *ngIf="item.price !== item.finalPrice"
+                class="old-price"
+              >
+                ${{ item.price }}
+              </span>
+
+              <span class="current-price">
+                ${{ item.finalPrice }}
+              </span>
+            </div>
+
+            <div class="stock-info">
+              <i class="fa-solid fa-circle"></i>
+              Saved item
+            </div>
           </div>
         </div>
-      </div>
-      <div class="col-md-3 col-sm-12 border-start d-flex flex-column justify-content-around ">
-        <p class=" opacity-50 text-decoration-line-through ">${{item.price}}
-        </p>
-        <p class=" fs-3">${{item.finalPrice}}</p>
-        <button class=" btn btn-danger  w-100" (click)="addToCart(item._id)"> ADD TO CART</button>
-        <p style="cursor: pointer;" id="addToFav{{i}}" class="text-danger text-decoration-underline"
-          (click)="color($event,item._id)"><i class="fa-solid fa-heart"></i> Add to favorites </p>
-      </div>
+
+        <!-- Actions -->
+        <div class="product-actions">
+
+          <button
+            type="button"
+            class="cart-button"
+            [disabled]="addingToCartId === item._id"
+            (click)="addToCart(item._id)"
+          >
+            <span *ngIf="addingToCartId !== item._id">
+              <i class="fa-solid fa-bag-shopping"></i>
+              Add to cart
+            </span>
+
+            <span
+              *ngIf="addingToCartId === item._id"
+              class="button-loading"
+            >
+              <span class="mini-spinner light"></span>
+              Adding...
+            </span>
+          </button>
+
+          <button
+            type="button"
+            class="details-button"
+            [routerLink]="['/productdetails', item._id]"
+          >
+            View details
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+
+        </div>
+      </article>
     </div>
+
+    <!-- Hint -->
+    <div
+      *ngIf="favoriteProducts.length > 1"
+      class="drag-hint"
+    >
+      <i class="fa-solid fa-grip-vertical"></i>
+
+      <span>
+        Drag products to change their order.
+      </span>
+    </div>
+
   </div>
-</div>
+</section>

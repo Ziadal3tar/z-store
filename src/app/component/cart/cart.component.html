@@ -1,69 +1,485 @@
-<app-navbar [cartlength]="cartlength"></app-navbar>
-<div class=" container">
-  <div class=" w-100 text-center fs-1 my-5">
-    <p>CART</p>
-  </div>
-  <div class="row main " cdkDropList [cdkDropListData]="cart?.products">
-    <div class="col-lg-9 col-sm-12 bg-white p-3 rounded-3 pb-0" >
-      <p *ngIf="cart?.products?.length==0" class=" fa d-flex align-items-center justify-content-center h-100">your cart is empty</p>
-      <div class="col-12 d-flex text-center border-bottom mb-5" *ngIf="cart?.products?.length!=0">
-        <p class="col-5 text-center">product</p>
-        <p class="col-2">price</p>
-        <p class="col-2">quantity</p>
-        <p class="col-2">sum</p>
-      </div>
-      <div class="col-12 d-flex align-items-center justify-content-center border-bottom pb-1 product mb-0"
-        *ngFor="let item of cart?.products let i = index" cdkDrag>
-        <div class="col-5 d-flex align-items-center justify-content-center ">
-          <div class="mdImg imgCenter" style="background-image: url({{item.productId.images[0]}});"></div>
-          <div class="col-6 offset-1">
-            <p class=" fw-bold ">{{item.productId.name}}</p>
-            <p class=" col-12 d-xs-none d-md-block">{{item.productId.description}}</p>
-          </div>
-        </div>
-        <p class="col-2 text-center">${{item.productId.finalPrice}}</p>
-        <div class="col-2  ">
-          <div id="count" class="d-flex justify-content-between rounded-3 "
-            style="background-color: rgba(180, 177, 177, 0.5); padding: 7.5px 5px;"><span (click)="minus(i)"
-              style="cursor: pointer;"><i class="fas fa-minus maincolor"></i></span>{{item?.quantity}}<span
-              (click)="plus(i)" style="cursor: pointer;"><i class="maincolor fas fa-plus"></i></span></div>
-          <p class="text-danger position-fixed" *ngIf="i==index">{{quantityErrMessage}}</p>
-        </div>
-        <p class="col-2 text-center "> ${{(item.productId.finalPrice * item?.quantity).toFixed(1)}} </p>
-        <div class="  col-1  ">
-          <div class="remove text-danger" (click)="deleteFromCart(item.productId._id)">
-            <i class="fa-solid fa-trash"></i>
-          </div>
+
+<app-navbar></app-navbar>
+
+<main class="cart-page">
+  <div class="container">
+
+    <!-- Breadcrumb -->
+    <div class="cart-breadcrumb">
+      <a routerLink="/home">Home</a>
+      <i class="bi bi-chevron-right"></i>
+      <span>Cart</span>
+    </div>
+
+    <!-- Cart Header -->
+    <header class="cart-header">
+      <div class="cart-heading">
+        <span class="eyebrow">YOUR SHOPPING BAG</span>
+
+        <div class="heading-row">
+          <h1>Your Cart</h1>
+
+          <span
+            *ngIf="!loading && items.length"
+            class="cart-count-badge"
+          >
+            {{ cartCount }} {{ cartCount === 1 ? 'item' : 'items' }}
+          </span>
         </div>
 
+        <p *ngIf="!loading && items.length">
+          Review your products before continuing to checkout.
+        </p>
+
+        <p *ngIf="!loading && !items.length">
+          Your shopping bag is currently empty.
+        </p>
       </div>
 
-<div class="coupon w-100 my-2 d-flex align-items-center justify-content-end " *ngIf="cart?.products?.length!=0">
-  <p class="text-danger me-1">{{couponErr}}</p>
-  <input type="text" class=" w-25 rounded-3 couponInput p-2 " [(ngModel)]="coupon" placeholder="Coupon">
-  <div class=""><button (click)="addCoupon()"
-     class=" btn">ADD <i class="bi bi-arrow-right"></i></button></div>
-</div>
+      <button
+        type="button"
+        class="continue-link"
+        (click)="continueShopping()"
+      >
+        <i class="bi bi-arrow-left"></i>
+        Continue shopping
+      </button>
+    </header>
+
+    <!-- Loading -->
+    <section
+      class="cart-loading"
+      *ngIf="loading"
+      aria-label="Loading cart"
+    >
+      <div
+        class="loading-line"
+        *ngFor="let item of [1, 2, 3]"
+      ></div>
+    </section>
+
+    <!-- Cart Content -->
+    <div
+      class="cart-layout"
+      *ngIf="!loading && items.length"
+    >
+
+      <!-- Products -->
+      <section class="cart-card">
+
+        <!-- Table Header -->
+        <div class="cart-card-head">
+
+          <div>
+            <strong>Product</strong>
+            <span>
+              {{ items.length }}
+              {{ items.length === 1 ? 'product' : 'products' }}
+            </span>
+          </div>
+
+          <span>Price</span>
+          <span>Quantity</span>
+          <span>Total</span>
+          <span></span>
+
+        </div>
+
+        <!-- Product Items -->
+        <article
+          class="cart-item"
+          *ngFor="let item of items; let i = index; trackBy: trackByProduct"
+        >
+
+          <!-- Product -->
+          <div class="product-cell">
+
+            <a
+              [routerLink]="['/product', item.productId._id]"
+              class="item-image"
+            >
+              <img
+                [src]="imageUrl(item)"
+                [alt]="item.productId.name"
+                loading="lazy"
+              />
+            </a>
+
+            <div class="item-copy">
+
+              <span class="product-label">
+                Z-STORE COLLECTION
+              </span>
+
+              <a
+                [routerLink]="['/product', item.productId._id]"
+                class="product-title"
+              >
+                {{ item.productId.name }}
+              </a>
+
+              <p>
+                {{
+                  item.productId.description ||
+                  'Selected from the Z-Store collection.'
+                }}
+              </p>
+
+              <div class="product-meta">
+
+                <span
+                  *ngIf="item.productId.stock !== undefined"
+                  [class.low-stock]="
+                    item.productId.stock > 0 &&
+                    item.productId.stock <= 5
+                  "
+                  [class.out-of-stock]="item.productId.stock === 0"
+                >
+                  <i class="bi bi-box-seam"></i>
+
+                  <ng-container *ngIf="item.productId.stock > 5">
+                    In stock
+                  </ng-container>
+
+                  <ng-container
+                    *ngIf="
+                      item.productId.stock > 0 &&
+                      item.productId.stock <= 5
+                    "
+                  >
+                    Only {{ item.productId.stock }} left
+                  </ng-container>
+
+                  <ng-container
+                    *ngIf="item.productId.stock === 0"
+                  >
+                    Out of stock
+                  </ng-container>
+                </span>
+
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Price -->
+          <div class="item-price">
+
+            <span class="mobile-label">
+              Price
+            </span>
+
+            <div class="price-content">
+
+              <strong>
+                {{ item.productId.finalPrice | currency }}
+              </strong>
+
+              <del
+               *ngIf="
+  item.productId.finalPrice != null &&
+  item.productId.price > item.productId.finalPrice
+"
+              >
+                {{ item.productId.price | currency }}
+              </del>
+
+            </div>
+
+          </div>
+
+          <!-- Quantity -->
+          <div class="quantity-column">
+
+            <span class="mobile-label">
+              Quantity
+            </span>
+
+            <div
+              class="quantity-control"
+              [class.busy]="
+                busyProductId === item.productId._id
+              "
+            >
+
+              <button
+                type="button"
+                (click)="minus(i)"
+                [disabled]="busyProductId === item.productId._id"
+                aria-label="Decrease quantity"
+              >
+                <i class="bi bi-dash"></i>
+              </button>
+
+              <strong>
+                {{ item.quantity }}
+              </strong>
+
+              <button
+                type="button"
+                (click)="plus(i)"
+                [disabled]="busyProductId === item.productId._id"
+                aria-label="Increase quantity"
+              >
+                <i class="bi bi-plus"></i>
+              </button>
+
+            </div>
+
+            <span
+              class="quantity-error"
+              *ngIf="quantityErrorIndex === i"
+            >
+              {{ quantityErrorMessage }}
+            </span>
+
+          </div>
+
+          <!-- Line total -->
+          <div class="line-total">
+
+            <span class="mobile-label">
+              Total
+            </span>
+
+            <strong>
+              {{ lineTotal(item) | currency }}
+            </strong>
+
+          </div>
+
+          <!-- Remove -->
+          <button
+            type="button"
+            class="remove-button"
+            (click)="deleteFromCart(item.productId._id!)"
+            [disabled]="busyProductId === item.productId._id"
+            aria-label="Remove product"
+            title="Remove product"
+          >
+            <i class="bi bi-trash3"></i>
+          </button>
+
+        </article>
+
+        <!-- Coupon -->
+        <div class="coupon-row">
+
+          <div class="coupon-copy">
+
+            <div class="coupon-title">
+              <i class="bi bi-ticket-perforated"></i>
+              <strong>Have a promo code?</strong>
+            </div>
+
+            <span>
+              Apply your discount before continuing to checkout.
+            </span>
+
+          </div>
+
+          <!-- Coupon Form -->
+          <div
+            class="coupon-form"
+            *ngIf="!appliedCoupon; else appliedCouponBlock"
+          >
+
+            <i class="bi bi-tag"></i>
+
+            <input
+              [(ngModel)]="coupon"
+              type="text"
+              placeholder="ENTER PROMO CODE"
+              autocomplete="off"
+              [disabled]="isApplyingCoupon"
+              (keyup.enter)="addCoupon()"
+            />
+
+            <button
+              type="button"
+              (click)="addCoupon()"
+              [disabled]="
+                isApplyingCoupon ||
+                !coupon.trim()
+              "
+            >
+              {{
+                isApplyingCoupon
+                  ? 'Applying...'
+                  : 'Apply'
+              }}
+            </button>
+
+          </div>
+
+          <!-- Applied Coupon -->
+          <ng-template #appliedCouponBlock>
+
+            <div class="applied-coupon">
+
+              <div>
+                <i class="bi bi-check-circle-fill"></i>
+
+                <span>
+                  {{ appliedCoupon }} applied
+                </span>
+              </div>
+
+              <button
+                type="button"
+                (click)="removeCoupon()"
+              >
+                Remove
+              </button>
+
+            </div>
+
+          </ng-template>
+
+        </div>
+
+        <!-- Coupon Error -->
+        <p
+          class="coupon-error"
+          *ngIf="couponError"
+        >
+          <i class="bi bi-exclamation-circle"></i>
+          {{ couponError }}
+        </p>
+
+      </section>
+
+      <!-- Summary -->
+      <aside class="summary-card">
+
+        <div class="summary-header">
+
+          <span class="summary-kicker">
+            ORDER SUMMARY
+          </span>
+
+          <h2>
+            Your total
+          </h2>
+
+        </div>
+
+        <!-- Summary rows -->
+        <div class="summary-details">
+
+          <div class="summary-row">
+            <span>Subtotal</span>
+
+            <strong>
+              {{ subtotal | currency }}
+            </strong>
+          </div>
+
+          <div
+            class="summary-row discount"
+            *ngIf="discountAmount > 0"
+          >
+            <span>
+              Discount
+            </span>
+
+            <strong>
+              -{{ discountAmount | currency }}
+            </strong>
+          </div>
+
+          <div class="summary-row">
+            <span>
+              Delivery
+            </span>
+
+            <span class="muted-value">
+              Calculated at checkout
+            </span>
+          </div>
+
+        </div>
+
+        <!-- Total -->
+        <div class="summary-total">
+
+          <span>
+            Total
+          </span>
+
+          <strong>
+            {{ total | currency }}
+          </strong>
+
+        </div>
+
+        <!-- Checkout -->
+        <button
+          type="button"
+          class="checkout-button"
+          (click)="continueToDelivery()"
+        >
+          <span>Continue to checkout</span>
+
+          <i class="bi bi-arrow-right"></i>
+        </button>
+
+        <!-- Security -->
+        <div class="secure-note">
+
+          <i class="bi bi-shield-check"></i>
+
+          <span>
+            Secure checkout
+          </span>
+
+          <span class="secure-dot">
+            •
+          </span>
+
+          <span>
+            Protected order flow
+          </span>
+
+        </div>
+
+      </aside>
+
     </div>
-    <div class="sum col-lg-2 offset-lg-1 col-sm-12  h-100 p-4 bg-white rounded-3">
-      <div class="col-12 border-bottom my-3">
-        <div class="d-flex align-items-center justify-content-between w-100">
-          <p>Subtotal</p>
-          <p>${{Total| number:'1.2-2'}}</p>
-        </div>
-        <div class="d-flex align-items-center justify-content-between w-100">
-          <p>Discount</p>
-          <p class=" text-danger">-${{Discount}}</p>
-        </div>
+
+    <!-- Empty Cart -->
+    <section
+      class="empty-cart"
+      *ngIf="!loading && !items.length"
+    >
+
+      <div class="empty-icon">
+        <i class="bi bi-bag-x"></i>
       </div>
-      <div class="col-12 my-3">
-        <div class="d-flex align-items-center justify-content-between w-100">
-          <p>Total</p>
-          <p>${{Total - Discount | number:'1.2-2'}}</p>
-        </div>
-        <button (click)="Subtotal()" class=" btn btn-primary w-100">CheackOut</button>
-      </div>
-    </div>
+
+      <span class="eyebrow">
+        YOUR BAG IS EMPTY
+      </span>
+
+      <h2>
+        Nothing here yet.
+      </h2>
+
+      <p>
+        Explore our latest collection and add the products
+        you would like to purchase.
+      </p>
+
+      <button
+        type="button"
+        class="primary-button"
+        (click)="continueShopping()"
+      >
+        <span>Explore the shop</span>
+        <i class="bi bi-arrow-right"></i>
+      </button>
+
+    </section>
+
   </div>
-</div>
-<app-cart-on-all (getlength)="cartlength = $event" (allproduct)="cart.products = $event"></app-cart-on-all>
+</main>

@@ -1,116 +1,538 @@
-<div class="dashboard-card">
-  <header class="topbar">
-    <div class="title">
-      <h2>Store Dashboard</h2>
-      <small *ngIf="storeId">Store ID: {{ storeId }}</small>
+
+<div class="dashboard-page">
+
+  <!-- Header -->
+  <header class="dashboard-header">
+
+    <div class="header-copy">
+      <span class="section-eyebrow">
+        STORE MANAGEMENT
+      </span>
+
+      <h1>
+        Store dashboard
+      </h1>
+
+      <p *ngIf="storeId">
+        Manage your store performance, products and orders from one place.
+      </p>
+
+      <span
+        *ngIf="storeId"
+        class="store-id"
+      >
+        Store ID:
+        <strong>{{ storeId }}</strong>
+      </span>
     </div>
 
-    <div class="actions">
-      <button class="btn" (click)="openStorePublic()">Open Store</button>
-      <button class="btn primary" (click)="goAddProduct()">Add product</button>
-      <button class="btn outline" (click)="triggerRefresh()">Refresh</button>
+    <div class="header-actions">
+
+      <button
+        type="button"
+        class="dashboard-button secondary"
+        (click)="openStorePublic()"
+      >
+        <i class="bi bi-shop"></i>
+
+        <span>Open store</span>
+      </button>
+
+      <button
+        type="button"
+        class="dashboard-button primary"
+        (click)="goAddProduct()"
+      >
+        <i class="bi bi-plus-lg"></i>
+
+        <span>Add product</span>
+      </button>
+
+      <button
+        type="button"
+        class="dashboard-button ghost"
+        [disabled]="loading"
+        (click)="triggerRefresh()"
+      >
+        <i class="bi bi-arrow-clockwise"></i>
+
+        <span>Refresh</span>
+      </button>
+
     </div>
+
   </header>
 
-  <!-- summary tiles -->
-  <section class="tiles">
+  <!-- Error -->
+  <div
+    *ngIf="error"
+    class="dashboard-alert"
+    role="alert"
+  >
+    <div class="alert-icon">
+      <i class="bi bi-exclamation-circle"></i>
+    </div>
+
+    <div>
+      <strong>Something went wrong</strong>
+      <p>{{ error }}</p>
+    </div>
+
+    <button
+      type="button"
+      (click)="triggerRefresh()"
+    >
+      Retry
+    </button>
+  </div>
+
+  <!-- KPI -->
+  <section class="stats-grid">
+
     <ng-container *ngIf="totals$ | async as totals">
-      <div class="tile">
-        <div class="num">{{ totals.totalRevenue | number }}</div>
-        <div class="label">Revenue</div>
-      </div>
-      <div class="tile">
-        <div class="num">{{ totals.totalOrders }}</div>
-        <div class="label">Orders</div>
-      </div>
-      <div class="tile">
-        <div class="num">{{ totals.totalProducts }}</div>
-        <div class="label">Products</div>
-      </div>
+
+      <article class="stat-card stat-revenue">
+        <div class="stat-top">
+          <span>Revenue</span>
+
+          <div class="stat-icon">
+            <i class="bi bi-graph-up-arrow"></i>
+          </div>
+        </div>
+
+        <strong>
+          {{ totals.totalRevenue | currency }}
+        </strong>
+
+        <small>
+          Total gross revenue
+        </small>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-top">
+          <span>Orders</span>
+
+          <div class="stat-icon">
+            <i class="bi bi-receipt"></i>
+          </div>
+        </div>
+
+        <strong>
+          {{ totals.totalOrders | number }}
+        </strong>
+
+        <small>
+          Orders associated with your store
+        </small>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-top">
+          <span>Products</span>
+
+          <div class="stat-icon">
+            <i class="bi bi-box-seam"></i>
+          </div>
+        </div>
+
+        <strong>
+          {{ totals.totalProducts | number }}
+        </strong>
+
+        <small>
+          Products in your catalog
+        </small>
+      </article>
+
     </ng-container>
+
   </section>
 
-  <main class="content">
-    <!-- analytics panel -->
-    <aside class="analytics">
-      <h3>Analytics</h3>
-      <div *ngIf="analytics$ | async as analytics; else noAnalytics">
-        <p>Total Revenue: {{ analytics.totalRevenue | currency }}</p>
-        <p>Total Orders: {{ analytics.totalOrders }}</p>
-        <p>Avg Order Value: {{ analytics.avgOrderValue | currency }}</p>
-        <!-- يمكنك إضافة رسم بياني هنا -->
+  <!-- Analytics -->
+  <section class="dashboard-grid analytics-grid">
+
+    <article class="dashboard-card analytics-card">
+
+      <div class="card-heading">
+        <div>
+          <span class="panel-kicker">
+            PERFORMANCE
+          </span>
+
+          <h2>
+            Store analytics
+          </h2>
+
+          <p>
+            A quick overview of your store activity.
+          </p>
+        </div>
+
+        <div class="heading-icon">
+          <i class="bi bi-bar-chart-line"></i>
+        </div>
       </div>
-      <ng-template #noAnalytics>
-        <p>No analytics available.</p>
-      </ng-template>
-    </aside>
 
-    <!-- main admin area: recent orders + products list, OR child routes render here -->
-    <section class="admin-area">
+      <ng-container
+        *ngIf="analytics$ | async as analytics; else analyticsEmpty"
+      >
 
-      <!-- router outlet: صفحات الإدارة (products list, product form) ستظهر هنا كـ children -->
-      <router-outlet></router-outlet>
+        <div class="metric-grid">
 
-      <!-- fallback / inline content when no child route rendered (dashboard default view) -->
-      <div class="dashboard-default">
-        <!-- recent orders -->
-        <section class="orders">
-          <h3>Recent Orders</h3>
-          <table class="orders-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Customer</th>
-                <th>Items</th>
-                <th>Total</th>
-                <th>Status</th>
-                <th>When</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <!-- <td>{{ i + 1 }}</td>
-                <td>{{ o.user?.userName ?? o.user?.email ?? 'Guest' }}</td>
-                <td>{{ o.items?.length ?? 0 }}</td>
-                <td>{{ o.total | currency }}</td>
-                <td>{{ o.status }}</td>
-                <td>{{ o.createdAt | date:'short' }}</td> -->
-              </tr>
-            </tbody>
-          </table>
+          <div class="metric-item">
+            <span>Total revenue</span>
 
-          <ng-template #noOrders>
-            <p>No recent orders.</p>
-          </ng-template>
-        </section>
-
-        <!-- products summary -->
-        <section class="products">
-          <h3>Products</h3>
-          <div>
-            <div class="products-list">
-              <div class="product-row">
-                <!-- <img class="thumb" [src]="'/assets/placeholder.png'" alt="grger ge r" -->
-                <!-- loading="lazy" /> -->
-                <div class="meta">
-                  <div class="title">ejygf dsif </div>
-                  <div class="small">Price: 10</div>
-                  <div class="small">Qty: 10</div>
-                </div>
-                <div class="controls">
-                  <button class="btn outline small">Edit</button>
-                  <button class="btn danger small">Delete</button>
-                </div>
-              </div>
-            </div>
+            <strong>
+              {{ (analytics.totalRevenue ?? 0) | currency }}
+            </strong>
           </div>
 
-          <ng-template #noProducts>
-            <p>No products found.</p>
-          </ng-template>
-        </section>
+          <div class="metric-item">
+            <span>Total orders</span>
+
+            <strong>
+              {{ (analytics.totalOrders ?? 0) | number }}
+            </strong>
+          </div>
+
+          <div class="metric-item">
+            <span>Average order</span>
+
+            <strong>
+              {{ (analytics.avgOrderValue ?? 0) | currency }}
+            </strong>
+          </div>
+
+        </div>
+
+      </ng-container>
+
+      <ng-template #analyticsEmpty>
+        <div class="empty-panel">
+          <i class="bi bi-bar-chart"></i>
+          <span>Analytics are not available yet.</span>
+        </div>
+      </ng-template>
+
+    </article>
+
+    <!-- Quick Actions -->
+    <article class="dashboard-card quick-card">
+
+      <div class="card-heading">
+        <div>
+          <span class="panel-kicker">
+            QUICK ACTIONS
+          </span>
+
+          <h2>
+            Keep your store moving
+          </h2>
+
+          <p>
+            Access the most common store tasks.
+          </p>
+        </div>
+
+        <div class="heading-icon">
+          <i class="bi bi-lightning-charge"></i>
+        </div>
       </div>
 
-    </section>
-  </main>
+      <div class="quick-actions">
+
+        <button
+          type="button"
+          (click)="goAddProduct()"
+        >
+          <span class="quick-icon">
+            <i class="bi bi-plus-lg"></i>
+          </span>
+
+          <span>
+            <strong>Add product</strong>
+            <small>Create a new product</small>
+          </span>
+
+          <i class="bi bi-arrow-right"></i>
+        </button>
+
+        <button
+          type="button"
+          (click)="goProducts()"
+        >
+          <span class="quick-icon">
+            <i class="bi bi-grid"></i>
+          </span>
+
+          <span>
+            <strong>Manage products</strong>
+            <small>Update your catalog</small>
+          </span>
+
+          <i class="bi bi-arrow-right"></i>
+        </button>
+
+        <button
+          type="button"
+          (click)="goOrders()"
+        >
+          <span class="quick-icon">
+            <i class="bi bi-receipt"></i>
+          </span>
+
+          <span>
+            <strong>View orders</strong>
+            <small>Manage customer orders</small>
+          </span>
+
+          <i class="bi bi-arrow-right"></i>
+        </button>
+
+      </div>
+
+    </article>
+
+  </section>
+
+  <!-- Router Outlet -->
+  <section class="child-route">
+    <router-outlet></router-outlet>
+  </section>
+
+  <!-- Overview -->
+  <section class="overview-section">
+
+    <div class="section-heading">
+
+      <div>
+        <span class="panel-kicker">
+          OVERVIEW
+        </span>
+
+        <h2>
+          Recent activity
+        </h2>
+
+        <p>
+          The latest changes across your store.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="text-button"
+        (click)="goOrders()"
+      >
+        View all orders
+        <i class="bi bi-arrow-right"></i>
+      </button>
+
+    </div>
+
+    <div class="dashboard-grid overview-grid">
+
+      <!-- Recent Orders -->
+      <article class="dashboard-card">
+
+        <div class="card-title-row">
+
+          <div>
+            <h3>
+              Recent orders
+            </h3>
+
+            <span>
+              Latest 6 orders
+            </span>
+          </div>
+
+          <div class="small-heading-icon">
+            <i class="bi bi-receipt"></i>
+          </div>
+
+        </div>
+
+        <ng-container *ngIf="recentOrders$ | async as orders">
+
+          <div
+            *ngIf="orders.length; else noOrders"
+            class="orders-list"
+          >
+
+            <button
+              type="button"
+              class="order-row"
+              *ngFor="let order of orders; trackBy: trackById"
+              (click)="goOrders()"
+            >
+
+              <div class="order-avatar">
+                <i class="bi bi-box-seam"></i>
+              </div>
+
+              <div class="order-main">
+
+                <strong>
+                  #{{ order.orderNumber || order._id || '—' }}
+                </strong>
+
+                <span>
+                  {{
+                    order.user?.userName ||
+                    order.customer?.userName ||
+                    order.user?.email ||
+                    'Customer'
+                  }}
+                </span>
+
+              </div>
+
+              <div class="order-side">
+
+                <strong>
+                  {{
+                    (order.total ?? order.subtotal ?? 0)
+                      | currency
+                  }}
+                </strong>
+
+                <span
+                  class="order-status"
+                  [ngClass]="getStatusClass(order.status)"
+                >
+                  {{ order.status || 'Pending' }}
+                </span>
+
+              </div>
+
+            </button>
+
+          </div>
+
+        </ng-container>
+
+        <ng-template #noOrders>
+          <div class="empty-panel large">
+            <i class="bi bi-receipt"></i>
+
+            <strong>
+              No recent orders
+            </strong>
+
+            <span>
+              New orders will appear here.
+            </span>
+          </div>
+        </ng-template>
+
+      </article>
+
+      <!-- Products -->
+      <article class="dashboard-card">
+
+        <div class="card-title-row">
+
+          <div>
+            <h3>
+              Catalog snapshot
+            </h3>
+
+            <span>
+              Latest products
+            </span>
+          </div>
+
+          <button
+            type="button"
+            class="text-button small"
+            (click)="goProducts()"
+          >
+            Manage
+          </button>
+
+        </div>
+
+        <ng-container *ngIf="productsSummary$ | async as products">
+
+          <div
+            *ngIf="products.length; else noProducts"
+            class="products-list"
+          >
+
+            <div
+              class="product-row"
+              *ngFor="
+                let product of products | slice:0:5;
+                trackBy: trackById
+              "
+            >
+
+              <div class="product-icon">
+                <i class="bi bi-box"></i>
+              </div>
+
+              <div class="product-main">
+
+                <strong>
+                  {{ product.name }}
+                </strong>
+
+                <span>
+                  {{
+                    product.stock ??
+                    product.totalItems ??
+                    0
+                  }}
+                  in stock
+                </span>
+
+              </div>
+
+              <strong class="product-price">
+                {{
+                  (
+                    product.finalPrice ??
+                    product.price ??
+                    0
+                  ) | currency
+                }}
+              </strong>
+
+            </div>
+
+          </div>
+
+        </ng-container>
+
+        <ng-template #noProducts>
+          <div class="empty-panel large">
+            <i class="bi bi-box-seam"></i>
+
+            <strong>
+              No products found
+            </strong>
+
+            <span>
+              Start by adding your first product.
+            </span>
+
+            <button
+              type="button"
+              class="empty-action"
+              (click)="goAddProduct()"
+            >
+              Add product
+            </button>
+          </div>
+        </ng-template>
+
+      </article>
+
+    </div>
+
+  </section>
+
 </div>
+

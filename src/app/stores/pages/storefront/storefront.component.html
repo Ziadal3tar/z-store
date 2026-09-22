@@ -1,97 +1,627 @@
-
-
-<!-- FILE: storefront.component.html -->
-
-<!-- Place this in src/app/storefront/storefront.component.html -->
 <div class="storefront-root">
-  <header class="topbar">
-    <div class="brand">MyStore</div>
-    <div class="search">
-      <input  placeholder="Search products, e.g., headphones" />
-      <button aria-label="search">🔍</button>
-    </div>
 
-    <div class="cart">
-      <button class="cart-btn">🛒 <span class="count">{{cart.length}}</span></button>
+  <!-- =====================================================
+       TOP BAR
+  ====================================================== -->
+
+  <header class="store-header">
+    <div class="store-container topbar">
+
+      <a
+        class="brand"
+        [routerLink]="['/store', storeId]"
+      >
+        <span class="brand-mark">Z</span>
+
+        <span class="brand-copy">
+          <strong>
+            {{ store?.name || 'Z-STORE' }}
+          </strong>
+
+          <small>
+            STORE
+          </small>
+        </span>
+      </a>
+
+      <!-- Search -->
+      <label
+        class="search-control"
+        aria-label="Search products"
+      >
+        <i class="fa-solid fa-magnifying-glass"></i>
+
+        <input
+          #searchInput
+          type="search"
+          [value]="search"
+          (input)="onSearch(searchInput.value)"
+          placeholder="Search products..."
+          autocomplete="off"
+        />
+
+        <button
+          *ngIf="search"
+          type="button"
+          class="clear-search"
+          aria-label="Clear search"
+          (click)="clearSearch()"
+        >
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </label>
+
+      <!-- Cart -->
+      <a
+        class="cart-button"
+        [routerLink]="['/cart']"
+      >
+        <i class="fa-solid fa-bag-shopping"></i>
+
+        <span class="cart-label">
+          Cart
+        </span>
+
+        <span class="cart-count">
+          {{ cartCount }}
+        </span>
+      </a>
+
     </div>
   </header>
 
-  <section class="hero">
-    <div class="hero-inner">
-      <h1>Discover modern gear that fits your life</h1>
-      <p>Curated picks — fast delivery — secure checkout</p>
-      <div class="hero-actions">
-        <button class="btn-primary">Shop Bestsellers</button>
-        <button class="btn-ghost">See new arrivals</button>
+
+  <!-- =====================================================
+       HERO
+  ====================================================== -->
+
+  <section class="hero-section">
+    <div class="store-container hero">
+
+      <div class="hero-content">
+
+        <span class="hero-eyebrow">
+          CURATED COLLECTION
+        </span>
+
+        <h1>
+          {{ store?.name || 'Discover your next favorite product.' }}
+        </h1>
+
+        <p>
+          {{
+            store?.description ||
+            'A focused collection built for easy discovery, clear product details and a smoother shopping experience.'
+          }}
+        </p>
+
+        <div class="hero-actions">
+
+          <button
+            type="button"
+            class="primary-button"
+            (click)="scrollToProducts()"
+          >
+            Explore products
+            <i class="fa-solid fa-arrow-down"></i>
+          </button>
+
+          <span class="hero-meta">
+            <i class="fa-solid fa-box"></i>
+            {{ products.length }} products
+          </span>
+
+        </div>
+
       </div>
-    </div>
-    <img src="https://picsum.photos/seed/hero/1200/500" alt="hero"/>
-  </section>
 
-  <nav class="categories">
-    <div class="cats-row">
-      <button *ngFor="let c of categories" (click)="selectCategory(c)" [class.active]="c===selectedCategory">{{c}}</button>
-    </div>
+      <div
+        class="hero-art"
+        aria-hidden="true"
+      >
+        <div class="hero-grid"></div>
 
-    <div class="controls">
-      <label>
-        Sort
-        <select>
-          <option value="popular">Popular</option>
-          <option value="new">New</option>
-          <option value="price-asc">Price: Low &uarr;</option>
-          <option value="price-desc">Price: High &darr;</option>
-        </select>
-      </label>
-    </div>
-  </nav>
+        <div class="hero-orb orb-one"></div>
+        <div class="hero-orb orb-two"></div>
 
-  <main class="content">
-    <aside class="filters">
-      <h3>Filters</h3>
-      <div class="filter-block">
-        <label>Price range</label>
-        <div class="range-row">
-          <input type="number" placeholder="Min" />
-          <input type="number" placeholder="Max" />
+        <div class="hero-floating-card floating-card-top">
+          <i class="fa-solid fa-bolt"></i>
+          <span>Easy discovery</span>
+        </div>
+
+        <div class="hero-floating-card floating-card-bottom">
+          <strong>{{ cartCount }}</strong>
+          <span>items in cart</span>
+        </div>
+
+        <div class="hero-center">
+          <span>SHOP</span>
+          <strong>Z</strong>
         </div>
       </div>
 
-      <div class="filter-block">
-        <label>Rating</label>
-        <div>4&nbsp;★ &amp; up</div>
+    </div>
+  </section>
+
+
+  <!-- =====================================================
+       TOOLBAR
+  ====================================================== -->
+
+  <section class="store-container toolbar-section">
+
+    <div class="toolbar-main">
+
+      <div class="category-block">
+
+        <div class="toolbar-label">
+          Categories
+        </div>
+
+        <div
+          class="category-list"
+          aria-label="Product categories"
+        >
+          <button
+            *ngFor="let category of categories"
+            type="button"
+            class="category-pill"
+            [class.active]="selectedCategory === category.value"
+            (click)="onCategoryChange(category.value)"
+          >
+            {{ category.label }}
+          </button>
+        </div>
+
       </div>
+
+      <div class="toolbar-actions">
+
+        <label class="sort-control">
+          <span>Sort</span>
+
+          <select
+            #sortSelect
+            [value]="sortBy"
+            (change)="onSortChange(sortSelect.value)"
+          >
+            <option value="popular">
+              Popular
+            </option>
+
+            <option value="new">
+              Newest
+            </option>
+
+            <option value="price-asc">
+              Price: Low to high
+            </option>
+
+            <option value="price-desc">
+              Price: High to low
+            </option>
+          </select>
+        </label>
+
+        <button
+          type="button"
+          class="mobile-filter-button"
+          (click)="filtersOpen = !filtersOpen"
+        >
+          <i class="fa-solid fa-sliders"></i>
+          Filters
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       CONTENT
+  ====================================================== -->
+
+  <main
+    id="products-section"
+    class="store-container storefront-content"
+  >
+
+    <!-- Filters -->
+    <aside
+      class="filters-panel"
+      [class.open]="filtersOpen"
+    >
+
+      <div class="filter-header">
+
+        <div>
+          <span class="eyebrow">
+            FILTERS
+          </span>
+
+          <h2>
+            Refine results
+          </h2>
+        </div>
+
+        <button
+          type="button"
+          class="close-filter"
+          (click)="filtersOpen = false"
+        >
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+
+      </div>
+
+      <div class="filter-group">
+
+        <label>
+          Minimum price
+        </label>
+
+        <div class="price-input">
+
+          <span>$</span>
+
+          <input
+            type="number"
+            min="0"
+            [(ngModel)]="minPrice"
+            (ngModelChange)="onPriceChange()"
+            placeholder="0"
+          />
+
+        </div>
+
+      </div>
+
+      <div class="filter-group">
+
+        <label>
+          Maximum price
+        </label>
+
+        <div class="price-input">
+
+          <span>$</span>
+
+          <input
+            type="number"
+            min="0"
+            [(ngModel)]="maxPrice"
+            (ngModelChange)="onPriceChange()"
+            placeholder="No limit"
+          />
+
+        </div>
+
+      </div>
+
+      <div class="filter-summary">
+
+        <div>
+          <span>Showing</span>
+          <strong>{{ filteredProducts.length }}</strong>
+        </div>
+
+        <div>
+          <span>Products</span>
+          <strong>{{ products.length }}</strong>
+        </div>
+
+      </div>
+
+      <button
+        type="button"
+        class="clear-filter"
+        (click)="clearFilters()"
+      >
+        <i class="fa-solid fa-rotate-left"></i>
+        Clear all filters
+      </button>
+
     </aside>
 
-    <section class="products">
-      <div class="grid">
-        <article class="product-card" *ngFor="let p of filteredProducts">
-          <div class="media">
-            <img [src]="p.image" [alt]="p.title" />
-            <span *ngIf="p.badge" class="badge">{{p.badge}}</span>
-          </div>
-          <div class="body">
-            <h4 class="title">{{p.title}}</h4>
-            <p class="cat">{{p.category}}</p>
-            <div class="meta">
-              <div class="price">${{p.price}}</div>
-              <div class="rating">⭐ {{p.rating}}</div>
-            </div>
-            <div class="actions">
-              <button (click)="addToCart(p)" class="add">Add to cart</button>
-              <button class="view">View</button>
-            </div>
-          </div>
-        </article>
+    <!-- Mobile Overlay -->
+    <div
+      *ngIf="filtersOpen"
+      class="filters-overlay"
+      (click)="filtersOpen = false"
+    ></div>
+
+
+    <!-- Products -->
+    <section
+      class="products-area"
+      aria-live="polite"
+    >
+
+      <div class="results-header">
+
+        <div>
+          <span class="eyebrow">
+            COLLECTION
+          </span>
+
+          <h2>
+            {{ filteredProducts.length }}
+            {{ filteredProducts.length === 1 ? 'product' : 'products' }}
+          </h2>
+
+          <p *ngIf="search">
+            Results for
+            <strong>"{{ search }}"</strong>
+          </p>
+        </div>
+
+        <div class="results-status">
+          <span
+            class="status-dot"
+            [class.loading]="loading"
+          ></span>
+
+          {{ loading ? 'Updating' : 'Ready' }}
+        </div>
+
       </div>
 
-      <div class="empty" *ngIf="filteredProducts.length===0">No products found.</div>
+
+      <!-- Loading -->
+      <div
+        *ngIf="loading"
+        class="product-grid"
+      >
+
+        <div
+          class="skeleton-card"
+          *ngFor="let item of skeletonItems"
+        >
+
+          <div class="skeleton-image"></div>
+
+          <div class="skeleton-content">
+            <span></span>
+            <strong></strong>
+            <small></small>
+            <div></div>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- Error -->
+      <div
+        *ngIf="!loading && error"
+        class="state-card error-state"
+      >
+
+        <div class="state-icon">
+          <i class="fa-solid fa-circle-exclamation"></i>
+        </div>
+
+        <span class="eyebrow">
+          TEMPORARY ISSUE
+        </span>
+
+        <h3>
+          We couldn't load the products
+        </h3>
+
+        <p>
+          {{ error }}
+        </p>
+
+        <button
+          type="button"
+          class="primary-button"
+          (click)="loadProducts()"
+        >
+          Try again
+          <i class="fa-solid fa-rotate-right"></i>
+        </button>
+
+      </div>
+
+
+      <!-- Product Grid -->
+      <div
+        *ngIf="
+          !loading &&
+          !error &&
+          filteredProducts.length
+        "
+        class="product-grid"
+      >
+
+        <article
+          *ngFor="
+            let product of filteredProducts;
+            trackBy: trackByProductId
+          "
+          class="product-card"
+        >
+
+          <!-- Image -->
+          <div class="product-media">
+
+            <img
+              [src]="imageUrl(product)"
+              [alt]="product.name"
+              loading="lazy"
+              decoding="async"
+            />
+
+            <div class="product-media-overlay">
+              <span>
+                <i class="fa-solid fa-eye"></i>
+                Product
+              </span>
+            </div>
+
+            <span
+              *ngIf="(product.totalItems ?? 0) <= 0"
+              class="stock-badge out"
+            >
+              Out of stock
+            </span>
+
+            <span
+              *ngIf="
+                (product.totalItems ?? 0) > 0 &&
+                (product.totalItems ?? 0) <= 5
+              "
+              class="stock-badge low"
+            >
+              Low stock
+            </span>
+
+            <span
+              *ngIf="product.discount"
+              class="discount-badge"
+            >
+              -{{ product.discount }}
+            </span>
+
+          </div>
+
+
+          <!-- Body -->
+          <div class="product-body">
+
+            <div class="product-topline">
+
+              <span class="product-category">
+                {{
+                  $any(product).category?.name ||
+                  product.categoryId ||
+                  'Collection'
+                }}
+              </span>
+
+              <span
+                *ngIf="product.soldItems"
+                class="sold-label"
+              >
+                {{ product.soldItems }} sold
+              </span>
+
+            </div>
+
+            <h3>
+              {{ product.name }}
+            </h3>
+
+            <p>
+              {{
+                product.description ||
+                'Premium selection from this store.'
+              }}
+            </p>
+
+            <div class="product-footer">
+
+              <div class="price-group">
+
+                <strong>
+                  {{ finalPrice(product) | currency }}
+                </strong>
+
+                <del *ngIf="product.discount">
+                  {{ product.price | currency }}
+                </del>
+
+              </div>
+
+            </div>
+
+            <button
+              type="button"
+              class="add-button"
+              [disabled]="
+                (product.totalItems ?? 0) <= 0 ||
+                addingProductId === product._id
+              "
+              (click)="addToCart(product)"
+            >
+
+              <span
+                *ngIf="addingProductId !== product._id"
+              >
+                {{
+                  (product.totalItems ?? 0) <= 0
+                    ? 'Out of stock'
+                    : 'Add to cart'
+                }}
+              </span>
+
+              <span
+                *ngIf="addingProductId === product._id"
+                class="button-loading"
+              >
+                <span class="button-spinner"></span>
+                Adding...
+              </span>
+
+              <i
+                *ngIf="
+                  (product.totalItems ?? 0) > 0 &&
+                  addingProductId !== product._id
+                "
+                class="fa-solid fa-arrow-right"
+              ></i>
+
+            </button>
+
+          </div>
+
+        </article>
+
+      </div>
+
+
+      <!-- Empty -->
+      <div
+        *ngIf="
+          !loading &&
+          !error &&
+          !filteredProducts.length
+        "
+        class="state-card empty-state"
+      >
+
+        <div class="state-icon">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+
+        <span class="eyebrow">
+          NO MATCHES
+        </span>
+
+        <h3>
+          No products found
+        </h3>
+
+        <p>
+          Try another search or clear some filters.
+        </p>
+
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="clearFilters()"
+        >
+          Clear filters
+        </button>
+
+      </div>
+
     </section>
+
   </main>
 
-  <footer class="footer">
-    <div>©2025  MyStore</div>
-    <div>Made with ♥ for beautiful shopping experiences</div>
-  </footer>
 </div>
-

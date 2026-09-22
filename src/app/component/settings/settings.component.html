@@ -1,64 +1,487 @@
-<div class=" bg-white  rounded-3">
-  <p class=" border-bottom w-100 fs-2 p-3 fa ">settings</p>
-  <div class=" container">
-    <div class="  d-flex flex-column justify-content-between  col-6  py-3 " style="height: 43.2vh;">
-      <p class="fa">Email</p>
-      <div class=" mt-2">
-        <label class="fa" for="">Current Email
-        </label>
-        <input type="text" class="form-control ng-untouched ng-pristine ng-invalid text-black-50" disabled
-          value="{{userData?.email}}">
-      </div>
-      <div class=" mt-2">
-        <label for="" class="fa">New Email</label>
-        <input type="text" class="form-control ng-untouched ng-pristine ng-invalid" [(ngModel)]="newEmail">
-      </div>
-      <button class=" btn btn-primary  col-lg-4 col-md-6 col-sm-8" (click)="updateEmail()">Update Email</button>
-    </div>
 
-    <hr>
-    <div class="  d-flex flex-column justify-content-between  col-6  py-3 " style="height: 50vh;">
-      <p class="fa">Password</p>
-      <div class=" mt-2">
-        <label class="fa" for="">Current password
-        </label>
-        <input type="text" class="form-control ng-untouched ng-pristine ng-invalid " [(ngModel)]="oldPassword">
-        <p class="text-danger">{{passwordErr}}</p>
-      </div>
-      <div class=" mt-2">
-        <label for="" class="fa">New password</label>
-        <input type="text" class="form-control ng-untouched ng-pristine ng-invalid" [(ngModel)]="newPassword">
-      </div>
-      <div class=" mt-2">
-        <label for="" class="fa">Confirm password</label>
-        <input type="text" class="form-control ng-untouched ng-pristine ng-invalid" [(ngModel)]="confirmNewPassword">
-        <p class="text-danger">{{confirmPassErr}}</p>
-      </div>
-      <button class=" btn btn-primary col-lg-5 col-md-6 col-sm-8" (click)="updatePassword()">Update password</button>
-    </div>
+<div class="settings-page">
+  <div class="settings-container">
 
-    <hr>
-    <div class="  d-flex flex-column justify-content-between  col-6  py-3 ">
-      <p class="fa">Email Notifications</p>
-      <div class="form-check">
-        <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
-        <label class="form-check-label" for="Weekly Newsletter">
-          Weekly Newsletter
-        </label>
+    <!-- Header -->
+    <header class="settings-header">
+      <div>
+        <span class="section-eyebrow">ACCOUNT</span>
+
+        <h1>Settings</h1>
+
+        <p>
+          Manage your account information, security and preferences.
+        </p>
       </div>
-      <div class="form-check">
-        <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
-        <label class="form-check-label" for="New Product Announcements">
-          New Product Announcements
-        </label>
+
+      <div class="account-badge">
+        <span class="badge-icon">
+          <i class="fa-solid fa-user"></i>
+        </span>
+
+        <div>
+          <span class="badge-label">SIGNED IN AS</span>
+          <strong>
+            {{ userData?.email || 'Your account' }}
+          </strong>
+        </div>
       </div>
-      <div class="form-check ">
-        <input class="form-check-input " type="checkbox" value="" id="defaultCheck1">
-        <label class="form-check-label  " for="Product Specials">
-          Product Specials
-        </label>
-      </div>
+    </header>
+
+    <div class="settings-layout">
+
+      <!-- Main Content -->
+      <main class="settings-main">
+
+        <!-- Email -->
+        <section class="settings-card">
+
+          <div class="card-header">
+            <div class="card-icon">
+              <i class="fa-regular fa-envelope"></i>
+            </div>
+
+            <div>
+              <h2>Email address</h2>
+
+              <p>
+                Update the email address associated with your account.
+              </p>
+            </div>
+          </div>
+
+          <div class="card-body">
+
+            <!-- Current Email -->
+            <div class="field-group">
+              <label for="current-email">
+                Current email
+              </label>
+
+              <div class="field-control disabled">
+                <i class="fa-regular fa-envelope field-icon"></i>
+
+                <input
+                  id="current-email"
+                  type="email"
+                  [value]="userData?.email || ''"
+                  disabled
+                />
+
+                <span class="verified-badge">
+                  <i class="fa-solid fa-check"></i>
+                  Current
+                </span>
+              </div>
+            </div>
+
+            <!-- New Email -->
+            <div class="field-group">
+              <label for="new-email">
+                New email
+              </label>
+
+              <div
+                class="field-control"
+                [class.has-error]="emailErr"
+              >
+                <i class="fa-regular fa-envelope field-icon"></i>
+
+                <input
+                  id="new-email"
+                  name="newEmail"
+                  type="email"
+                  autocomplete="email"
+                  placeholder="Enter your new email"
+                  [(ngModel)]="newEmail"
+                  (ngModelChange)="emailErr = ''"
+                />
+              </div>
+
+              <span
+                *ngIf="emailErr"
+                class="field-error"
+              >
+                <i class="fa-solid fa-circle-exclamation"></i>
+                {{ emailErr }}
+              </span>
+            </div>
+
+            <div class="card-actions">
+
+              <span class="security-note">
+                <i class="fa-solid fa-shield-halved"></i>
+
+                You will need to sign in again after changing your email.
+              </span>
+
+              <button
+                type="button"
+                class="primary-button"
+                [disabled]="emailLoading"
+                (click)="updateEmail()"
+              >
+                <span *ngIf="!emailLoading">
+                  Update email
+                  <i class="fa-solid fa-arrow-right"></i>
+                </span>
+
+                <span
+                  *ngIf="emailLoading"
+                  class="loading-state"
+                >
+                  <span class="spinner"></span>
+                  Updating...
+                </span>
+              </button>
+
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Password -->
+        <section class="settings-card">
+
+          <div class="card-header">
+            <div class="card-icon">
+              <i class="fa-solid fa-lock"></i>
+            </div>
+
+            <div>
+              <h2>Password</h2>
+
+              <p>
+                Keep your account secure with a strong password.
+              </p>
+            </div>
+          </div>
+
+          <div class="card-body">
+
+            <!-- Current Password -->
+            <div class="field-group">
+              <label for="old-password">
+                Current password
+              </label>
+
+              <div
+                class="field-control"
+                [class.has-error]="passwordErr"
+              >
+                <i class="fa-solid fa-lock field-icon"></i>
+
+                <input
+                  id="old-password"
+                  name="oldPassword"
+                  [type]="showOldPassword ? 'text' : 'password'"
+                  autocomplete="current-password"
+                  placeholder="Enter your current password"
+                  [(ngModel)]="oldPassword"
+                  (ngModelChange)="passwordErr = ''"
+                />
+
+                <button
+                  type="button"
+                  class="visibility-button"
+                  (click)="showOldPassword = !showOldPassword"
+                  aria-label="Toggle current password visibility"
+                >
+                  <i
+                    [class]="showOldPassword
+                      ? 'fa-regular fa-eye'
+                      : 'fa-regular fa-eye-slash'"
+                  ></i>
+                </button>
+              </div>
+
+              <span
+                *ngIf="passwordErr"
+                class="field-error"
+              >
+                <i class="fa-solid fa-circle-exclamation"></i>
+                {{ passwordErr }}
+              </span>
+            </div>
+
+            <div class="password-grid">
+
+              <!-- New Password -->
+              <div class="field-group">
+                <label for="new-password">
+                  New password
+                </label>
+
+                <div class="field-control">
+                  <i class="fa-solid fa-key field-icon"></i>
+
+                  <input
+                    id="new-password"
+                    name="newPassword"
+                    [type]="showNewPassword ? 'text' : 'password'"
+                    autocomplete="new-password"
+                    placeholder="Enter your new password"
+                    [(ngModel)]="newPassword"
+                    (ngModelChange)="confirmPassErr = ''"
+                  />
+
+                  <button
+                    type="button"
+                    class="visibility-button"
+                    (click)="showNewPassword = !showNewPassword"
+                    aria-label="Toggle new password visibility"
+                  >
+                    <i
+                      [class]="showNewPassword
+                        ? 'fa-regular fa-eye'
+                        : 'fa-regular fa-eye-slash'"
+                    ></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Confirm Password -->
+              <div class="field-group">
+                <label for="confirm-password">
+                  Confirm password
+                </label>
+
+                <div
+                  class="field-control"
+                  [class.has-error]="confirmPassErr"
+                >
+                  <i class="fa-solid fa-key field-icon"></i>
+
+                  <input
+                    id="confirm-password"
+                    name="confirmNewPassword"
+                    [type]="showConfirmPassword ? 'text' : 'password'"
+                    autocomplete="new-password"
+                    placeholder="Repeat your new password"
+                    [(ngModel)]="confirmNewPassword"
+                    (ngModelChange)="confirmPassErr = ''"
+                  />
+
+                  <button
+                    type="button"
+                    class="visibility-button"
+                    (click)="showConfirmPassword = !showConfirmPassword"
+                    aria-label="Toggle confirm password visibility"
+                  >
+                    <i
+                      [class]="showConfirmPassword
+                        ? 'fa-regular fa-eye'
+                        : 'fa-regular fa-eye-slash'"
+                    ></i>
+                  </button>
+                </div>
+
+                <span
+                  *ngIf="confirmPassErr"
+                  class="field-error"
+                >
+                  <i class="fa-solid fa-circle-exclamation"></i>
+                  {{ confirmPassErr }}
+                </span>
+              </div>
+
+            </div>
+
+            <!-- Password Guidelines -->
+            <div class="password-guidelines">
+
+              <div>
+                <i class="fa-solid fa-circle"></i>
+                Use at least 6 characters.
+              </div>
+
+              <div>
+                <i class="fa-solid fa-circle"></i>
+                Avoid using common or reused passwords.
+              </div>
+
+            </div>
+
+            <!-- Password Action -->
+            <div class="card-actions">
+
+              <span class="security-note">
+                <i class="fa-solid fa-shield-halved"></i>
+
+                You will need to sign in again after changing your password.
+              </span>
+
+              <button
+                type="button"
+                class="primary-button"
+                [disabled]="passwordLoading"
+                (click)="updatePassword()"
+              >
+                <span *ngIf="!passwordLoading">
+                  Update password
+                  <i class="fa-solid fa-arrow-right"></i>
+                </span>
+
+                <span
+                  *ngIf="passwordLoading"
+                  class="loading-state"
+                >
+                  <span class="spinner"></span>
+                  Updating...
+                </span>
+              </button>
+
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Notifications -->
+        <section class="settings-card">
+
+          <div class="card-header">
+            <div class="card-icon">
+              <i class="fa-regular fa-bell"></i>
+            </div>
+
+            <div>
+              <h2>Email notifications</h2>
+
+              <p>
+                Choose the types of emails you would like to receive.
+              </p>
+            </div>
+          </div>
+
+          <div class="notification-list">
+
+            <!-- Weekly Newsletter -->
+            <label class="notification-item">
+
+              <div class="notification-copy">
+                <strong>
+                  Weekly newsletter
+                </strong>
+
+                <span>
+                  Tips, updates and selected content from Z-STORE.
+                </span>
+              </div>
+
+              <span class="switch">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="notifications.weeklyNewsletter"
+                />
+
+                <span class="slider"></span>
+              </span>
+
+            </label>
+
+            <!-- New Products -->
+            <label class="notification-item">
+
+              <div class="notification-copy">
+                <strong>
+                  New product announcements
+                </strong>
+
+                <span>
+                  Be notified when new products are added.
+                </span>
+              </div>
+
+              <span class="switch">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="notifications.newProducts"
+                />
+
+                <span class="slider"></span>
+              </span>
+
+            </label>
+
+            <!-- Product Specials -->
+            <label class="notification-item">
+
+              <div class="notification-copy">
+                <strong>
+                  Product specials
+                </strong>
+
+                <span>
+                  Receive updates about discounts and special offers.
+                </span>
+              </div>
+
+              <span class="switch">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="notifications.productSpecials"
+                />
+
+                <span class="slider"></span>
+              </span>
+
+            </label>
+
+          </div>
+
+          <div class="notification-note">
+            <i class="fa-solid fa-circle-info"></i>
+
+            Notification preferences are currently saved for this session.
+          </div>
+
+        </section>
+
+      </main>
+
+      <!-- Sidebar -->
+      <aside class="settings-sidebar">
+
+        <!-- Security -->
+        <div class="security-card">
+
+          <div class="security-card-icon">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+
+          <h3>
+            Account security
+          </h3>
+
+          <p>
+            Keep your account information private and use a unique
+            password that you don't share with anyone.
+          </p>
+
+          <div class="security-status">
+            <span class="status-dot"></span>
+            Account active
+          </div>
+
+        </div>
+
+        <!-- Logout -->
+        <button
+          type="button"
+          class="logout-button"
+          (click)="logOut()"
+        >
+          <span>
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Sign out
+          </span>
+
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+
+      </aside>
+
     </div>
-    <i class="bi bi-door-open-fill cursorPointer" (click)="logOut()">Logout</i>
   </div>
 </div>
+

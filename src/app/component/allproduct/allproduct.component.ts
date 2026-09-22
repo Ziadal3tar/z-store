@@ -1,308 +1,689 @@
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
+import { Router } from '@angular/router';
+import {
+  Subject,
+  Subscription,
+  debounceTime,
+  distinctUntilChanged,
+} from 'rxjs';
+
+import { Product } from 'src/app/core/models/product.model';
+import { UserStateService } from 'src/app/core/state/user-state.service';
+import { CatalogStateService } from 'src/app/core/state/catalog-state.service';
+
 import { CartService } from './../../services/cart.service';
 import { WishListService } from './../../services/wish-list.service';
-import { SharedService } from './../../services/shared.service';
-import { UserService } from './../../services/user.service';
-import { Options, LabelType } from 'ng5-slider';
-import { OwlOptions } from 'ngx-owl-carousel-o';
-import { ProductsService } from '../../services/products.service';
-import { Component, OnInit } from '@angular/core';
-import { LoginFirstComponent } from '../login-first/login-first.component';
-import { CommonModule } from '@angular/common';
+
+interface PriceRange {
+  min: number | null;
+  max: number | null;
+}
+
+type SortOption =
+  | 'featured'
+  | 'newest'
+  | 'price-low'
+  | 'price-high'
+  | 'name';
+
 @Component({
   selector: 'app-allproduct',
   templateUrl: './allproduct.component.html',
   styleUrls: ['./allproduct.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AllproductComponent implements OnInit {
-  cartlength: any;
+export class AllproductComponent implements OnInit, OnDestroy {
+  private readonly subscriptions = new Subscription();
+  private readonly searchInput$ = new Subject<string>();
 
-  index: any;
+  userData: any;
 
-  searchingFor: any;
+  allProducts: Product[] = [];
+  filteredProducts: Product[] = [];
+  products: Product[] = [];
 
+  searchTerm = '';
+  sortBy: SortOption = 'featured';
 
-  specifiedCategory: any;
+  selectedColor = '';
+  selectedPrice: PriceRange = {
+    min: null,
+    max: null,
+  };
 
-  productDetails: any
-  openProductDetails = false
-  filters = '';
-  allData: any;
-  categoryId: any;
-  subCategoryId: any;
-  brandId: any;
-  userData: any
-  loginFirst: any = false
-  sizes = ['sm', 'md', 'lg', 'xl', 'free'];
-  status = 'Dead';
-  colors = [
-    'red',
-    'yellow',
-    'green',
-    'white',
+  showFilters = false;
+  loginFirst = false;
+
+  isLoading = true;
+
+  productDetails?: Product;
+  openProductDetails = false;
+
+  currentPage = 1;
+  pageSize = 12;
+  totalPages = 0;
+  totalProducts = 0;
+
+  readonly skeletonItems = [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+  ];
+
+  readonly favoriteBusyIds = new Set<string>();
+  readonly cartBusyIds = new Set<string>();
+
+  readonly colors = [
     'black',
-    'gray',
+    'red',
     'blue',
-    'brown',
+    'green',
+    'yellow',
+    'white',
     'orange',
-    'gold',
-    'Purple',
-    'Silver',
-    'Pink',
-    'Teal',
-    'Beige',
+    'brown',
+    'gray',
+    'pink',
+    'beige',
     'navy',
   ];
 
-  imgProduct: OwlOptions = {
-    loop: true,
-    mouseDrag: true,
-    touchDrag: true,
-    pullDrag: false,
-    dots: false,
-    nav: false,
-    autoplay: true,
-    autoplayTimeout: 5000,
-    navSpeed: 700,
-    responsive: {
-      0: {
-        items: 1,
-      },
-      400: {
-        items: 1,
-      },
-      740: {
-        items: 1,
-      },
-      940: {
-        items: 1,
+  readonly priceRanges: Array<{
+    label: string;
+    range: PriceRange;
+  }> = [
+    {
+      label: 'Under $50',
+      range: {
+        min: null,
+        max: 50,
       },
     },
-  };
-
-  minValue: number = 100;
-
-  maxValue: number = 10000;
-
-
-
-
-
-  options: Options = {
-    floor: 100,
-    ceil: 10000,
-    translate: (value: number, label: LabelType): string => {
-      switch (label) {
-        case LabelType.Low:
-          return `<b>Min price:</b> $${value}`;
-        case LabelType.High:
-          return `<b>Max price:</b> $${value}`;
-        default:
-          return `$${value}`;
-      }
+    {
+      label: '$50 – $100',
+      range: {
+        min: 50,
+        max: 100,
+      },
     },
-  };
+    {
+      label: '$100 – $250',
+      range: {
+        min: 100,
+        max: 250,
+      },
+    },
+    {
+      label: '$250 – $500',
+      range: {
+        min: 250,
+        max: 500,
+      },
+    },
+    {
+      label: '$500+',
+      range: {
+        min: 500,
+        max: null,
+      },
+    },
+  ];
 
-
-
-
-allProducts: any[] = [];
-filteredProducts: any[] = [];
-products: any[] = [];
-searchTerm = '';
-
-currentPage = 1;
-pageSize = 12;
-totalPages = 0;
   constructor(
-
-    private SharedService: SharedService,
-    private CartService: CartService,
-    private WishListService: WishListService
-  ) { }
+    private readonly userState: UserStateService,
+    private readonly catalogState: CatalogStateService,
+    private readonly cartService: CartService,
+    private readonly wishListService: WishListService,
+    private readonly router: Router,
+    private readonly cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
+    this.subscriptions.add(
+      this.searchInput$
+        .pipe(
+          debounceTime(300),
+          distinctUntilChanged()
+        )
+        .subscribe((value) => {
+          this.searchTerm = value.trim();
+          this.currentPage = 1;
+          this.loadProducts();
+        })
+    );
 
-    this.SharedService.currentUserData.subscribe((data => {
-      this.userData = data
+    this.subscriptions.add(
+      this.userState.user$.subscribe((user) => {
+        this.userData = user;
+        this.cdr.markForCheck();
+      })
+    );
 
+    this.subscriptions.add(
+      this.catalogState.products$.subscribe(
+        (products: Product[]) => {
+          console.log(products);
 
-    }))
-    this.SharedService.currentAllProduct.subscribe((data: any) => {
-      this.allProducts = data;
-  this.applyFilters();
-      // this.totalPages = Math.ceil(this.allProducts.length / this.pageSize);
-    //    this.filteredProducts = [...this.allProducts];
-    // this.updatePagination();
-    })
+          this.allProducts = Array.isArray(products)
+            ? products
+            : [];
+
+          this.isLoading = false;
+
+          this.applyLocalFilters();
+
+          this.cdr.markForCheck();
+        }
+      )
+    );
+
+    this.subscriptions.add(
+      this.catalogState.productPagination$.subscribe(
+        (pagination) => {
+          this.currentPage = pagination.page;
+          this.pageSize = pagination.limit;
+          this.totalPages = pagination.totalPages;
+          this.totalProducts = pagination.total;
+
+          this.cdr.markForCheck();
+        }
+      )
+    );
+
+    this.loadInitialState();
   }
-onFilterChange(filtered: any[]) {
-  this.filteredProducts = [...filtered];
-  this.currentPage = 1;
-  this.updatePagination();
-}
 
-/* 🔹 Search result */
-onSearchChange(term: string) {
-  this.searchTerm = term.toLowerCase();
-  this.applyFilters();
-}
-applyFilters() {
-  let result = [...this.allProducts];
+  ngOnDestroy(): void {
+    this.searchInput$.complete();
+    this.subscriptions.unsubscribe();
+  }
 
-  if (this.searchTerm) {
-    result = result.filter(p =>
-      p.name.toLowerCase().includes(this.searchTerm)
+  private loadProducts(): void {
+    this.isLoading = true;
+
+    this.catalogState.refreshProducts(
+      this.currentPage,
+      this.pageSize,
+      this.searchTerm
+    );
+
+    this.cdr.markForCheck();
+  }
+
+  private loadInitialState(): void {
+    this.isLoading = true;
+
+    this.loadProducts();
+
+    if (this.userState.snapshot) {
+      return;
+    }
+
+    if (this.hasAuthToken()) {
+      this.userState.refresh();
+    }
+  }
+
+  private hasAuthToken(): boolean {
+    return !!localStorage.getItem('token');
+  }
+
+  get hasActiveFilters(): boolean {
+    return (
+      !!this.searchTerm.trim() ||
+      !!this.selectedColor ||
+      this.selectedPrice.min != null ||
+      this.selectedPrice.max != null
     );
   }
 
-  this.filteredProducts = result;
-  this.currentPage = 1;
-  this.updatePagination();
-}
+  private applyLocalFilters(): void {
+    let result = [...this.allProducts];
 
-onProductsChange(filtered: any[]) {
-  this.filteredProducts = [...filtered];
-  this.currentPage = 1;
-  this.updatePagination();
-}
+    const price = this.selectedPrice;
 
-updatePagination() {
-  this.totalPages = Math.ceil(
-    this.filteredProducts.length / this.pageSize
-  );
+    if (
+      price.min != null ||
+      price.max != null
+    ) {
+      result = result.filter((product) => {
+        const value = this.finalPrice(product);
 
-  const start = (this.currentPage - 1) * this.pageSize;
-  const end = start + this.pageSize;
+        const matchesMin =
+          price.min == null ||
+          value >= price.min;
 
-  this.products = this.filteredProducts.slice(start, end);
-}
+        const matchesMax =
+          price.max == null ||
+          value <= price.max;
 
-
-  get paginationPages(): (number | string)[] {
-    const pages: (number | string)[] = [];
-
-    if (this.totalPages <= 7) {
-      return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+        return matchesMin && matchesMax;
+      });
     }
 
-    pages.push(1);
+    if (this.selectedColor) {
+      result = result.filter((product) => {
+        return (product.colors ?? []).some(
+          (color) =>
+            color.toLowerCase() ===
+            this.selectedColor.toLowerCase()
+        );
+      });
+    }
+
+    result.sort((a, b) => {
+      switch (this.sortBy) {
+        case 'newest':
+          return (
+            this.dateValue(
+              b.updatedAt || b.createdAt
+            ) -
+            this.dateValue(
+              a.updatedAt || a.createdAt
+            )
+          );
+
+        case 'price-low':
+          return (
+            this.finalPrice(a) -
+            this.finalPrice(b)
+          );
+
+        case 'price-high':
+          return (
+            this.finalPrice(b) -
+            this.finalPrice(a)
+          );
+
+        case 'name':
+          return a.name.localeCompare(b.name);
+
+        default:
+          return (
+            Number(b.soldItems ?? 0) -
+            Number(a.soldItems ?? 0)
+          );
+      }
+    });
+
+    this.filteredProducts = result;
+    this.products = result;
+  }
+
+  onSearchChange(value: string): void {
+    this.searchInput$.next(value);
+  }
+
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.currentPage = 1;
+    this.loadProducts();
+  }
+
+  resetFilters(): void {
+    this.searchInput$.next('');
+
+    this.searchTerm = '';
+    this.sortBy = 'featured';
+    this.selectedColor = '';
+
+    this.selectedPrice = {
+      min: null,
+      max: null,
+    };
+
+    this.showFilters = false;
+
+    this.applyLocalFilters();
+  }
+
+  selectPrice(range: PriceRange): void {
+    this.selectedPrice = {
+      ...range,
+    };
+
+    this.applyLocalFilters();
+  }
+
+  clearPriceFilter(): void {
+    this.selectedPrice = {
+      min: null,
+      max: null,
+    };
+
+    this.applyLocalFilters();
+  }
+
+  selectColor(color: string): void {
+    this.selectedColor =
+      this.selectedColor === color
+        ? ''
+        : color;
+
+    this.applyLocalFilters();
+  }
+
+  clearColorFilter(): void {
+    this.selectedColor = '';
+    this.applyLocalFilters();
+  }
+
+  onSortChange(value: SortOption): void {
+    this.sortBy = value;
+    this.applyLocalFilters();
+  }
+
+  goToPage(page: number): void {
+    if (
+      page < 1 ||
+      page > this.totalPages ||
+      page === this.currentPage
+    ) {
+      return;
+    }
+
+    this.currentPage = page;
+    this.loadProducts();
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  }
+
+  get paginationPages(): Array<number | string> {
+    if (this.totalPages <= 7) {
+      return Array.from(
+        {
+          length: this.totalPages,
+        },
+        (_, index) => index + 1
+      );
+    }
+
+    const pages: Array<number | string> = [1];
 
     if (this.currentPage > 4) {
-      pages.push('...');
+      pages.push('…');
     }
 
-    const start = Math.max(2, this.currentPage - 1);
-    const end = Math.min(this.totalPages - 1, this.currentPage + 1);
+    const start = Math.max(
+      2,
+      this.currentPage - 1
+    );
 
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
+    const end = Math.min(
+      this.totalPages - 1,
+      this.currentPage + 1
+    );
+
+    for (
+      let page = start;
+      page <= end;
+      page++
+    ) {
+      pages.push(page);
     }
 
-    if (this.currentPage < this.totalPages - 3) {
-      pages.push('...');
+    if (
+      this.currentPage <
+      this.totalPages - 3
+    ) {
+      pages.push('…');
     }
 
     pages.push(this.totalPages);
 
     return pages;
   }
-goToPage(page: any) {
-  if (page >= 1 && page <= this.totalPages) {
-    this.currentPage = page;
-    this.updatePagination();
+
+  imageUrl(product: Product): string {
+    const image = product.images?.[0];
+
+    if (typeof image === 'string') {
+      return image;
+    }
+
+    return (
+      image?.url ??
+      'assets/placeholder.png'
+    );
   }
-}
 
+  finalPrice(product: Product): number {
+    if (product.finalPrice != null) {
+      return Number(product.finalPrice);
+    }
 
-  ifInWishlist(item: any): boolean {
-    return !!this.userData?.wishlist?.some((w: any) => w?._id === item?._id);
-
+    return Math.max(
+      0,
+      Number(product.price ?? 0) -
+        Number(product.discount ?? 0)
+    );
   }
-  select(): void {
-    const getVal = (id: string) =>
-      (document.getElementById(id) as HTMLInputElement)?.value ?? null;
 
-    this.categoryId = getVal('categoryId_AP');
-    this.subCategoryId = getVal('subCategoryId_AP');
-    this.brandId = getVal('brandId_AP');
+  oldPrice(product: Product): number | null {
+    const price = Number(
+      product.price ?? 0
+    );
+
+    const finalPrice =
+      this.finalPrice(product);
+
+    return finalPrice < price
+      ? price
+      : null;
   }
-  addToCart(id: any): void {
+
+  discountPercent(product: Product): number {
+    if (product.discount != null) {
+      return Number(product.discount);
+    }
+
+    const oldPrice = Number(
+      product.price ?? 0
+    );
+
+    const current =
+      this.finalPrice(product);
+
+    if (!oldPrice || current >= oldPrice) {
+      return 0;
+    }
+
+    return Math.round(
+      ((oldPrice - current) /
+        oldPrice) *
+        100
+    );
+  }
+
+  ifInWishlist(product: Product): boolean {
+    return !!this.userData?.wishlist?.some(
+      (item: any) =>
+        item?._id === product?._id
+    );
+  }
+
+  addToCart(product: Product): void {
     if (!this.userData) {
       this.loginFirst = true;
+      this.cdr.markForCheck();
       return;
     }
 
-    const product = {
-      productId: id,
-      quantity: 1,
-    };
-
-    this.CartService.addToCart(product).subscribe({
-      next: (_data: any) => {
-        this.SharedService.updateUserData();
-        this.SharedService.sendClickEvent();
-      },
-      error: (err: any) => {
-        console.error('addToCart error', err);
-      },
-    });
-  }
-  addToFavorites(id: any, event?: Event): void {
-    if (!this.userData) {
-      this.loginFirst = true;
+    if (
+      !product._id ||
+      this.isCartBusy(product)
+    ) {
       return;
     }
 
-    const inWishlist = !!this.userData?.wishlist?.some((w: any) => w?._id === id);
+    this.cartBusyIds.add(
+      product._id
+    );
 
-    const toggleDomHeart = (addFill: boolean) => {
-      const target = (event?.target as HTMLElement) ?? null;
-      if (!target || !target.classList) return;
-      if (addFill) {
-        target.classList.add('bi-heart-fill', 'text-danger');
-        target.classList.remove('bi-heart');
-      } else {
-        target.classList.remove('bi-heart-fill', 'text-danger');
-        target.classList.add('bi-heart');
-      }
-    };
+    this.cdr.markForCheck();
 
-    if (inWishlist) {
-      // إزالة من المفضلة
-      this.WishListService.removeToFavorites(id).subscribe({
-        next: (res: any) => {
-          if (res?.message === 'Done') {
-            toggleDomHeart(false);
-            this.SharedService.updateUserData();
-          }
+    this.cartService
+      .addToCart({
+        productId: product._id,
+        quantity: 1,
+      })
+      .subscribe({
+        next: () => {
+          this.userState.refresh();
+
+          this.cartBusyIds.delete(
+            product._id as string
+          );
+
+          this.cdr.markForCheck();
         },
-        error: (err: any) => {
-          console.error('removeToFavorites error', err);
+
+        error: (error) => {
+          console.error(
+            'Add to cart failed:',
+            error
+          );
+
+          this.cartBusyIds.delete(
+            product._id as string
+          );
+
+          this.cdr.markForCheck();
         },
       });
+  }
+
+  isCartBusy(product: Product): boolean {
+    return (
+      !!product._id &&
+      this.cartBusyIds.has(product._id)
+    );
+  }
+
+  addToFavorites(product: Product): void {
+    if (!this.userData) {
+      this.loginFirst = true;
+      this.cdr.markForCheck();
       return;
     }
 
-    // إضافة إلى المفضلة
-    const payload = { productId: id };
-    this.WishListService.addToFavorites(payload).subscribe({
-      next: (res: any) => {
-        if (res?.message === 'Done') {
-          toggleDomHeart(true);
-          this.SharedService.updateUserData();
+    if (
+      !product._id ||
+      this.isFavoriteBusy(product)
+    ) {
+      return;
+    }
+
+    this.favoriteBusyIds.add(
+      product._id
+    );
+
+    this.cdr.markForCheck();
+
+    const request = this.ifInWishlist(
+      product
+    )
+      ? this.wishListService.removeToFavorites(
+          product._id
+        )
+      : this.wishListService.addToFavorites({
+          productId: product._id,
+        });
+
+    request.subscribe({
+      next: (response: any) => {
+        if (response?.message === 'Done') {
+          this.userState.refresh();
         }
+
+        this.favoriteBusyIds.delete(
+          product._id as string
+        );
+
+        this.cdr.markForCheck();
       },
-      error: (err: any) => {
-        console.error('addToFavorites error', err);
+
+      error: (error: any) => {
+        console.error(
+          'Wishlist update failed:',
+          error
+        );
+
+        this.favoriteBusyIds.delete(
+          product._id as string
+        );
+
+        this.cdr.markForCheck();
       },
     });
   }
-  trackById(index: number, item: any) {
-    return item._id;
-  }
-  openDetails(product: any) {
-    this.productDetails = product;
-    this.openProductDetails = true;
+
+  isFavoriteBusy(product: Product): boolean {
+    return (
+      !!product._id &&
+      this.favoriteBusyIds.has(
+        product._id
+      )
+    );
   }
 
+  openQuickView(product: Product): void {
+    this.productDetails = product;
+    this.openProductDetails = true;
+
+    this.cdr.markForCheck();
+  }
+
+  closeQuickView(): void {
+    this.openProductDetails = false;
+    this.productDetails = undefined;
+
+    this.cdr.markForCheck();
+  }
+
+  viewProduct(product: Product): void {
+    if (!product._id) {
+      return;
+    }
+
+    this.router.navigate([
+      '/product',
+      product._id,
+    ]);
+  }
+
+  trackByProductId(
+    index: number,
+    product: Product
+  ): string | number {
+    return product._id ?? index;
+  }
+
+  private dateValue(
+    value?: string
+  ): number {
+    if (!value) {
+      return 0;
+    }
+
+    const time = new Date(value).getTime();
+
+    return Number.isNaN(time)
+      ? 0
+      : time;
+  }
 }

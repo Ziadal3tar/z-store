@@ -1,40 +1,29 @@
-import { Component, ChangeDetectionStrategy, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { Product } from '../../services/products.service';
 
 @Component({
   selector: 'app-product-card',
-  template: `
-    <div class="product-card">
-      <div class="thumb-wrap" (click)="open.emit(product._id)">
-        <img [src]="product.images?.[0]?.url ?? '/assets/placeholder.png'" alt="{{product.title}}" loading="lazy" />
-      </div>
-      <div class="info">
-        <h4 (click)="open.emit(product._id)">{{ product.title }}</h4>
-        <div class="price">{{ product.price | currency }}</div>
-        <div class="meta">
-          <span *ngIf="product.quantity <= 0" class="oos">Out of stock</span>
-        </div>
-      </div>
-      <div class="actions">
-        <button class="btn" (click)="add.emit(product._id)" [disabled]="product.quantity <= 0">Add</button>
-        <button class="btn ghost" (click)="wish.emit(product._id)">♡</button>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .product-card { display:flex; flex-direction:column; gap:10px; border-radius:8px; padding:12px; background:#fff; box-shadow:0 4px 10px rgba(0,0,0,0.04); }
-    .thumb-wrap { width:100%; height:180px; overflow:hidden; border-radius:6px; cursor:pointer; }
-    .thumb-wrap img{ width:100%; height:100%; object-fit:cover; display:block; }
-    .info h4{ margin:0; font-size:1rem; cursor:pointer; }
-    .price{ font-weight:700; margin-top:6px; }
-    .actions{ display:flex; gap:8px; }
-    .btn{ padding:8px 10px; border-radius:6px; cursor:pointer; }
-    .btn.ghost{ background:transparent; border:1px solid #eee; }
-  `],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  templateUrl: './product-card.component.html',
+  styleUrls: ['./product-card.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductCardComponent {
-  @Input() product: any;
+  @Input() product!: Product;
   @Output() add = new EventEmitter<string>();
   @Output() open = new EventEmitter<string>();
   @Output() wish = new EventEmitter<string>();
+
+  get imageUrl(): string {
+    const image = this.product.images?.[0];
+    return typeof image === 'string' ? image : image?.url ?? 'assets/placeholder.png';
+  }
+
+  get finalPrice(): number {
+    if (this.product.finalPrice != null) return Number(this.product.finalPrice);
+    return Math.max(0, Number(this.product.price ?? 0) - Number(this.product.discount ?? 0));
+  }
+
+  get outOfStock(): boolean {
+    return Number(this.product.totalItems ?? 0) <= 0;
+  }
 }

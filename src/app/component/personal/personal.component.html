@@ -1,141 +1,541 @@
-<div class=" bg-white  rounded-3">
-  <p class=" border-bottom w-100 fs-2 p-3 fa ">Personal Info</p>
 
-  <div>
-    <p class="fs-4 p-3 ">Personal Info</p>
+<div class="personal-page">
 
-    <div class=" container">
-      <div class="row">
+  <!-- Header -->
+  <header class="personal-header">
+    <div>
+      <span class="section-eyebrow">PROFILE</span>
 
+      <h1>Personal information</h1>
 
-
-
-        <div class="col-6 my-2">
-          <label for="" class="">First Name</label>
-          <input type="text" value="{{userData?.userName}}"  class="text-black-50 form-control ng-untouched ng-pristine ng-invalid">
-        </div>
-        <div class="col-6 my-2">
-          <label for="" class="">Last Name</label>
-          <input type="text"  class=" text-black-50 form-control ng-untouched ng-pristine ng-invalid">
-        </div>
-
-        <div class="col-6 my-2">
-          <label for="" class="">Phone Number</label>
-          <input type="text"
-            class="text-black-50 form-control ng-untouched ng-pristine ng-invalid">
-        </div>
-        <div class="col-6 my-2">
-          <label for="" class="">Date of Birth</label>
-          <input type="date" value="1990-01-01" class=" text-black-50 form-control ng-untouched ng-pristine ng-invalid">
-        </div>
-
-
-
-      </div>
+      <p>
+        Manage your personal details and default delivery address.
+      </p>
     </div>
 
+    <div class="profile-summary">
+      <div class="summary-avatar">
+        <span>
+          {{ getInitials() }}
+        </span>
+      </div>
 
-
-
-
-
-
-
-  </div>
-
-
-
-
-
-
-
-
-
-
-  <div>
-    <p class="fs-4 p-3 mt-4 "> Address</p>
-
-    <div class=" container">
-      <div class="row">
-
-
-
-
-        <div class="input-group mb-3 col-12">
-          <label class="input-group-text">Country</label>
-          <select class="form-select">
-            <option selected value="1">Choose the country</option>
-            <option value="1">EGY</option>
-            <option value="2">KSA</option>
-            <option value="3">USA</option>
-          </select>
-        </div>
-
-
-        <div class="col-9 my-2">
-          <label for="" class="">city</label>
-          <input type="text" class=" text-black-50 form-control ng-untouched ng-pristine ng-invalid">
-        </div>
-
-        <div class="col-3 my-2">
-          <label for="" class="">Post code</label>
-          <input type="text" class="text-black-50 form-control ng-untouched ng-pristine ng-invalid">
-        </div>
-
-        <div class="col-9 my-2">
-          <label for="" class="">Street</label>
-          <input type="text" class=" text-black-50 form-control ng-untouched ng-pristine ng-invalid">
-        </div>
-
-        <div class="col-3 my-2">
-          <label for="" class="">House</label>
-          <input type="text" class="text-black-50 form-control ng-untouched ng-pristine ng-invalid">
-        </div>
-
-
-        <div class="col-3 my-2">
-          <label for="" class="">Building</label>
-          <input type="text" class=" text-black-50 form-control ng-untouched ng-pristine ng-invalid">
-        </div>
-        <div class="col-3 my-2">
-          <label for="" class="">Entrance</label>
-          <input type="text" class=" text-black-50 form-control ng-untouched ng-pristine ng-invalid">
-        </div>
-        <div class="col-3 my-2">
-          <label for="" class="">Floor</label>
-          <input type="text" class=" text-black-50 form-control ng-untouched ng-pristine ng-invalid">
-        </div>
-        <div class="col-3 my-2">
-          <label for="" class="">Apartment</label>
-          <input type="text" class=" text-black-50 form-control ng-untouched ng-pristine ng-invalid">
-        </div>
-
-
-
-        <div class="col-12 my-2">
-          <label for="" class="">Comment</label>
-          <textarea class=" text-black-50 form-control ng-untouched ng-pristine ng-invalid"
-            placeholder="Additional information: phone numbers or doorphone code" name="" id="" rows="5"></textarea>
-        </div>
-
-        <hr class=" mt-3" >
-
-<div class=" w-100 pb-2 text-center">
-  <button class="btn btn-primary w-25">SAVE</button>
-
-</div>
+      <div class="summary-copy">
+        <strong>{{ userData?.userName || 'Your name' }}</strong>
+        <span>{{ userData?.email || 'No email available' }}</span>
       </div>
     </div>
+  </header>
 
+  <div class="personal-layout">
 
+    <!-- Main -->
+    <main class="personal-main">
 
+      <!-- Personal Details -->
+      <section class="info-card">
 
+        <div class="card-header">
+          <div class="card-icon">
+            <i class="fa-regular fa-user"></i>
+          </div>
 
+          <div>
+            <h2>Personal details</h2>
 
+            <p>
+              Your basic information used across your account.
+            </p>
+          </div>
+        </div>
 
+        <div class="card-body">
+
+          <div class="form-grid">
+
+            <!-- First Name -->
+            <div class="field-group">
+              <label for="first-name">
+                First name
+              </label>
+
+              <div
+                class="field-control"
+                [class.has-error]="errors.firstName"
+              >
+                <i class="fa-regular fa-user field-icon"></i>
+
+                <input
+                  id="first-name"
+                  name="firstName"
+                  type="text"
+                  autocomplete="given-name"
+                  placeholder="Enter your first name"
+                  [(ngModel)]="personalData.firstName"
+                  (ngModelChange)="clearError('firstName')"
+                />
+              </div>
+
+              <span
+                *ngIf="errors.firstName"
+                class="field-error"
+              >
+                <i class="fa-solid fa-circle-exclamation"></i>
+                {{ errors.firstName }}
+              </span>
+            </div>
+
+            <!-- Last Name -->
+            <div class="field-group">
+              <label for="last-name">
+                Last name
+              </label>
+
+              <div
+                class="field-control"
+                [class.has-error]="errors.lastName"
+              >
+                <i class="fa-regular fa-user field-icon"></i>
+
+                <input
+                  id="last-name"
+                  name="lastName"
+                  type="text"
+                  autocomplete="family-name"
+                  placeholder="Enter your last name"
+                  [(ngModel)]="personalData.lastName"
+                  (ngModelChange)="clearError('lastName')"
+                />
+              </div>
+
+              <span
+                *ngIf="errors.lastName"
+                class="field-error"
+              >
+                <i class="fa-solid fa-circle-exclamation"></i>
+                {{ errors.lastName }}
+              </span>
+            </div>
+
+            <!-- Email -->
+            <div class="field-group">
+              <label for="personal-email">
+                Email address
+              </label>
+
+              <div class="field-control disabled">
+                <i class="fa-regular fa-envelope field-icon"></i>
+
+                <input
+                  id="personal-email"
+                  type="email"
+                  [value]="userData?.email || ''"
+                  disabled
+                />
+
+                <span class="readonly-badge">
+                  <i class="fa-solid fa-lock"></i>
+                  Account
+                </span>
+              </div>
+            </div>
+
+            <!-- Phone -->
+            <div class="field-group">
+              <label for="phone-number">
+                Phone number
+              </label>
+
+              <div
+                class="field-control"
+                [class.has-error]="errors.phone"
+              >
+                <i class="fa-solid fa-phone field-icon"></i>
+
+                <input
+                  id="phone-number"
+                  name="phone"
+                  type="tel"
+                  autocomplete="tel"
+                  placeholder="Enter your phone number"
+                  [(ngModel)]="personalData.phone"
+                  (ngModelChange)="clearError('phone')"
+                />
+              </div>
+
+              <span
+                *ngIf="errors.phone"
+                class="field-error"
+              >
+                <i class="fa-solid fa-circle-exclamation"></i>
+                {{ errors.phone }}
+              </span>
+            </div>
+
+            <!-- Date of Birth -->
+            <div class="field-group">
+              <label for="date-of-birth">
+                Date of birth
+              </label>
+
+              <div class="field-control">
+                <i class="fa-regular fa-calendar field-icon"></i>
+
+                <input
+                  id="date-of-birth"
+                  name="dateOfBirth"
+                  type="date"
+                  [(ngModel)]="personalData.dateOfBirth"
+                />
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Address -->
+      <section class="info-card">
+
+        <div class="card-header">
+          <div class="card-icon">
+            <i class="fa-solid fa-location-dot"></i>
+          </div>
+
+          <div>
+            <h2>Delivery address</h2>
+
+            <p>
+              Your default address for future orders.
+            </p>
+          </div>
+        </div>
+
+        <div class="card-body">
+
+          <!-- Country -->
+          <div class="field-group full-width">
+            <label for="country">
+              Country
+            </label>
+
+            <div class="field-control">
+              <i class="fa-solid fa-earth-americas field-icon"></i>
+
+              <select
+                id="country"
+                name="country"
+                [(ngModel)]="personalData.country"
+              >
+                <option value="">
+                  Choose your country
+                </option>
+
+                <option value="EGY">
+                  Egypt
+                </option>
+
+                <option value="KSA">
+                  Saudi Arabia
+                </option>
+
+                <option value="USA">
+                  United States
+                </option>
+              </select>
+
+              <i class="fa-solid fa-chevron-down select-arrow"></i>
+            </div>
+          </div>
+
+          <div class="address-grid">
+
+            <!-- City -->
+            <div class="field-group city-field">
+              <label for="city">
+                City
+              </label>
+
+              <div class="field-control">
+                <i class="fa-solid fa-city field-icon"></i>
+
+                <input
+                  id="city"
+                  name="city"
+                  type="text"
+                  autocomplete="address-level2"
+                  placeholder="Enter your city"
+                  [(ngModel)]="personalData.city"
+                />
+              </div>
+            </div>
+
+            <!-- Post Code -->
+            <div class="field-group postcode-field">
+              <label for="post-code">
+                Post code
+              </label>
+
+              <div class="field-control">
+                <i class="fa-solid fa-hashtag field-icon"></i>
+
+                <input
+                  id="post-code"
+                  name="postCode"
+                  type="text"
+                  autocomplete="postal-code"
+                  placeholder="Post code"
+                  [(ngModel)]="personalData.postCode"
+                />
+              </div>
+            </div>
+
+            <!-- Street -->
+            <div class="field-group street-field">
+              <label for="street">
+                Street
+              </label>
+
+              <div class="field-control">
+                <i class="fa-solid fa-road field-icon"></i>
+
+                <input
+                  id="street"
+                  name="street"
+                  type="text"
+                  autocomplete="street-address"
+                  placeholder="Street name"
+                  [(ngModel)]="personalData.street"
+                />
+              </div>
+            </div>
+
+            <!-- House -->
+            <div class="field-group house-field">
+              <label for="house">
+                House
+              </label>
+
+              <div class="field-control">
+                <i class="fa-solid fa-house field-icon"></i>
+
+                <input
+                  id="house"
+                  name="house"
+                  type="text"
+                  placeholder="House"
+                  [(ngModel)]="personalData.house"
+                />
+              </div>
+            </div>
+
+            <!-- Building -->
+            <div class="field-group">
+              <label for="building">
+                Building
+              </label>
+
+              <div class="field-control">
+                <i class="fa-solid fa-building field-icon"></i>
+
+                <input
+                  id="building"
+                  name="building"
+                  type="text"
+                  placeholder="Building"
+                  [(ngModel)]="personalData.building"
+                />
+              </div>
+            </div>
+
+            <!-- Entrance -->
+            <div class="field-group">
+              <label for="entrance">
+                Entrance
+              </label>
+
+              <div class="field-control">
+                <i class="fa-solid fa-door-open field-icon"></i>
+
+                <input
+                  id="entrance"
+                  name="entrance"
+                  type="text"
+                  placeholder="Entrance"
+                  [(ngModel)]="personalData.entrance"
+                />
+              </div>
+            </div>
+
+            <!-- Floor -->
+            <div class="field-group">
+              <label for="floor">
+                Floor
+              </label>
+
+              <div class="field-control">
+                <i class="fa-solid fa-stairs field-icon"></i>
+
+                <input
+                  id="floor"
+                  name="floor"
+                  type="text"
+                  placeholder="Floor"
+                  [(ngModel)]="personalData.floor"
+                />
+              </div>
+            </div>
+
+            <!-- Apartment -->
+            <div class="field-group">
+              <label for="apartment">
+                Apartment
+              </label>
+
+              <div class="field-control">
+                <i class="fa-solid fa-door-closed field-icon"></i>
+
+                <input
+                  id="apartment"
+                  name="apartment"
+                  type="text"
+                  placeholder="Apartment"
+                  [(ngModel)]="personalData.apartment"
+                />
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Comment -->
+          <div class="field-group full-width comment-field">
+            <label for="address-comment">
+              Additional information
+            </label>
+
+            <div class="textarea-control">
+              <textarea
+                id="address-comment"
+                name="comment"
+                rows="4"
+                placeholder="Phone numbers, doorphone code or other useful information..."
+                [(ngModel)]="personalData.comment"
+              ></textarea>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- Save -->
+      <div class="save-bar">
+
+        <div class="save-message">
+          <i class="fa-solid fa-circle-info"></i>
+
+          <span>
+            Changes are currently prepared locally.
+          </span>
+        </div>
+
+        <button
+          type="button"
+          class="save-button"
+          [disabled]="saving"
+          (click)="save()"
+        >
+          <span *ngIf="!saving">
+            Save changes
+            <i class="fa-solid fa-check"></i>
+          </span>
+
+          <span
+            *ngIf="saving"
+            class="loading-state"
+          >
+            <span class="spinner"></span>
+            Saving...
+          </span>
+        </button>
+
+      </div>
+
+      <div
+        *ngIf="saveMessage"
+        class="save-result"
+        [class.error]="saveError"
+      >
+        <i
+          [class]="saveError
+            ? 'fa-solid fa-circle-exclamation'
+            : 'fa-solid fa-circle-check'"
+        ></i>
+
+        {{ saveMessage }}
+      </div>
+
+    </main>
+
+    <!-- Sidebar -->
+    <aside class="personal-sidebar">
+
+      <div class="tips-card">
+        <div class="tips-icon">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+
+        <h3>Keep your information updated</h3>
+
+        <p>
+          Accurate contact and delivery information helps make your
+          shopping experience faster and more reliable.
+        </p>
+
+        <div class="tip-row">
+          <span class="tip-dot"></span>
+          Use a reachable phone number.
+        </div>
+
+        <div class="tip-row">
+          <span class="tip-dot"></span>
+          Keep your delivery address complete.
+        </div>
+
+        <div class="tip-row">
+          <span class="tip-dot"></span>
+          Review your information before ordering.
+        </div>
+      </div>
+
+      <div class="account-info-card">
+        <span class="card-mini-label">ACCOUNT</span>
+
+        <div class="account-info-row">
+          <span>Username</span>
+          <strong>
+            {{ userData?.userName || '—' }}
+          </strong>
+        </div>
+
+        <div class="account-info-row">
+          <span>Email</span>
+          <strong>
+            {{ userData?.email || '—' }}
+          </strong>
+        </div>
+
+        <div class="account-info-row">
+          <span>Member since</span>
+          <strong>
+            {{ userData?.createdAt | date:'MMM yyyy' || '—' }}
+          </strong>
+        </div>
+      </div>
+
+    </aside>
 
   </div>
-
-
-
 </div>
+

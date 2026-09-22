@@ -1,20 +1,19 @@
-import { HttpHeaders, HttpClient } from '@angular/common/http';
-import { Injectable, OnInit } from '@angular/core';
-import { EmailValidator } from '@angular/forms';
-import jwt_decode from 'jwt-decode';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { getAuthToken } from 'src/app/core/auth-token.util';
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { ProductsService } from './products.service';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
-export class UserService implements OnInit {
+export class UserService {
   allProduct: any = [];
 
   cart: any;
 
-  // private baseUrl = 'https://z-store-apis-b6lh.vercel.app/auth';
-  private baseUrl = 'https://z-store-apis-b6lh.vercel.app/auth';
+  private baseUrl = `${environment.apiUrl}/auth`;
 
   userData: any;
 
@@ -25,7 +24,6 @@ export class UserService implements OnInit {
     private ProductsService: ProductsService
   ) {}
 
-  ngOnInit(): void {}
 
   signUp(data: any): any {
     return this.http.post(`${this.baseUrl}/signUp`, data);
@@ -49,7 +47,7 @@ export class UserService implements OnInit {
   deleteUser(id: any) {
     return this.http.delete(`${this.baseUrl}/removeUser/${id}`, {
       headers: {
-        authorization: `Bearer__${localStorage.getItem('userToken')}`,
+        authorization: `Bearer__${getAuthToken()}`,
       },
     });
   }
@@ -86,7 +84,7 @@ export class UserService implements OnInit {
   }
 
   updateProduct() {
-    const token = localStorage.getItem('userToken');
+    const token = getAuthToken();
     this.getUserData(token).subscribe((data: any) => {
       this.cart = data.userData.cart;
       for (let i = 0; i < this.cart.length; i++) {
@@ -107,24 +105,16 @@ export class UserService implements OnInit {
   searchUser(data: any) {
     return this.http.post(`${this.baseUrl}/searchUser`, data, {
       headers: {
-        authorization: `Bearer__${localStorage.getItem('userToken')}`,
+        authorization: `Bearer__${getAuthToken()}`,
       },
     });
   }
 
   addAdmin(id: any) {
-    return this.http.put(`${this.baseUrl}/addAdmin/${id}`, {
-      headers: {
-        authorization: `Bearer__${localStorage.getItem('userToken')}`,
-      },
-    });
+    return this.http.put(`${this.baseUrl}/addAdmin/${id}`, {});
   }
 
   block(id: any) {
-    return this.http.put(`${this.baseUrl}/block/${id}`, {
-      headers: {
-        authorization: `Bearer__${localStorage.getItem('userToken')}`,
-      },
-    });
+    return this.http.put(`${this.baseUrl}/block/${id}`, {});
   }
 }

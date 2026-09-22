@@ -1,23 +1,25 @@
+import { getAuthToken } from 'src/app/core/auth-token.util';
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot, UrlTree ,Router} from '@angular/router';
-import { Observable } from 'rxjs';
+import {
+  ActivatedRouteSnapshot,
+  CanActivate,
+  Router,
+  RouterStateSnapshot,
+  UrlTree,
+} from '@angular/router';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LogoutGuard implements CanActivate {
-  constructor(
-    private Router:Router,
-  ) {}
-  canActivate(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-if (localStorage.getItem("userToken") == null) {
-  return true;
-}else{
-  this.Router.navigate([`/home`]);
-  return false;
-}
-  }
+  constructor(private readonly router: Router) {}
 
+  canActivate(
+    _route: ActivatedRouteSnapshot,
+    _state: RouterStateSnapshot,
+  ): boolean | UrlTree {
+    return getAuthToken()
+      ? this.router.createUrlTree(['/home'])
+      : true;
+  }
 }

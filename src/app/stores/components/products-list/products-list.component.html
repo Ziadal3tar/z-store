@@ -1,1 +1,99 @@
-<p>products-list works!</p>
+<section class="products-page">
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">CATALOG</span>
+      <h2>Products</h2>
+      <p>Manage your inventory, pricing and product availability.</p>
+    </div>
+    <button class="primary-action" type="button" (click)="addProduct()">
+      <i class="bi bi-plus-lg"></i>
+      Add product
+    </button>
+  </header>
+
+  <div class="toolbar">
+    <label class="search-box">
+      <i class="bi bi-search"></i>
+      <input [formControl]="searchControl" type="search" placeholder="Search products..." />
+    </label>
+    <button class="ghost-action" type="button" (click)="refresh$.next()">
+      <i class="bi bi-arrow-clockwise"></i>
+      Refresh
+    </button>
+  </div>
+
+  <div class="error-state" *ngIf="error$ | async as error" [class.visible]="!!error">
+    <i class="bi bi-exclamation-circle"></i>
+    <span>{{ error }}</span>
+  </div>
+
+  <div class="table-shell">
+    <div class="loading-bar" *ngIf="loading$ | async"></div>
+
+    <ng-container *ngIf="response$ | async as response">
+      <div class="table-wrap" *ngIf="response.products.length; else emptyState">
+        <table>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let product of response.products; trackBy: trackById">
+              <td>
+                <div class="product-cell">
+                  <img [src]="productImage(product)" [alt]="product.name" loading="lazy" />
+                  <div>
+                    <strong>{{ product.name }}</strong>
+                    <span>#{{ product._id }}</span>
+                  </div>
+                </div>
+              </td>
+              <td>{{ product.category?.name || 'Uncategorized' }}</td>
+              <td>
+                <strong>{{ (product.finalPrice ?? product.price) | currency }}</strong>
+                <small *ngIf="product.discount">{{ product.discount }}% off</small>
+              </td>
+              <td>{{ product.stock ?? product.totalItems ?? 0 }}</td>
+              <td>
+                <span class="status" [class.low]="(product.stock ?? product.totalItems ?? 0) < 5">
+                  {{ (product.stock ?? product.totalItems ?? 0) < 5 ? 'Low stock' : 'In stock' }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <button type="button" class="icon-action" title="Edit" (click)="editProduct(product._id)">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button type="button" class="icon-action danger" title="Delete" (click)="deleteProduct(product)">
+                  <i class="bi bi-trash3"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ng-template #emptyState>
+        <div class="empty-state">
+          <div class="empty-icon"><i class="bi bi-box-seam"></i></div>
+          <h3>No products found</h3>
+          <p>Try another search or add your first product.</p>
+          <button type="button" class="primary-action" (click)="addProduct()">Add product</button>
+        </div>
+      </ng-template>
+    </ng-container>
+  </div>
+
+  <footer class="pagination" *ngIf="total > pageSize">
+    <span>Page {{ page$.value }} of {{ totalPages }}</span>
+    <div>
+      <button type="button" class="ghost-action" [disabled]="page$.value === 1" (click)="previousPage()">Previous</button>
+      <button type="button" class="ghost-action" [disabled]="page$.value === totalPages" (click)="nextPage()">Next</button>
+    </div>
+  </footer>
+</section>

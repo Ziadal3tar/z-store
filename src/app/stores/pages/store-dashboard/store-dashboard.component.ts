@@ -1,17 +1,37 @@
+
 import {
-  Component,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
+  Component,
   OnDestroy,
   OnInit,
 } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
+import {
+  catchError,
+  map,
+  shareReplay,
+  switchMap,
+  tap,
+} from 'rxjs/operators';
 
 import { ProductsService } from '../../services/products.service';
 import { OrdersService } from '../../services/orders.service';
-import { Observable, BehaviorSubject, combineLatest, Subscription, of } from 'rxjs';
-import { switchMap, catchError, map, tap } from 'rxjs/operators';
-import { ActivatedRoute, Router } from '@angular/router';
 import { StoresService } from '../../services/stores.service';
+
+interface AnalyticsSummary {
+  totalRevenue?: number;
+  totalOrders?: number;
+  totalProducts?: number;
+  avgOrderValue?: number;
+}
+
+interface DashboardTotals {
+  totalOrders: number;
+  totalRevenue: number;
+  totalProducts: number;
+}
 
 @Component({
   selector: 'app-store-dashboard',
@@ -19,151 +39,335 @@ import { StoresService } from '../../services/stores.service';
   styleUrls: ['./store-dashboard.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class StoreDashboardComponent implements OnInit, OnDestroy {
-  storeId!: string | any;
+export class StoreDashboardComponent
+  implements OnInit, OnDestroy {
 
-  private refresh$ = new BehaviorSubject<void>(undefined);
+  storeId = '';
+
   loading = false;
   error = '';
 
-  analytics$!: Observable<any>;
+  analytics$!: Observable<AnalyticsSummary | null>;
   recentOrders$!: Observable<any[]>;
   productsSummary$!: Observable<any[]>;
-  totals$!: Observable<{ totalOrders: number; totalRevenue: number; totalProducts: number }>;
 
-  private subs: Subscription[] = [];
+  totals$!: Observable<DashboardTotals>;
+
+  private readonly refresh$ =
+    new BehaviorSubject<void>(undefined);
 
   constructor(
-    private storesSvc: StoresService,
-    private productsSvc: ProductsService,
-    private ordersSvc: OrdersService,
-    public router: Router,
-    private cdr: ChangeDetectorRef,
-    public route: ActivatedRoute,
+    private readonly storesService: StoresService,
+    private readonly productsService: ProductsService,
+    private readonly ordersService: OrdersService,
+    public readonly router: Router,
+    private readonly cdr: ChangeDetectorRef,
+    public readonly route: ActivatedRoute
   ) {
-    this.storeId = this.route.snapshot.paramMap.get('id');
+    this.storeId =
+      this.route.snapshot.paramMap.get('id') ?? '';
   }
 
   ngOnInit(): void {
-    // analytics
-    this.analytics$ = this.refresh$.pipe(
-      switchMap(() =>
-        this.storesSvc.getAnalytics(this.storeId).pipe(
-          catchError(err => {
-            console.error('analytics error', err);
-            this.error = 'Failed to load analytics';
-            this.cdr.markForCheck();
-            return of(null);
-          })
-        )
-      )
-    );
+    this.initializeDashboard();
+  }
 
-    // recent orders (paginated)
+  private initializeDashboard(): void {
+    /*
+     * shareReplay(1) is important here because the same streams are
+     * consumed by both the template and totals$. Without it, the
+     * underlying HTTP calls can be executed more than once.
+     */
+
+    // this.analytics$ = this.refresh$.pipe(
+    //   switchMap(() =>
+    //     this.storesService
+    //       .getAnalytics(this.storeId)
+    //       .pipe(
+    //         catchError((err) => {
+    //           console.error(
+    //             'analytics error',
+    //             err
+    //           );
+
+    //           this.setError(
+    //             'Failed to load store analytics.'
+    //           );
+
+    //           return of(null);
+    //         })
+    //       )
+    //   ),
+    //   shareReplay(1)
+    // );
+
     this.recentOrders$ = this.refresh$.pipe(
       switchMap(() =>
-        this.ordersSvc.getStoreOrders(this.storeId, { page: 1, limit: 6 }).pipe(
-          map((res: any) => res?.orders ?? []),
-          catchError(err => {
-            console.error('orders error', err);
-            this.error = 'Failed to load orders';
-            this.cdr.markForCheck();
-            return of([]);
-          })
-        )
-      )
+        this.ordersService
+          .getStoreOrders(
+            this.storeId,
+            {
+              page: 1,
+              limit: 6,
+            }
+          )
+          .pipe(
+            map(
+              (response: any) =>
+                response?.orders ?? []
+            ),
+            catchError((err) => {
+              console.error(
+                'orders error',
+                err
+              );
+
+              this.setError(
+                'Failed to load recent orders.'
+              );
+
+              return of([]);
+            })
+          )
+      ),
+      shareReplay(1)
     );
 
-    // products summary
     this.productsSummary$ = this.refresh$.pipe(
       switchMap(() =>
-        this.productsSvc.getStoreProducts(this.storeId, { page: 1, limit: 20 }).pipe(
-          map((res: any) => res?.products ?? []),
-          catchError(err => {
-            console.error('products error', err);
-            this.error = 'Failed to load products';
-            this.cdr.markForCheck();
-            return of([]);
-          })
-        )
-      )
+        this.productsService
+          .getStoreProducts(
+            this.storeId,
+            {
+              page: 1,
+              limit: 20,
+            }
+          )
+          .pipe(
+            map(
+              (response: any) =>
+                response?.products ?? []
+            ),
+            catchError((err) => {
+              console.error(
+                'products error',
+                err
+              );
+
+              this.setError(
+                'Failed to load store products.'
+              );
+
+              return of([]);
+            })
+          )
+      ),
+      shareReplay(1)
     );
 
-    // totals aggregation
-    this.totals$ = combineLatest([this.analytics$, this.productsSummary$, this.recentOrders$]).pipe(
-      map(([analytics, products, orders]) => {
-        const totalRevenue = analytics?.totalRevenue ?? 0;
-        const totalOrders = analytics?.totalOrders ?? (orders?.length ?? 0);
-        const totalProducts = products?.length ?? 0;
-        return { totalOrders, totalRevenue, totalProducts };
+    this.totals$ = combineLatest([
+      this.analytics$,
+      this.productsSummary$,
+      this.recentOrders$,
+    ]).pipe(
+      map(
+        ([
+          analytics,
+          products,
+          orders,
+        ]) => ({
+          totalOrders:
+            analytics?.totalOrders ??
+            orders.length,
+
+          totalRevenue:
+            analytics?.totalRevenue ??
+            0,
+
+          totalProducts:
+            analytics?.totalProducts ??
+            products.length,
+        })
+      ),
+      catchError((err) => {
+        console.error(
+          'totals error',
+          err
+        );
+
+        return of({
+          totalOrders: 0,
+          totalRevenue: 0,
+          totalProducts: 0,
+        });
       }),
-      catchError(err => {
-        console.error('totals error', err);
-        return of({ totalOrders: 0, totalRevenue: 0, totalProducts: 0 });
-      })
+      shareReplay(1)
     );
 
-    // initial load
     this.triggerRefresh();
   }
 
   triggerRefresh(): void {
     this.error = '';
+
     this.refresh$.next();
+    this.cdr.markForCheck();
   }
 
   goAddProduct(): void {
-    // نوّهت: استخدمنا /store/:id/admin/products/new في مكان آخر؛ حافظ على نفس النمط
-    this.router.navigate(['/store', this.storeId, 'admin', 'products', 'new']);
+    this.router.navigate([
+      '/store',
+      this.storeId,
+      'admin',
+      'products',
+      'new',
+    ]);
+  }
+
+  goProducts(): void {
+    this.router.navigate([
+      '/store',
+      this.storeId,
+      'admin',
+      'products',
+    ]);
+  }
+
+  goOrders(): void {
+    this.router.navigate([
+      '/store',
+      this.storeId,
+      'admin',
+      'orders',
+    ]);
   }
 
   openStorePublic(): void {
-    // توحيد المسار: /store/:id
-    this.router.navigate(['/store', this.storeId]);
+    this.router.navigate([
+      '/store',
+      this.storeId,
+    ]);
   }
 
-  onRemoveProduct(productId: string, products: any[]): void {
-    if (!confirm('Delete this product?')) return;
-    if (this.loading) return;
+  onRemoveProduct(
+    productId: string
+  ): void {
+    if (!productId || this.loading) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      'Delete this product?'
+    );
+
+    if (!confirmed) {
+      return;
+    }
 
     this.loading = true;
+    this.error = '';
+
     this.cdr.markForCheck();
 
-    // *** لاحظ: ProductsService.deleteProduct(productId) يتوقع productId فقط في النسخة المحدثة ***
-    const sub = this.productsSvc.deleteProduct(productId).pipe(
-      tap((res: any) => {
-        // reload after successful delete
-        this.triggerRefresh();
-      }),
-      catchError(err => {
-        console.error('delete product error', err);
-        alert(err?.error?.message ?? 'Failed to delete product');
-        return of(null);
-      })
-    ).subscribe({
-      complete: () => {
-        this.loading = false;
-        this.cdr.markForCheck();
-      }
-    });
+    this.productsService
+      .deleteProduct(productId)
+      .pipe(
+        tap(() => {
+          this.triggerRefresh();
+        }),
+        catchError((err) => {
+          console.error(
+            'delete product error',
+            err
+          );
 
-    this.subs.push(sub);
+          this.error =
+            err?.error?.message ??
+            'Failed to delete product.';
+
+          this.cdr.markForCheck();
+
+          return of(null);
+        })
+      )
+      .subscribe({
+        complete: () => {
+          this.loading = false;
+          this.cdr.markForCheck();
+        },
+      });
   }
 
-  trackById(index: number, item: any) {
+  openProductEditor(
+    productId: string
+  ): void {
+    if (!this.storeId || !productId) {
+      return;
+    }
+
+    this.router.navigate([
+      '/store',
+      this.storeId,
+      'admin',
+      'products',
+      productId,
+      'edit',
+    ]);
+  }
+
+  getStatusClass(
+    status?: string
+  ): string {
+    const normalized =
+      status?.toLowerCase() ?? '';
+
+    if (
+      normalized.includes('process') ||
+      normalized.includes('pending')
+    ) {
+      return 'processing';
+    }
+
+    if (
+      normalized.includes('complete') ||
+      normalized.includes('delivered')
+    ) {
+      return 'completed';
+    }
+
+    if (
+      normalized.includes('cancel') ||
+      normalized.includes('reject')
+    ) {
+      return 'canceled';
+    }
+
+    return '';
+  }
+
+  trackById(
+    index: number,
+    item: any
+  ): string | number {
     return item?._id ?? index;
   }
 
-  openProductEditor(productId: string): void {
-    if (!this.storeId) {
-      console.warn('no storeId found');
-      return;
+  private setError(
+    message: string
+  ): void {
+    /*
+     * Avoid replacing a more specific error with another request's
+     * fallback error during the same refresh cycle.
+     */
+    if (!this.error) {
+      this.error = message;
     }
-    // توحيد المسار إلى /store/:id/admin/products/:productId/edit
-    this.router.navigate(['/store', this.storeId, 'admin', 'products', productId, 'edit']);
+
+    this.cdr.markForCheck();
   }
 
   ngOnDestroy(): void {
-    this.subs.forEach(s => s.unsubscribe());
+    this.refresh$.complete();
   }
 }
+

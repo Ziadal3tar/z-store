@@ -1,111 +1,238 @@
-<div class=" bg-white ">
-  <p class=" border-bottom w-100 fs-2 p-3 fa">orders</p>
 
-  <div class="theOrder">
-    <div class=" details d-flex align-items-start justify-content-start  p-3 ">
-      <p class="fs-3 me-2 bottom-0">#36637649</p>
-      <p class="bottom-0">from June 17, 2018</p>
+<div class="orders-page">
+
+  <!-- Header -->
+  <header class="orders-header">
+    <div>
+      <span class="section-eyebrow">PURCHASE HISTORY</span>
+
+      <h1>My orders</h1>
+
+      <p>
+        Track your purchases and review your recent orders.
+      </p>
     </div>
 
-    <div class=" details container border-bottom">
-
-      <div class="  d-flex ">
-        <h3 class="col-4">items</h3>
-        <h3 class="col-6">7</h3>
+    <div class="orders-summary">
+      <div class="summary-item">
+        <strong>{{ filteredOrders.length }}</strong>
+        <span>Orders</span>
       </div>
 
-      <div class="  d-flex  mt-2">
-        <h3 class="col-4">Shopping</h3>
-        <h3 class="col-6">Pick up from store</h3>
-      </div>
+      <div class="summary-divider"></div>
 
-      <div class="  d-flex  mt-2">
-        <h3 class="col-4">Payment</h3>
-        <h3 class="col-6">Online by card</h3>
-      </div>
-
-      <div class="  d-flex  mt-2">
-        <h3 class="col-4">Total</h3>
-        <h3 class="col-6">$4896.00</h3>
-      </div>
-
-      <div class="  d-flex  mt-2">
-        <h3 class="col-4">Status</h3>
-        <h5 class="col-6 bg-primary fw-bolder d-flex align-items-center px-2 w-auto rounded-3 text-white">PROCESSING</h5>
+      <div class="summary-item">
+        <strong>${{ totalValue | number:'1.2-2' }}</strong>
+        <span>Total value</span>
       </div>
     </div>
-  </div>
+  </header>
 
-  <div class="theOrder">
-    <div class=" details d-flex align-items-start justify-content-start  p-3 ">
-      <p class="fs-3 me-2 bottom-0">#36637649</p>
-      <p class="bottom-0">from June 17, 2018</p>
+  <!-- Toolbar -->
+  <section class="orders-toolbar">
+
+    <div class="search-box">
+      <i class="fa-solid fa-magnifying-glass"></i>
+
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="applyFilters()"
+        placeholder="Search by order number..."
+        aria-label="Search orders"
+      />
     </div>
 
-    <div class=" details container border-bottom">
+    <div class="status-filters">
 
+      <button
+        type="button"
+        class="filter-button"
+        [class.active]="activeFilter === 'all'"
+        (click)="setFilter('all')"
+      >
+        All
+      </button>
 
-      <div class="  d-flex ">
-        <h3 class="col-4">items</h3>
-        <h3 class="col-6">7</h3>
-      </div>
+      <button
+        type="button"
+        class="filter-button"
+        [class.active]="activeFilter === 'processing'"
+        (click)="setFilter('processing')"
+      >
+        Processing
+      </button>
 
-      <div class="  d-flex  mt-2">
-        <h3 class="col-4">Shopping</h3>
-        <h3 class="col-6">Pick up from store</h3>
-      </div>
+      <button
+        type="button"
+        class="filter-button"
+        [class.active]="activeFilter === 'completed'"
+        (click)="setFilter('completed')"
+      >
+        Completed
+      </button>
 
-      <div class="  d-flex  mt-2">
-        <h3 class="col-4">Payment</h3>
-        <h3 class="col-6">Online by card</h3>
-      </div>
+      <button
+        type="button"
+        class="filter-button"
+        [class.active]="activeFilter === 'canceled'"
+        (click)="setFilter('canceled')"
+      >
+        Canceled
+      </button>
 
-      <div class="  d-flex  mt-2">
-        <h3 class="col-4">Total</h3>
-        <h3 class="col-6">$4896.00</h3>
-      </div>
-
-      <div class="  d-flex  mt-2">
-        <h3 class="col-4">Status</h3>
-        <h5 class="col-6 bg-danger fw-bolder d-flex align-items-center px-2 w-auto rounded-3 text-white">CANCELED</h5>
-      </div>
     </div>
-  </div>
+  </section>
 
-  <div class="theOrder">
-    <div class=" details d-flex align-items-start justify-content-start  p-3 ">
-      <p class="fs-3 me-2 bottom-0">#36637649</p>
-      <p class="bottom-0">from June 17, 2018</p>
+  <!-- Orders -->
+  <section
+    *ngIf="filteredOrders.length > 0"
+    class="orders-list"
+  >
+
+    <article
+      *ngFor="
+        let order of filteredOrders;
+        trackBy: trackByOrderId
+      "
+      class="order-card"
+    >
+
+      <!-- Order Header -->
+      <div class="order-top">
+
+        <div class="order-reference">
+          <div class="order-icon">
+            <i class="fa-solid fa-box"></i>
+          </div>
+
+          <div>
+            <span class="order-label">ORDER</span>
+
+            <h2>
+              #{{ order.id }}
+            </h2>
+
+            <p>
+              {{ order.date }}
+            </p>
+          </div>
+        </div>
+
+        <span
+          class="status-badge"
+          [ngClass]="getStatusClass(order.status)"
+        >
+          <span class="status-dot"></span>
+          {{ order.status }}
+        </span>
+
+      </div>
+
+      <!-- Order Details -->
+      <div class="order-details">
+
+        <div class="detail-item">
+          <span class="detail-label">
+            ITEMS
+          </span>
+
+          <strong>
+            {{ order.items }}
+          </strong>
+        </div>
+
+        <div class="detail-item">
+          <span class="detail-label">
+            SHIPPING
+          </span>
+
+          <strong>
+            {{ order.shipping }}
+          </strong>
+        </div>
+
+        <div class="detail-item">
+          <span class="detail-label">
+            PAYMENT
+          </span>
+
+          <strong>
+            {{ order.payment }}
+          </strong>
+        </div>
+
+        <div class="detail-item total">
+          <span class="detail-label">
+            TOTAL
+          </span>
+
+          <strong>
+            ${{ order.total | number:'1.2-2' }}
+          </strong>
+        </div>
+
+      </div>
+
+      <!-- Order Footer -->
+      <div class="order-footer">
+
+        <div class="footer-info">
+          <i class="fa-solid fa-circle-info"></i>
+
+          <span>
+            {{
+              order.status === 'CANCELED'
+                ? 'This order has been canceled.'
+                : order.status === 'PROCESSING'
+                ? 'Your order is currently being processed.'
+                : 'This order has been completed.'
+            }}
+          </span>
+        </div>
+
+        <button
+          type="button"
+          class="view-button"
+          (click)="viewOrder(order)"
+        >
+          View order
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+
+      </div>
+
+    </article>
+
+  </section>
+
+  <!-- Empty State -->
+  <section
+    *ngIf="filteredOrders.length === 0"
+    class="empty-state"
+  >
+    <div class="empty-icon">
+      <i class="fa-regular fa-folder-open"></i>
     </div>
 
-    <div class=" details container border-bottom">
+    <h2>No orders found</h2>
 
+    <p>
+      {{
+        searchTerm
+          ? 'Try searching with a different order number.'
+          : 'There are no orders matching the selected status.'
+      }}
+    </p>
 
-      <div class="  d-flex ">
-        <h3 class="col-4">items</h3>
-        <h3 class="col-6">7</h3>
-      </div>
-
-      <div class="  d-flex  mt-2">
-        <h3 class="col-4">Shopping</h3>
-        <h3 class="col-6">Pick up from store</h3>
-      </div>
-
-      <div class="  d-flex  mt-2">
-        <h3 class="col-4">Payment</h3>
-        <h3 class="col-6">Online by card</h3>
-      </div>
-
-      <div class="  d-flex  mt-2">
-        <h3 class="col-4">Total</h3>
-        <h3 class="col-6">$4896.00</h3>
-      </div>
-
-      <div class="  d-flex  mt-2">
-        <h3 class="col-4">Status</h3>
-        <h5 class="col-6 bg-primary fw-bolder d-flex align-items-center px-2 w-auto rounded-3 text-white">PROCESSING</h5>
-      </div>
-    </div>
-  </div>
+    <button
+      type="button"
+      class="reset-button"
+      (click)="resetFilters()"
+    >
+      Clear filters
+    </button>
+  </section>
 
 </div>
+

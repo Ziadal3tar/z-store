@@ -1,5 +1,25 @@
-<div class=" position-fixed top-0 start-0 w-100 h-100 bg-black d-flex align-items-center justify-content-center bg-opacity-75" style="z-index: 999;">
-  <div class=" position-absolute spinner-border text-danger loaded" role="status" >
-    <span class="visually-hidden"></span>
+
+<div
+  class="loading-overlay"
+  role="status"
+  aria-live="polite"
+  aria-label="Loading"
+>
+  <div class="loading-card">
+
+    <div class="loading-spinner">
+      <span class="spinner-ring"></span>
+      <span class="spinner-ring spinner-ring-delayed"></span>
+    </div>
+
+    <div class="loading-content">
+      <strong>Loading</strong>
+
+      <span>
+        Please wait a moment...
+      </span>
+    </div>
+
   </div>
 </div>
+

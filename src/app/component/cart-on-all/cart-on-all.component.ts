@@ -1,60 +1,87 @@
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Router } from '@angular/router';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Subscription } from 'rxjs';
-import { SharedService } from '../../services/shared.service';
-import { ProductsService } from '../../services/products.service';
-import { UserService } from '../../services/user.service';
+
+import { CartItem } from 'src/app/core/models/cart.model';
+import { User } from 'src/app/core/models/user.model';
+import { UserStateService } from 'src/app/core/state/user-state.service';
 import { CartService } from 'src/app/services/cart.service';
-import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-cart-on-all',
   templateUrl: './cart-on-all.component.html',
   styleUrls: ['./cart-on-all.component.css'],
 })
-export class CartOnAllComponent implements OnInit {
-  ClickEventSubscription: Subscription;
+export class CartOnAllComponent {
   @Input() sideCart = '';
-  @Input() cartlength: any;
-  cart: any;
-  allProduct: any = [];
-  token = localStorage.getItem('userToken');
-  allPrice = [];
-  @Input() userData: any;
+  @Input() cartlength = 0;
+  @Input() userData: User | undefined;
+  @Input() subtotal: number | string | null | undefined;
 
-  @Input() subtotal: any
-  @Output() closeCart: EventEmitter<any> = new EventEmitter<any>();
+  @Output() closeCart = new EventEmitter<string>();
+
   constructor(
-    private UserService: UserService,
-    private ProductsService: ProductsService,
-    private SharedService: SharedService,
-    private CartService: CartService,
-    private Router: Router
-  ) {
-    this.ClickEventSubscription = this.SharedService.getClickEvent().subscribe(
-      (data) => {
-      }
-    );
+    private readonly cartService: CartService,
+    private readonly userStateService: UserStateService,
+    private readonly router: Router,
+  ) {}
+
+  get cartItems(): CartItem[] {
+    return this.userData?.cartId?.products ?? [];
   }
 
-  ngOnInit(): void {
+  get displayedSubtotal(): number {
+    const providedSubtotal = Number(this.subtotal);
+
+    if (Number.isFinite(providedSubtotal) && providedSubtotal >= 0) {
+      return providedSubtotal;
+    }
+
+    return this.cartItems.reduce((total, item) => total + this.itemTotal(item), 0);
   }
 
+  imageUrl(item: CartItem): string {
+    const image = item.productId?.images?.[0];
+    return typeof image === 'string'
+      ? image
+      : image?.url || 'assets/images/placeholder-product.png';
+  }
 
+  itemTotal(item: CartItem): number {
+    const price = Number(item.productId?.finalPrice ?? 0);
+    const quantity = Number(item.quantity ?? 0);
 
-  deleteFromCart(productId: any) {
-    const product = { productId, userId: this.userData._id };
-    this.CartService.removeFromCart(product).subscribe((data: any) => {
-      if (data.message == 'removeProduct') {
-        this.SharedService.updateUserData()
-      }
+    return Number((price * quantity).toFixed(2));
+  }
+
+  trackByProduct(index: number, item: CartItem): string | number {
+    return item.productId?._id ?? index;
+  }
+
+  deleteFromCart(productId?: string): void {
+    if (!productId || !this.userData?._id) {
+      return;
+    }
+
+    this.cartService.removeFromCart({
+      productId,
+      userId: this.userData._id,
+    }).subscribe({
+      next: () => {
+        this.userStateService.refresh();
+      },
+      error: (error: unknown) => {
+        console.error('Failed to remove product from cart:', error);
+      },
     });
   }
 
-  backCart() {
+  backCart(): void {
     this.sideCart = '';
-    this.closeCart.emit(this.sideCart);
+    this.closeCart.emit('');
   }
 
-
+  openCart(): void {
+    this.router.navigate(['/cart']);
+    this.backCart();
+  }
 }

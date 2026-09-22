@@ -1,84 +1,366 @@
 <app-loading [ngClass]="loading"></app-loading>
-<div [ngClass]="{'d-none': !confirmRemoveUser}" class="removeUser position-absolute w-100 h-100 bg-black bg-opacity-50 top-0 start-0 d-flex align-items-center justify-content-center row">
-  <div class=" bg-white col-md-5 col-sm-9 col-xs-11  d-flex align-items-center justify-content-center row p-3 rounded-5">
-    <p class=" text-center">will remove all thing specific to this user</p>
-    <p class=" text-center">(cart-store-products in his store)</p>
-    <div class=" d-flex align-items-center justify-content-between col-8">
-      <button class=" btn btn-primary" (click)="confirmRemoveUser =!confirmRemoveUser">cancel</button>
-      <button class=" btn btn-danger" (click)="removeUser(deletedUserId)">delete</button>
+
+<main class="admins-page">
+  <header class="admins-header">
+    <div>
+      <span class="eyebrow">ADMIN / ACCESS CONTROL</span>
+      <h2>Administrators</h2>
+      <p>
+        Manage administrator access, user status and account permissions.
+      </p>
+    </div>
+
+
+<div class="admin-counter">
+  <span class="counter-label">ACTIVE ADMINS</span>
+  <strong>{{ allAdmins.length }}</strong>
+</div>
+
+
+  </header>
+
+  <section class="admins-grid">
+
+
+<!-- SEARCH USERS -->
+<article class="admin-card users-card">
+  <header class="card-header">
+    <div>
+      <span class="card-kicker">USER MANAGEMENT</span>
+      <h3>Add administrator</h3>
+      <p>Search for a user and manage their access.</p>
+    </div>
+
+    <div class="card-icon">
+      <i class="bi bi-person-plus"></i>
+    </div>
+  </header>
+
+  <div class="search-wrapper">
+    <label class="search-field">
+      <i class="bi bi-search"></i>
+
+      <input
+        type="text"
+        [(ngModel)]="name"
+        (ngModelChange)="onSearchChange($event)"
+        placeholder="Search by username..."
+        autocomplete="off"
+        aria-label="Search users"
+      />
+
+      <button
+        *ngIf="name"
+        type="button"
+        class="clear-search"
+        (click)="clearSearch()"
+        aria-label="Clear search"
+      >
+        <i class="bi bi-x"></i>
+      </button>
+    </label>
+
+    <span
+      class="search-spinner"
+      [class.visible]="loaded !== 'd-none'"
+      aria-hidden="true"
+    ></span>
+
+    <span class="search-error" *ngIf="messageErr">
+      {{ messageErr }}
+    </span>
+  </div>
+
+  <div
+    class="search-empty"
+    *ngIf="!name && !allUser.length"
+  >
+    <div class="empty-small-icon">
+      <i class="bi bi-search"></i>
+    </div>
+
+    <strong>Search for a user</strong>
+
+    <span>
+      Enter a username to find accounts that can be managed.
+    </span>
+  </div>
+
+  <div
+    class="users-list"
+    *ngIf="name && allUser.length"
+  >
+    <div
+      *ngFor="let item of allUser; trackBy: trackByUserId"
+      class="user-row"
+      [class.current-user]="item._id === userData?._id"
+    >
+      <div class="user-profile">
+        <div
+          class="user-avatar"
+          [style.backgroundImage]="
+            item.profilePic
+              ? 'url(' + item.profilePic + ')'
+              : 'none'
+          "
+        >
+          <span *ngIf="!item.profilePic">
+            {{ getInitials(item.userName) }}
+          </span>
+        </div>
+
+        <div class="user-info">
+          <strong>{{ item.userName }}</strong>
+
+          <span>
+            {{ item.role || 'User' }}
+
+            <span
+              class="blocked-label"
+              *ngIf="item.blocked"
+            >
+              · Blocked
+            </span>
+          </span>
+        </div>
+      </div>
+
+      <div
+        class="user-actions"
+        *ngIf="item._id !== userData?._id"
+      >
+        <button
+          type="button"
+          class="action-trigger"
+          [class.active]="activeMenuId === item._id"
+          (click)="toggleMenu(item._id, $event)"
+          aria-label="Open user actions"
+        >
+          <i class="bi bi-three-dots"></i>
+        </button>
+
+        <div
+          class="action-menu"
+          *ngIf="activeMenuId === item._id"
+        >
+          <button
+            *ngIf="item.role !== 'Admin'"
+            type="button"
+            (click)="addAdmin(item._id)"
+          >
+            <i class="bi bi-shield-plus"></i>
+            <span>Make admin</span>
+          </button>
+
+          <button
+            type="button"
+            (click)="block(item._id)"
+          >
+            <i
+              class="bi"
+              [class.bi-lock]="!item.blocked"
+              [class.bi-unlock]="item.blocked"
+            ></i>
+
+            <span>
+              {{ item.blocked ? 'Unblock user' : 'Block user' }}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            class="danger-action"
+            (click)="openRemoveUser(item._id)"
+          >
+            <i class="bi bi-trash3"></i>
+            <span>Remove user</span>
+          </button>
+        </div>
+      </div>
+
+      <span
+        class="current-badge"
+        *ngIf="item._id === userData?._id"
+      >
+        You
+      </span>
     </div>
   </div>
 
+  <div
+    class="no-results"
+    *ngIf="name && !allUser.length && !messageErr"
+  >
+    <div class="empty-small-icon">
+      <i class="bi bi-person-x"></i>
+    </div>
+
+    <strong>No users found</strong>
+    <span>Try another username.</span>
+  </div>
+</article>
+
+<!-- ADMINS LIST -->
+<article class="admin-card admins-list-card">
+  <header class="card-header">
+    <div>
+      <span class="card-kicker">ACCESS MANAGEMENT</span>
+      <h3>Current administrators</h3>
+      <p>Review and manage existing administrator accounts.</p>
+    </div>
+
+    <div class="card-icon">
+      <i class="bi bi-shield-check"></i>
+    </div>
+  </header>
+
+  <div
+    class="admins-list"
+    *ngIf="allAdmins.length"
+  >
+    <div
+      *ngFor="let item of allAdmins; trackBy: trackByAdminId"
+      class="admin-row"
+    >
+      <div class="user-profile">
+        <div
+          class="user-avatar admin-avatar"
+          [style.backgroundImage]="
+            item.adminId?.profilePic
+              ? 'url(' + item.adminId?.profilePic + ')'
+              : 'none'
+          "
+        >
+          <span *ngIf="!item.adminId?.profilePic">
+            {{ getInitials(item.adminId?.userName) }}
+          </span>
+        </div>
+
+        <div class="user-info">
+          <strong>
+            {{ item.adminId?.userName || 'Unknown user' }}
+          </strong>
+
+          <span>
+            Administrator
+
+            <span
+              class="blocked-label"
+              *ngIf="item.blocked"
+            >
+              · Blocked
+            </span>
+          </span>
+        </div>
+      </div>
+
+      <div class="user-actions">
+        <button
+          type="button"
+          class="action-trigger"
+          [class.active]="activeMenuId === 'admin-' + item._id"
+          (click)="toggleMenu('admin-' + item._id, $event)"
+          aria-label="Open administrator actions"
+        >
+          <i class="bi bi-three-dots"></i>
+        </button>
+
+        <div
+          class="action-menu action-menu-right"
+          *ngIf="activeMenuId === 'admin-' + item._id"
+        >
+          <button
+            type="button"
+            (click)="block(item.adminId?._id)"
+          >
+            <i
+              class="bi"
+              [class.bi-lock]="!item.blocked"
+              [class.bi-unlock]="item.blocked"
+            ></i>
+
+            <span>
+              {{ item.blocked ? 'Unblock admin' : 'Block admin' }}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            class="danger-action"
+            (click)="removeAdmin(item.adminId?._id)"
+          >
+            <i class="bi bi-person-dash"></i>
+            <span>Remove admin role</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="empty-admins"
+    *ngIf="!allAdmins.length"
+  >
+    <div class="empty-large-icon">
+      <i class="bi bi-shield"></i>
+    </div>
+
+    <h4>No administrators yet</h4>
+
+    <p>
+      Search for a user from the left panel and assign administrator
+      access.
+    </p>
+  </div>
+</article>
+
+
+  </section>
+</main>
+
+<!-- REMOVE USER CONFIRMATION -->
+
+<div
+  class="confirm-backdrop"
+  *ngIf="confirmRemoveUser"
+  (click)="closeRemoveUser()"
+>
+  <div
+    class="confirm-dialog"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="confirm-icon danger">
+      <i class="bi bi-trash3"></i>
+    </div>
+
+
+<span class="confirm-kicker">DANGER ZONE</span>
+
+<h3>Remove this user?</h3>
+
+<p>
+  This will remove everything associated with this user, including their
+  cart, store products and related account data.
+</p>
+
+<div class="confirm-actions">
+  <button
+    type="button"
+    class="cancel-button"
+    (click)="closeRemoveUser()"
+  >
+    Cancel
+  </button>
+
+  <button
+    type="button"
+    class="delete-button"
+    (click)="removeUser(deletedUserId)"
+  >
+    <i class="bi bi-trash3"></i>
+    Delete user
+  </button>
 </div>
-
-<div class=" container h-100 position-relative">
-  <p class=" m-0 p-0 fa my-3 d-flex align-items-center justify-content-center fs-4">ADmins</p>
-  <div class="row h-100 pt-3 d-flex justify-content-evenly">
-    <div class="col-md-5  px-2 col-sm-12 bg-white p-0 rounded-3 overflow-hidden position-relative pt-5 h-100">
-
-      <div class=" position-absolute top-0 bg-white fa p-2">
-        add Admins
-      </div>
-      <div class=" w-100 position-relative d-flex align-items-center justify-content-end  mb-3 h-auto">
-        <input type="text" (keyup)="search()" [(ngModel)]="name" class=" w-100 border-0 rounded-5  p-2 bg-light  "
-          placeholder="search">
-        <div class=" position-absolute me-2 spinner-border text-danger spin" role="status" [ngClass]="loaded">
-          <span class="visually-hidden"></span>
-        </div>
-        <div class=" position-absolute me-2 text-danger" [ngClass]="{'d-none': !messageErr}">{{messageErr}}</div>
-
-      </div>
-      <div *ngIf="!name" class=" d-flex align-items-center justify-content-center mt-5 fs-5 text-danger">input can not be empty</div>
-      <div class=" scrollStyle h-100 " [ngClass]="{'d-none': allUser.length==0}">
-        <div *ngFor="let item of allUser let i = index" [ngClass]="{'d-none': item._id == userData?._id , 'bg-light': ((i % 2) != 0)}"
-          class=" col-12 d-flex align-items-center justify-content-between cursorPointer item p-2 my-1 border-bottom rounded-3">
-
-          <div class="dropdown w-100">
-            <i class="bi bi-three-dots-vertical m-0 p-0 mx-2 cursorPointer dropdown-toggle d-flex align-items-center justify-content-between"
-              type="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <p class=" p-0 m-0">{{item.userName}}</p>
-
-              <div class="Userimage rounded-5 imgCenter" style="background-image: url({{item.profilePic}});"></div>
-            </i>
-            <ul class="dropdown-menu">
-              <li (click)="addAdmin(item._id)"><a *ngIf="item.role != 'Admin'" class="dropdown-item">add admin</a></li>
-              <li (click)="block(item._id)"><a class="dropdown-item" *ngIf="!item.blocked">block</a> <a
-                  *ngIf="item.blocked" class="dropdown-item">Unblock</a></li>
-              <li  (click)="confirmRemoveUser = !confirmRemoveUser" (click)="deletedUserId = item._id"><a class="dropdown-item">remove</a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-
-    <div class="col-md-4 offset-md-2 mt-sm-3 col-sm-12 bg-white p-0 rounded-3 overflow-hidden position-relative pt-5 h-100">
-      <div class=" position-absolute top-0 bg-white fa p-2">
-        Admins
-      </div>
-      <div class=" h-100 w-100  overflow-scroll scrollStyle ps-2">
-        <div *ngFor="let item of allAdmins let i = index"
-          class="item w-100 d-flex align-items-center justify-content-between rounded-3 my-1 p-1"
-          [ngClass]="{'bg-light': ((i % 2) == 0) }">
-          <div class="dropdown w-100">
-            <i class="bi bi-three-dots-vertical m-0 p-0 mx-2 cursorPointer dropdown-toggle d-flex align-items-center justify-content-between"
-              type="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <p class=" p-0 m-0">{{item.adminId?.userName}}</p>
-              <div class="Userimage rounded-5 imgCenter " style="background-image: url({{item.adminId?.profilePic}});">
-              </div>
-            </i>
-            <ul class="dropdown-menu">
-              <li (click)="addAdmin(item._id)"><a *ngIf="item.role == 'Admin'" class="dropdown-item">add admin</a></li>
-              <li (click)="block(item._id)"><a class="dropdown-item" *ngIf="!item.blocked">block</a> <a
-                  *ngIf="item.blocked" class="dropdown-item">Unblock</a></li>
-              <li (click)="removeAdmin(item.adminId?._id)"><a class="dropdown-item">remove</a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-
 
 
   </div>
