@@ -39,7 +39,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   productId: string | null = null;
   readonly MAX_IMAGES = 6;
   readonly MAX_IMAGE_SIZE = 5 * 1024 * 1024;
-  readonly allowedImageTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
+  readonly allowedImageTypes = ['image/', 'image/png', 'image/webp', 'image/avif'];
 
   categories: SelectOption[] = [];
   subCategories: SelectOption[] = [];

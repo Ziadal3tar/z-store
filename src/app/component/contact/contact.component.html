@@ -1,0 +1,155 @@
+<app-navbar></app-navbar>
+
+<main class="contact-page">
+  <section class="contact-hero">
+    <div class="container contact-hero-inner">
+      <div>
+        <span class="eyebrow">Z-STORE / CONTACT</span>
+        <h1>Let’s make<br /><em>shopping easier.</em></h1>
+        <p>
+          Need help with an order, product or delivery? Send us a message and
+          we’ll get back to you with the information you need.
+        </p>
+      </div>
+
+      <div class="hero-mark">
+        <span>HELP DESK</span>
+        <strong>24/7</strong>
+        <small>Message us anytime</small>
+      </div>
+    </div>
+  </section>
+
+  <section class="container contact-layout">
+    <aside class="contact-aside">
+      <div class="aside-block">
+        <span class="aside-label">EMAIL</span>
+        <a href="mailto:support@z-store.com">support@z-store.com</a>
+      </div>
+
+      <div class="aside-block">
+        <span class="aside-label">PHONE</span>
+        <a href="tel:+201000000000">+20 100 000 0000</a>
+      </div>
+
+      <div class="aside-block">
+        <span class="aside-label">WORKING HOURS</span>
+        <p>Saturday — Thursday<br />10:00 AM — 8:00 PM</p>
+      </div>
+
+      <div class="aside-note">
+        <i class="bi bi-chat-square-text"></i>
+        <p>
+          For an order issue, include your order number in the message so we
+          can help you faster.
+        </p>
+      </div>
+    </aside>
+
+    <section class="form-panel">
+      <div class="form-heading">
+        <span class="eyebrow">SEND A MESSAGE</span>
+        <h2>How can we help?</h2>
+        <p>Fill in the form and tell us what you need.</p>
+      </div>
+
+      <form [formGroup]="senderForm"  novalidate>
+        <div class="field-grid">
+          <label class="field">
+            <span>Your name</span>
+            <input
+              type="text"
+              formControlName="name"
+              placeholder="Enter your name"
+              [class.invalid]="submitted && control.name.invalid"
+            />
+            <small *ngIf="submitted && control.name.invalid">Name is required.</small>
+          </label>
+
+          <label class="field">
+            <span>Email address</span>
+            <input
+              type="email"
+              formControlName="email"
+              placeholder="you@example.com"
+              [class.invalid]="submitted && control.email.invalid"
+            />
+            <small *ngIf="submitted && control.email.invalid">Enter a valid email.</small>
+          </label>
+        </div>
+
+        <div class="field-grid">
+          <label class="field">
+            <span>Phone <em>optional</em></span>
+            <input type="tel" formControlName="phone" placeholder="+20 ..." />
+          </label>
+
+          <label class="field">
+            <span>What is this about?</span>
+            <select formControlName="subject">
+              <option *ngFor="let topic of topics" [value]="topic">{{ topic }}</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="field">
+          <span>Your message</span>
+          <textarea
+            rows="7"
+            formControlName="message"
+            placeholder="Tell us what happened or what you would like to know..."
+            [class.invalid]="submitted && control.message.invalid"
+          ></textarea>
+          <small *ngIf="submitted && control.message.invalid">Message is required.</small>
+        </label>
+
+        <div class="form-footer">
+          <div class="status" *ngIf="successMessage || errorMessage">
+            <span class="success" *ngIf="successMessage">
+              <i class="bi bi-check-circle"></i>
+              {{ successMessage }}
+            </span>
+
+            <span class="error" *ngIf="errorMessage">
+              <i class="bi bi-exclamation-circle"></i>
+              {{ errorMessage }}
+            </span>
+          </div>
+
+          <button type="submit" [disabled]="loading">
+            <span *ngIf="!loading">Send message</span>
+            <span *ngIf="loading">Sending...</span>
+            <i *ngIf="!loading" class="bi bi-arrow-up-right"></i>
+          </button>
+        </div>
+      </form>
+    </section>
+  </section>
+
+  <section class="container quick-help">
+    <div class="quick-heading">
+      <span class="eyebrow">QUICK HELP</span>
+      <h2>Looking for something specific?</h2>
+    </div>
+
+    <div class="help-grid">
+      <div class="help-card">
+        <i class="bi bi-box-seam"></i>
+        <strong>Order support</strong>
+        <p>Questions about an existing order or its status.</p>
+      </div>
+
+      <div class="help-card">
+        <i class="bi bi-arrow-counterclockwise"></i>
+        <strong>Returns</strong>
+        <p>Need information about returning or exchanging a product?</p>
+      </div>
+
+      <div class="help-card">
+        <i class="bi bi-search"></i>
+        <strong>Product advice</strong>
+        <p>Not sure which product fits what you are looking for?</p>
+      </div>
+    </div>
+  </section>
+</main>

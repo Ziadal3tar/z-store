@@ -278,4 +278,13 @@ export class BrandComponent
   ): string | number {
     return item?._id ?? index;
   }
+
+
+
+
+
+
+
+
+  
 }

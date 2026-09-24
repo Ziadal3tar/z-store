@@ -30,7 +30,7 @@ export class CategoryComponent
   implements OnInit, OnDestroy
 {
   @Input() allData: any;
-
+Math = Math;
   loading = false;
   openEdit = false;
 
@@ -54,7 +54,7 @@ export class CategoryComponent
 
   private readonly destroy$ =
     new Subject<void>();
-Math: any;
+
 
   constructor(
     private readonly categoryService: CategoryService,
@@ -66,6 +66,8 @@ Math: any;
     this.catalogState.categories$
       .pipe(takeUntil(this.destroy$))
       .subscribe((data: Category[]) => {
+        console.log(data);
+
         this.allCategories = Array.isArray(data)
           ? data
           : [];

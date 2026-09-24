@@ -1,0 +1,401 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&display=swap');
+
+:host {
+  display: block;
+  background: #f5f2ec;
+  color: #171717;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.container {
+  width: min(1180px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+.contact-page {
+  min-height: 100vh;
+  padding-bottom: 90px;
+}
+
+.contact-hero {
+  padding: 80px 0 90px;
+  background: #171717;
+  color: #fff;
+}
+
+.contact-hero-inner {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 60px;
+  align-items: end;
+}
+
+.eyebrow {
+  display: inline-block;
+  margin-bottom: 18px;
+  color: #a12b2b;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.contact-hero .eyebrow {
+  color: #d99c9c;
+}
+
+.contact-hero h1 {
+  max-width: 800px;
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(3.5rem, 7vw, 6.8rem);
+  line-height: .9;
+  letter-spacing: -.055em;
+  font-weight: 500;
+}
+
+.contact-hero h1 em {
+  color: #c64b4b;
+  font-weight: 500;
+}
+
+.contact-hero p {
+  max-width: 610px;
+  margin: 30px 0 0;
+  color: #aaa7a1;
+  line-height: 1.8;
+}
+
+.hero-mark {
+  padding: 26px;
+  border: 1px solid #353535;
+}
+
+.hero-mark span {
+  display: block;
+  color: #8e8b86;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .16em;
+}
+
+.hero-mark strong {
+  display: block;
+  margin: 16px 0 5px;
+  font-family: 'Playfair Display', serif;
+  font-size: 4.2rem;
+  line-height: 1;
+  font-weight: 500;
+}
+
+.hero-mark small {
+  color: #aaa7a1;
+}
+
+.contact-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 70px;
+  padding-top: 80px;
+}
+
+.contact-aside {
+  padding-top: 12px;
+}
+
+.aside-block {
+  padding: 0 0 28px;
+  margin-bottom: 28px;
+  border-bottom: 1px solid #d8d1c8;
+}
+
+.aside-label {
+  display: block;
+  margin-bottom: 10px;
+  color: #969089;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .15em;
+}
+
+.aside-block a,
+.aside-block p {
+  margin: 0;
+  color: #242424;
+  font-size: .92rem;
+  line-height: 1.7;
+  text-decoration: none;
+}
+
+.aside-block a:hover {
+  color: #a12b2b;
+}
+
+.aside-note {
+  display: flex;
+  gap: 14px;
+  padding: 20px;
+  background: #eae5dd;
+}
+
+.aside-note i {
+  color: #a12b2b;
+  font-size: 1.15rem;
+}
+
+.aside-note p {
+  margin: 0;
+  color: #6d6860;
+  font-size: .82rem;
+  line-height: 1.65;
+}
+
+.form-panel {
+  padding: clamp(30px, 5vw, 62px);
+  background: #fff;
+}
+
+.form-heading h2 {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.6rem, 5vw, 4.6rem);
+  line-height: .95;
+  font-weight: 500;
+  letter-spacing: -.045em;
+}
+
+.form-heading p {
+  margin: 16px 0 35px;
+  color: #77726b;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.field {
+  display: block;
+  margin-bottom: 23px;
+}
+
+.field > span {
+  display: block;
+  margin-bottom: 9px;
+  color: #3d3934;
+  font-size: .78rem;
+  font-weight: 700;
+}
+
+.field > span em {
+  color: #aaa49c;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #d8d2ca;
+  border-radius: 0;
+  outline: none;
+  background: #faf9f7;
+  color: #171717;
+  font: inherit;
+  font-size: .9rem;
+  transition: border-color .2s ease, background .2s ease;
+}
+
+.field input,
+.field select {
+  height: 50px;
+  padding: 0 14px;
+}
+
+.field textarea {
+  padding: 14px;
+  resize: vertical;
+  min-height: 150px;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: #171717;
+  background: #fff;
+}
+
+.field input.invalid,
+.field textarea.invalid,
+.field select.invalid {
+  border-color: #a12b2b;
+}
+
+.field small {
+  display: block;
+  margin-top: 6px;
+  color: #a12b2b;
+  font-size: .72rem;
+}
+
+.form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.status {
+  flex: 1;
+  font-size: .82rem;
+}
+
+.status .success,
+.status .error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status .success {
+  color: #277348;
+}
+
+.status .error {
+  color: #a12b2b;
+}
+
+.form-footer button {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 165px;
+  justify-content: center;
+  height: 50px;
+  padding: 0 22px;
+  border: 0;
+  background: #171717;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .2s ease, opacity .2s ease;
+}
+
+.form-footer button:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.form-footer button:disabled {
+  opacity: .55;
+  cursor: wait;
+}
+
+.quick-help {
+  padding-top: 100px;
+}
+
+.quick-heading {
+  margin-bottom: 30px;
+}
+
+.quick-heading h2 {
+  max-width: 600px;
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.3rem, 4vw, 3.8rem);
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -.04em;
+}
+
+.help-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.help-card {
+  min-height: 190px;
+  padding: 25px;
+  border: 1px solid #d9d2ca;
+  background: transparent;
+}
+
+.help-card i {
+  display: block;
+  margin-bottom: 28px;
+  color: #a12b2b;
+  font-size: 1.25rem;
+}
+
+.help-card strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 1rem;
+}
+
+.help-card p {
+  margin: 0;
+  color: #77726b;
+  font-size: .82rem;
+  line-height: 1.65;
+}
+
+@media (max-width: 850px) {
+  .contact-hero-inner,
+  .contact-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-mark {
+    display: none;
+  }
+
+  .contact-layout {
+    gap: 45px;
+  }
+
+  .contact-aside {
+    padding-top: 0;
+  }
+
+  .help-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .container {
+    width: min(100% - 24px, 1180px);
+  }
+
+  .contact-hero {
+    padding: 58px 0 65px;
+  }
+
+  .contact-hero h1 {
+    font-size: 3.6rem;
+  }
+
+  .field-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .form-panel {
+    padding: 28px 20px;
+  }
+
+  .form-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .form-footer button {
+    width: 100%;
+  }
+}

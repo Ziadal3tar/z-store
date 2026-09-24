@@ -12,7 +12,6 @@ import { Subscription } from 'rxjs';
 import { CartService } from './../../services/cart.service';
 import { WishListService } from './../../services/wish-list.service';
 import { ProductsService } from '../../services/products.service';
-
 import { UserStateService } from 'src/app/core/state/user-state.service';
 import { Product } from 'src/app/core/models/product.model';
 import { RecentlyViewedService } from 'src/app/core/services/recently-viewed.service';
@@ -25,29 +24,25 @@ interface HeroSlide {
   accent: string;
 }
 
-interface CollectionCard {
+interface MoodCard {
+  eyebrow: string;
   title: string;
-  subtitle: string;
+  description: string;
   image: string;
   query: string;
 }
 
-interface EditorialCard {
+interface SignalStat {
   label: string;
+  value: string;
+  text: string;
+}
+
+interface LookBoard {
   title: string;
-  cta: string;
+  description: string;
   image: string;
-}
-
-interface BenefitItem {
-  number: string;
-  title: string;
-  text: string;
-}
-
-interface TrustItem {
-  title: string;
-  text: string;
+  query: string;
 }
 
 @Component({
@@ -64,7 +59,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   recentlyViewed: Product[] = [];
 
   userData: any;
-
   loginFirst = false;
 
   productDetails?: Product;
@@ -73,118 +67,112 @@ export class HomeComponent implements OnInit, OnDestroy {
   loadingOffers = true;
   offersError = '';
 
-  readonly trustItems: TrustItem[] = [
-    {
-      title: 'Clear product details',
-      text: 'Prices, offers and product information stay visible.',
-    },
-    {
-      title: 'Secure shopping flow',
-      text: 'Focused account, cart and checkout experience.',
-    },
-    {
-      title: 'Personal wishlist',
-      text: 'Keep products you want close for later.',
-    },
-    {
-      title: 'Responsive design',
-      text: 'A consistent experience across desktop and mobile.',
-    },
-  ];
-
   readonly heroSlides: HeroSlide[] = [
     {
-      eyebrow: 'NEW SEASON / 2026',
-      title: 'Style that moves with you.',
+      eyebrow: 'NEW SEASON / OBJECT 01',
+      title: 'Your next favorite thing is not in the cart yet.',
       subtitle:
-        'Everyday essentials, elevated details and a faster way to shop.',
-      image: 'assets/slider-bg.jpg',
+        'A tighter edit of everyday pieces, sharper layers and details that change the whole look.',
+      image: 'assets/photo-1716971550641-d61ba802d4a5.avif',
       accent: '01',
     },
     {
-      eyebrow: 'CURATED FOR YOU',
-      title: 'Build your next favorite look.',
+      eyebrow: 'CURATED / OBJECT 02',
+      title: 'Build a look around one good idea.',
       subtitle:
-        'Discover clothing and accessories selected for effortless daily wear.',
+        'Start with one piece and let the rest of the wardrobe follow its lead.',
       image:
-        'assets/modern-pretty-girl-beige-coat-standing-near-building-outdoor-glamorous-sunglasses-her-face-makeup-stylish-tail-hairstyle-hand-near-face-lot-summer-light-last-warm-days_343629-69.webp',
+        'assets/photo-1580657018950-c7f7d6a6d990.avif',
       accent: '02',
     },
     {
-      eyebrow: 'LIMITED OFFERS',
-      title: 'Better picks. Better prices.',
+      eyebrow: 'LIMITED / OBJECT 03',
+      title: 'Good style does not need a long explanation.',
       subtitle:
-        'Explore current offers before your favorites go out of stock.',
-      image:
-        'assets/portrait-handsome-fashion-stylish-hipster-businessman-model-dressed-elegant-brown-suit-sitting-near-dark_158538-11305.webp',
+        'Current offers, clear product details and fewer clicks between you and the right pick.',
+      image: 'assets/photo-1599012307530-d163bd04ecab.avif',
       accent: '03',
     },
   ];
 
-  readonly collections: CollectionCard[] = [
+  readonly moods: MoodCard[] = [
     {
-      title: 'Women',
-      subtitle: 'Modern layers & everyday pieces',
+      eyebrow: 'MOOD 01 / EASY',
+      title: 'Soft Utility',
+      description: 'Relaxed shapes, light layers and everyday movement.',
       image:
-        'assets/summer-portrait-cheerful-red-haired-lady-fashionable-outfit-having-fun-pink.jpg',
+        'assets/photo-1625698311031-f0dd15be5144.avif',
       query: 'women',
     },
     {
-      title: 'Men',
-      subtitle: 'Clean essentials & statement pieces',
+      eyebrow: 'MOOD 02 / CLEAN',
+      title: 'Quiet Form',
+      description: 'Neutral tones and pieces that do the work without shouting.',
       image:
-        'assets/portrait-handsome-fashion-stylish-hipster-businessman-model-dressed-elegant-brown-suit-sitting-near-dark_158538-11305.webp',
+        'assets/istockphoto-2254562888-612x612.webp',
       query: 'men',
     },
     {
-      title: 'Accessories',
-      subtitle: 'The finishing details',
-      image: 'assets/13972.jpg',
+      eyebrow: 'MOOD 03 / DETAIL',
+      title: 'Small Signal',
+      description: 'Accessories and finishing touches that change the whole frame.',
+      image: 'assets/istockphoto-2268655195-612x612.webp',
       query: 'accessories',
     },
-  ];
-
-  readonly editorialCards: EditorialCard[] = [
     {
-      label: '01 / DAILY',
-      title: 'Everyday essentials',
-      cta: 'Discover pieces',
+      eyebrow: 'MOOD 04 / AFTER HOURS',
+      title: 'Sharp After Dark',
+      description: 'A darker edit for plans that start late and stay longer.',
       image:
-        'assets/summer-portrait-cheerful-red-haired-lady-fashionable-outfit-having-fun-pink.jpg',
-    },
-    {
-      label: '02 / SMART',
-      title: 'Sharp layers & clean lines',
-      cta: 'Explore the edit',
-      image:
-        'assets/portrait-handsome-fashion-stylish-hipster-businessman-model-dressed-elegant-brown-suit-sitting-near-dark_158538-11305.webp',
-    },
-    {
-      label: '03 / DETAILS',
-      title: 'Finish the look',
-      cta: 'Shop accessories',
-      image: 'assets/13972.jpg',
+        'assets/photo-1532453288672-3a27e9be9efd.avif',
+      query: 'men',
     },
   ];
 
-  readonly benefits: BenefitItem[] = [
+  readonly signalItems = [
+    'FAST DISCOVERY',
+    'CLEAR PRICING',
+    'WISHLIST READY',
+    'QUICK VIEW',
+    'RESPONSIVE BY DEFAULT',
+  ];
+
+  readonly signalStats: SignalStat[] = [
     {
-      number: '01',
-      title: 'Discover faster',
-      text:
-        'Clear categories and focused collections make it easier to reach the products you need.',
+      label: '01 / SEARCH',
+      value: 'DIRECT',
+      text: 'Go from an idea to the relevant part of the catalog quickly.',
     },
     {
-      number: '02',
-      title: 'Shop with confidence',
-      text:
-        'Product details, pricing and availability are presented before you commit to a purchase.',
+      label: '02 / PRODUCT',
+      value: 'VISIBLE',
+      text: 'Price, discount and product information stay in view.',
     },
     {
-      number: '03',
-      title: 'Keep it personal',
-      text:
-        'Wishlist and recently viewed products help you continue where you left off.',
+      label: '03 / CHECKOUT',
+      value: 'FOCUSED',
+      text: 'Fewer distractions once you have found the right piece.',
+    },
+  ];
+
+  readonly lookBoards: LookBoard[] = [
+    {
+      title: 'Start with one statement',
+      description: 'A hero piece first. Everything else follows.',
+      image: 'assets/photo-1716971550641-d61ba802d4a5.avif',
+      query: 'men',
+    },
+    {
+      title: 'Keep the base easy',
+      description: 'Everyday pieces that make the outfit easier to wear.',
+       image: 'assets/photo-1580657018950-c7f7d6a6d990.avif',
+      query: 'women',
+    },
+    {
+      title: 'Finish with detail',
+      description: 'Use accessories to make the look feel intentional.',
+      image: 'assets/photo-1599012307530-d163bd04ecab.avif',
+      query: 'accessories',
     },
   ];
 
@@ -222,13 +210,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
     this.recentlyViewed = this.recentlyViewedService.get();
-
     this.loadSpecialOffers();
 
-    this.heroTimer = setInterval(
-      () => this.nextHero(),
-      6500,
-    );
+    this.heroTimer = setInterval(() => this.nextHero(), 6500);
   }
 
   ngOnDestroy(): void {
@@ -242,7 +226,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   nextHero(): void {
     this.currentHero =
       (this.currentHero + 1) % this.heroSlides.length;
-
     this.cdr.markForCheck();
   }
 
@@ -250,7 +233,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.currentHero =
       (this.currentHero - 1 + this.heroSlides.length) %
       this.heroSlides.length;
-
     this.cdr.markForCheck();
   }
 
@@ -270,20 +252,14 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.productsService.getSpecialOffers().subscribe({
         next: (response: any) => {
-          this.specialOffers = (
-            response?.products ?? []
-          ).slice(0, 8);
-
+          this.specialOffers = (response?.products ?? []).slice(0, 8);
           this.loadingOffers = false;
           this.cdr.markForCheck();
         },
-
         error: () => {
           this.specialOffers = [];
           this.loadingOffers = false;
-          this.offersError =
-            'We could not load the latest offers.';
-
+          this.offersError = 'We could not load the latest offers.';
           this.cdr.markForCheck();
         },
       }),
@@ -307,8 +283,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     return Math.max(
       0,
-      Number(product.price ?? 0) -
-        Number(product.discount ?? 0),
+      Number(product.price ?? 0) - Number(product.discount ?? 0),
     );
   }
 
@@ -333,16 +308,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
     const id = product._id;
-
     if (!id) {
       return;
     }
 
     const request = this.ifInWishlist(product)
       ? this.wishListService.removeToFavorites(id)
-      : this.wishListService.addToFavorites({
-          productId: id,
-        });
+      : this.wishListService.addToFavorites({ productId: id });
 
     this.subscriptions.add(
       request.subscribe({
@@ -351,13 +323,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             this.userState.refresh();
           }
         },
-
-        error: error => {
-          console.error(
-            'wishlist update failed',
-            error,
-          );
-        },
+        error: error => console.error('wishlist update failed', error),
       }),
     );
   }
@@ -375,21 +341,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.subscriptions.add(
       this.cartService
-        .addToCart({
-          productId: product._id,
-          quantity: 1,
-        })
+        .addToCart({ productId: product._id, quantity: 1 })
         .subscribe({
-          next: () => {
-            this.userState.refresh();
-          },
-
-          error: error => {
-            console.error(
-              'add to cart failed',
-              error,
-            );
-          },
+          next: () => this.userState.refresh(),
+          error: error => console.error('add to cart failed', error),
         }),
     );
   }
@@ -399,10 +354,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.router.navigate([
-      '/product',
-      product._id,
-    ]);
+    this.router.navigate(['/product', product._id]);
   }
 
   openQuickView(product: Product): void {
@@ -414,14 +366,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   closeQuickView(): void {
     this.openProductDetails = false;
     this.productDetails = undefined;
-
     this.cdr.markForCheck();
   }
 
-  trackByProductId(
-    index: number,
-    product: Product,
-  ): string | number {
+  trackByProductId(index: number, product: Product): string | number {
     return product._id ?? index;
   }
 }

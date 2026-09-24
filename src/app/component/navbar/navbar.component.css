@@ -1,4 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&display=swap');
+
+
+
+
 :host {
+  font-family: 'DM Sans', sans-serif !important;
   display: block;
 }
 
@@ -59,7 +65,7 @@
 }
 
 .brand-logo span {
-  color: #dc3545;
+  color: #ff5c35;
 }
 
 .brand-logo:hover {
@@ -123,7 +129,7 @@
 
   height: 2px;
 
-  background: #dc3545;
+  background: #ff5c35;
   border-radius: 10px;
 
   transform: scaleX(0);
@@ -134,7 +140,7 @@
 
 .nav-links a:hover,
 .nav-links a.active {
-  color: #dc3545;
+  color: #ff5c35;
 }
 
 .nav-links a:hover::after,
@@ -245,7 +251,7 @@
   align-items: center;
   justify-content: center;
 
-  background: #dc3545;
+  background: #ff5c35;
   color: #fff;
 
   border: 2px solid #fff;
@@ -286,7 +292,7 @@
 }
 
 .login-btn:hover {
-  background: #dc3545;
+  background: #ff5c35;
   color: #fff;
 
   transform: translateY(-2px);
@@ -387,7 +393,7 @@
 }
 
 .search-input-wrapper > i {
-  color: #dc3545;
+  color: #ff5c35;
   font-size: 17px;
 }
 
@@ -538,7 +544,7 @@
 
 .store-delete:hover {
   background: rgba(220, 53, 69, 0.1);
-  color: #dc3545;
+  color: #ff5c35;
   transform: scale(1.05);
 }
 
@@ -555,7 +561,7 @@
 .search-empty i {
   margin-bottom: 12px;
 
-  color: #dc3545;
+  color: #ff5c35;
 
   font-size: 24px;
 }

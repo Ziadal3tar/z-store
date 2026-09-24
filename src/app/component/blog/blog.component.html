@@ -1,0 +1,114 @@
+<app-navbar></app-navbar>
+
+<main class="blog-page">
+  <section class="blog-intro">
+    <div class="container intro-grid">
+      <div class="intro-copy">
+        <span class="eyebrow">Z-STORE / JOURNAL</span>
+        <h1>Ideas worth<br /><em>taking with you.</em></h1>
+        <p>
+          Useful guides, product stories and simple ideas for making better
+          choices before, during and after you shop.
+        </p>
+      </div>
+
+      <div class="intro-note">
+        <span>THE JOURNAL</span>
+        <strong>01</strong>
+        <p>Curated reads for everyday shopping.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="container featured-section">
+    <article class="featured-card" (click)="openPost(featuredPost)">
+      <div class="featured-image">
+        <img [src]="featuredPost.image" [alt]="featuredPost.title" />
+        <span>Featured story</span>
+      </div>
+
+      <div class="featured-content">
+        <div class="post-meta">
+          <span>{{ featuredPost.category }}</span>
+          <span>{{ featuredPost.readTime }}</span>
+          <span>{{ featuredPost.date }}</span>
+        </div>
+
+        <h2>{{ featuredPost.title }}</h2>
+        <p>{{ featuredPost.excerpt }}</p>
+
+        <button type="button" (click)="$event.stopPropagation(); openPost(featuredPost)">
+          Read story
+          <i class="bi bi-arrow-up-right"></i>
+        </button>
+      </div>
+    </article>
+  </section>
+
+  <section class="container journal-section">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">EXPLORE THE JOURNAL</span>
+        <h2>Pick a topic.</h2>
+      </div>
+
+      <p>Short reads, practical advice and stories behind the products.</p>
+    </div>
+
+    <div class="category-bar">
+      <button
+        *ngFor="let category of categories"
+        type="button"
+        [class.active]="activeCategory === category"
+        (click)="selectCategory(category)"
+      >
+        {{ category }}
+      </button>
+    </div>
+
+    <div class="post-grid">
+      <article
+        class="post-card"
+        *ngFor="let post of filteredPosts"
+        (click)="openPost(post)"
+      >
+        <div class="post-image">
+          <img [src]="post.image" [alt]="post.title" loading="lazy" />
+          <span>{{ post.category }}</span>
+        </div>
+
+        <div class="post-content">
+          <div class="post-meta">
+            <span>{{ post.date }}</span>
+            <span>{{ post.readTime }}</span>
+          </div>
+
+          <h3>{{ post.title }}</h3>
+          <p>{{ post.excerpt }}</p>
+
+          <button type="button" (click)="$event.stopPropagation(); openPost(post)">
+            Read more
+            <i class="bi bi-arrow-right"></i>
+          </button>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="container newsletter-section">
+    <div class="newsletter-card">
+      <div>
+        <span class="eyebrow light">THE Z-STORE EDIT</span>
+        <h2>A little inspiration,<br />straight to your inbox.</h2>
+      </div>
+
+      <div class="newsletter-action">
+        <p>New stories, useful guides and selected products. No unnecessary noise.</p>
+        <button type="button" (click)="shopNow()">
+          Explore the store
+          <i class="bi bi-arrow-up-right"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+</main>

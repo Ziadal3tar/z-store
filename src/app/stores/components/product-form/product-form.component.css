@@ -20,7 +20,7 @@
 
 .eyebrow {
   margin: 0 0 5px;
-  color: #dc3545;
+  color: #ff5c35;
   font-size: 12px;
   font-weight: 800;
   letter-spacing: .12em;
@@ -136,7 +136,7 @@
 }
 
 .field b {
-  color: #dc3545;
+  color: #ff5c35;
 }
 
 .field input,
@@ -230,7 +230,7 @@
 .icon-button.danger:hover,
 .remove-media:hover {
   background: #fff0f2;
-  color: #dc3545;
+  color: #ff5c35;
 }
 
 .empty-attributes,
@@ -262,8 +262,8 @@
 }
 
 .primary-button {
-  border: 1px solid #dc3545;
-  background: #dc3545;
+  border: 1px solid #ff5c35;
+  background: #ff5c35;
   color: #fff;
 }
 
@@ -307,7 +307,7 @@
   place-items: center;
   border-radius: 12px;
   background: #fff0f2;
-  color: #dc3545;
+  color: #ff5c35;
 }
 
 .upload-zone {
@@ -323,7 +323,7 @@
 }
 
 .upload-zone:hover:not(.disabled) {
-  border-color: #dc3545;
+  border-color: #ff5c35;
   background: #fffafb;
 }
 
@@ -339,7 +339,7 @@
 .upload-zone > i {
   margin-bottom: 3px;
   font-size: 24px;
-  color: #dc3545;
+  color: #ff5c35;
 }
 
 .upload-zone strong {

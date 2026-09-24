@@ -36,6 +36,8 @@ import { CheckoutComponent } from './component/checkout/checkout.component';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { ApiErrorInterceptor } from './core/interceptors/api-error.interceptor';
+import { ContactComponent } from './component/contact/contact.component';
+import { BlogComponent } from './component/blog/blog.component';
 
 @NgModule({
   declarations: [
@@ -66,6 +68,8 @@ import { ApiErrorInterceptor } from './core/interceptors/api-error.interceptor';
     LoginFirstComponent,
     CreateYourStoreComponent,
     CheckoutComponent,
+    ContactComponent,
+    BlogComponent,
   ],
   imports: [
     FormsModule,
@@ -75,6 +79,7 @@ import { ApiErrorInterceptor } from './core/interceptors/api-error.interceptor';
     HttpClientModule,
     BrowserAnimationsModule,
     DragDropModule,
+    
   ],
 
   providers: [

@@ -173,12 +173,7 @@ export class ProductsDetailsComponent
     );
   }
 
-  /**
-   * Delete product.
-   *
-   * The UI will only expose this action to admins,
-   * but the backend authorization remains the real protection.
-   */
+
   deleteProduct(): void {
     const productId = this.productDetails?._id;
 
@@ -208,7 +203,9 @@ export class ProductsDetailsComponent
           this.message = 'Product deleted successfully.';
           this.cdr.markForCheck();
 
+          this.recentlyViewed.remove(productId)
           this.router.navigate(['/shop']);
+
         },
 
         error: (error) => {

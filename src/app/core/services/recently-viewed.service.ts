@@ -12,6 +12,7 @@ export class RecentlyViewedService {
 
     const current = this.get();
     const next = [product, ...current.filter(item => item._id !== id)].slice(0, MAX_ITEMS);
+
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   }
 
@@ -31,4 +32,26 @@ export class RecentlyViewedService {
   clear(): void {
     localStorage.removeItem(STORAGE_KEY);
   }
+ remove(id: any): void {
+  const raw = localStorage.getItem(STORAGE_KEY);
+
+  if (!raw) return;
+
+  try {
+    const parsed: Product[] = JSON.parse(raw);
+console.log(parsed);
+
+    const updatedProducts = parsed.filter(
+      product => product._id !== id
+    );
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(updatedProducts)
+    );
+
+  } catch {
+    localStorage.removeItem(STORAGE_KEY);
+  }
+}
 }

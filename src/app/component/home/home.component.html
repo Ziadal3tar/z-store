@@ -1,708 +1,442 @@
-
 <app-navbar
   [cartlength]="cartlength"
   class="site-header"
->
-</app-navbar>
+></app-navbar>
 
-<main class="home-page">
+<main class="creative-home">
 
-  <!-- =========================
-       HERO
-  ========================== -->
-
-  <section
-    class="hero"
-    aria-labelledby="hero-title"
-  >
-
-    <div class="hero-background">
-
-      <ng-container
-        *ngFor="let slide of heroSlides; let i = index"
-      >
-        <div
-          class="hero-slide"
-          [class.is-active]="i === currentHero"
-          [style.backgroundImage]="'url(' + slide.image + ')'"
-          aria-hidden="true"
-        ></div>
-      </ng-container>
-
-      <div class="hero-gradient"></div>
-      <div class="hero-noise"></div>
-
-    </div>
-
-    <div class="container hero-container">
-
-      <div class="hero-content">
-
-        <div class="hero-copy">
-
-          <div class="hero-eyebrow">
-            <span class="hero-line"></span>
-
-            <span>
-              {{ heroSlides[currentHero].eyebrow }}
-            </span>
-          </div>
-
-          <h1 id="hero-title">
-            {{ heroSlides[currentHero].title }}
-          </h1>
-
-          <p class="hero-description">
-            {{ heroSlides[currentHero].subtitle }}
-          </p>
-
-          <div class="hero-actions">
-
-            <a
-              class="hero-primary"
-              routerLink="/shop"
-            >
-              <span>Explore collection</span>
-              <i class="bi bi-arrow-up-right"></i>
-            </a>
-
-            <button
-              type="button"
-              class="hero-secondary"
-              (click)="nextHero()"
-            >
-              <span>Next story</span>
-              <i class="bi bi-arrow-right"></i>
-            </button>
-
-          </div>
-
+  <!-- 01 / COVER -->
+  <section class="cover-hero" aria-labelledby="cover-title">
+    <div class="cover-grid container">
+      <div class="cover-copy">
+        <div class="cover-topline">
+          <span>THE Z-STORE JOURNAL</span>
+          <span>ISSUE 09 / 2026</span>
         </div>
 
-        <!-- Hero navigation -->
-        <div class="hero-navigation">
+        <div class="cover-kicker">
+          <span class="cover-kicker-dot"></span>
+          {{ heroSlides[currentHero].eyebrow }}
+        </div>
+
+        <div class="cover-index">
+          <strong>{{ heroSlides[currentHero].accent }}</strong>
+          <span>/ {{ heroSlides.length.toString().padStart(2, '0') }}</span>
+        </div>
+
+        <h1 id="cover-title">
+          {{ heroSlides[currentHero].title }}
+        </h1>
+
+        <p class="cover-description">
+          {{ heroSlides[currentHero].subtitle }}
+        </p>
+
+        <div class="cover-actions">
+          <a routerLink="/shop" class="cover-button cover-button-dark">
+            <span>Enter the collection</span>
+            <i class="bi bi-arrow-up-right"></i>
+          </a>
 
           <button
             type="button"
-            class="hero-arrow"
-            (click)="previousHero()"
-            aria-label="Previous story"
-          >
-            <i class="bi bi-arrow-left"></i>
-          </button>
-
-          <div class="hero-pagination">
-
-            <button
-              *ngFor="let slide of heroSlides; let i = index"
-              type="button"
-              class="hero-pagination-item"
-              [class.active]="i === currentHero"
-              (click)="selectHero(i)"
-              [attr.aria-label]="'Go to story ' + (i + 1)"
-            >
-              <span>
-                {{ slide.accent }}
-              </span>
-            </button>
-
-          </div>
-
-          <button
-            type="button"
-            class="hero-arrow"
+            class="cover-button cover-button-line"
             (click)="nextHero()"
-            aria-label="Next story"
           >
+            <span>Next frame</span>
             <i class="bi bi-arrow-right"></i>
           </button>
-
         </div>
 
-      </div>
+        <div class="cover-selector" aria-label="Hero stories">
+          <button
+            *ngFor="let slide of heroSlides; let i = index"
+            type="button"
+            class="cover-selector-item"
+            [class.is-active]="i === currentHero"
+            (click)="selectHero(i)"
+            [attr.aria-label]="'Show story ' + (i + 1)"
+          >
+            <span>0{{ i + 1 }}</span>
 
-      <!-- Hero bottom information -->
-      <div class="hero-bottom">
-
-        <span>
-          SCROLL TO DISCOVER
-        </span>
-
-        <span class="hero-scroll-line"></span>
-
-        <span>
-          01 — 03
-        </span>
-
-      </div>
-
-    </div>
-
-  </section>
-
-  <!-- =========================
-       TRUST STRIP
-  ========================== -->
-
-  <section class="trust-strip">
-
-    <div class="container trust-grid">
-
-      <div class="trust-item">
-        <div class="trust-icon">
-          <i class="bi bi-truck"></i>
-        </div>
-
-        <div>
-          <strong>Fast delivery</strong>
-          <span>Clear delivery information</span>
+            <i></i>
+          </button>
         </div>
       </div>
 
-      <div class="trust-item">
-        <div class="trust-icon">
-          <i class="bi bi-shield-check"></i>
-        </div>
+      <div class="cover-art">
+        <div class="cover-art-shadow"></div>
 
-        <div>
-          <strong>Secure shopping</strong>
-          <span>Protected account & order flow</span>
-        </div>
-      </div>
+        <div class="cover-art-frame">
+          <div class="cover-art-image">
 
-      <div class="trust-item">
-        <div class="trust-icon">
-          <i class="bi bi-stars"></i>
-        </div>
+            <img [ngClass]="currentHero === 0 ? 'img1' : currentHero === 1 ? 'img2' : 'img3'"
+              [src]="heroSlides[currentHero].image"
+              [alt]="heroSlides[currentHero].title"
+            />
+          </div>
 
-        <div>
-          <strong>Curated products</strong>
-          <span>Focused collections for you</span>
-        </div>
-      </div>
+          <div class="cover-art-stamp">
+            <span>CURATED</span>
+            <strong>FOR</strong>
+            <span>NOW</span>
+          </div>
 
-      <div class="trust-item">
-        <div class="trust-icon">
-          <i class="bi bi-headset"></i>
-        </div>
-
-        <div>
-          <strong>Customer support</strong>
-          <span>Clear post-purchase assistance</span>
-        </div>
-      </div>
-
-    </div>
-
-  </section>
-
-  <!-- =========================
-       COLLECTIONS
-  ========================== -->
-
-  <section class="home-section collections-section">
-
-    <div class="container">
-
-      <div class="section-header">
-
-        <div>
-          <span class="section-eyebrow">
-            EXPLORE
-          </span>
-
-          <h2>
-            Shop by collection
-          </h2>
-
-          <p>
-            Start with a collection and discover pieces
-            selected for everyday style.
-          </p>
-        </div>
-
-        <a
-          routerLink="/shop"
-          class="section-link"
-        >
-          <span>View all</span>
-          <i class="bi bi-arrow-up-right"></i>
-        </a>
-
-      </div>
-
-      <div class="collection-grid">
-
-        <button
-          *ngFor="let collection of collections"
-          type="button"
-          class="collection-card"
-          (click)="shopCollection(collection.query)"
-        >
-
-          <img
-            [src]="collection.image"
-            [alt]="collection.title"
-            loading="lazy"
-            decoding="async"
-          />
-
-          <span class="collection-gradient"></span>
-
-          <span class="collection-number">
-            {{ collections.indexOf(collection) + 1 | number:'2.0' }}
-          </span>
-
-          <span class="collection-content">
-
-            <small>
-              {{ collection.subtitle }}
-            </small>
-
-            <strong>
-              {{ collection.title }}
-            </strong>
-
-            <span class="collection-action">
-              Explore
-              <i class="bi bi-arrow-up-right"></i>
-            </span>
-
-          </span>
-
-        </button>
-
-      </div>
-
-    </div>
-
-  </section>
-
-  <!-- =========================
-       SPECIAL OFFERS
-  ========================== -->
-
-  <section class="home-section offers-section">
-
-    <div class="container">
-
-      <div class="section-header">
-
-        <div>
-          <span class="section-eyebrow">
-            JUST IN
-          </span>
-
-          <h2>
-            Latest offers
-          </h2>
-
-          <p>
-            Current picks and offers available in the store.
-          </p>
-        </div>
-
-        <a
-          routerLink="/shop"
-          class="section-link"
-        >
-          <span>See all products</span>
-          <i class="bi bi-arrow-up-right"></i>
-        </a>
-
-      </div>
-
-      <!-- Loading -->
-      <div
-        class="offer-grid"
-        *ngIf="loadingOffers"
-      >
-        <div
-          class="product-skeleton"
-          *ngFor="let item of [1, 2, 3, 4]"
-        >
-          <div class="skeleton-image"></div>
-
-          <div class="skeleton-content">
-            <span></span>
-            <span></span>
-            <span></span>
+          <div class="cover-art-caption">
+            <span>{{ heroSlides[currentHero].eyebrow }}</span>
+            <strong>{{ heroSlides[currentHero].accent }} / {{ heroSlides.length }}</strong>
           </div>
         </div>
-      </div>
 
-      <!-- Error -->
-      <div
-        class="state-card state-error"
-        *ngIf="!loadingOffers && offersError"
-      >
-
-        <div class="state-card-icon">
-          <i class="bi bi-cloud-slash"></i>
+        <div class="cover-floating-note">
+          <span>NEW</span>
+          <strong>LOOKS<br />ARE<br />LOADING</strong>
         </div>
 
+        <div class="cover-vertical-note">SHOP / SAVE / REPEAT</div>
+      </div>
+    </div>
+
+    <div class="cover-footer container">
+      <span>SCROLL FOR THE DROP</span>
+      <div class="cover-footer-line"></div>
+      <i class="bi bi-arrow-down"></i>
+    </div>
+  </section>
+
+  <!-- 02 / SHOP BY MOOD -->
+  <section class="mood-section">
+    <div class="container">
+      <div class="section-head creative-head">
         <div>
-          <strong>
-            We couldn't load the offers
-          </strong>
-
-          <p>
-            {{ offersError }}
-          </p>
+          <span class="section-index">02 / MOODS</span>
+          <h2>Pick a mood.<br /><em>We will handle the rest.</em></h2>
         </div>
-
-        <button
-          type="button"
-          (click)="loadSpecialOffers()"
-        >
-          Try again
-          <i class="bi bi-arrow-repeat"></i>
-        </button>
-
+        <p>
+          Four visual starting points instead of a wall of categories. Choose the direction,
+          then discover the pieces behind it.
+        </p>
       </div>
 
-      <!-- Products -->
-      <div
-        class="product-grid"
-        *ngIf="
-          !loadingOffers &&
-          !offersError &&
-          specialOffers.length
-        "
-      >
-
-        <article
-          class="product-card"
-          *ngFor="
-            let product of specialOffers;
-            trackBy: trackByProductId
-          "
+      <div class="mood-grid">
+        <button
+          *ngFor="let mood of moods; let i = index"
+          type="button"
+          class="mood-card"
+          [class.mood-card-tall]="i === 0 || i === 3"
+          (click)="shopCollection(mood.query)"
         >
+          <img [src]="mood.image" [alt]="mood.title" loading="lazy" decoding="async" />
+          <span class="mood-card-wash"></span>
+          <span class="mood-card-number">0{{ i + 1 }}</span>
+          <span class="mood-card-copy">
+            <small>{{ mood.eyebrow }}</small>
+            <strong>{{ mood.title }}</strong>
+            <span>{{ mood.description }}</span>
+            <b>Explore <i class="bi bi-arrow-up-right"></i></b>
+          </span>
+        </button>
+      </div>
+    </div>
+  </section>
 
+  <!-- 03 / DROP SIGNAL -->
+  <section class="signal-section">
+    <div class="signal-top container">
+      <div>
+        <span class="section-index section-index-light">03 / DROP SIGNAL</span>
+        <h2>Less scrolling.<br /><em>More finding.</em></h2>
+      </div>
+      <p>
+        A live-feeling shortlist of what deserves your attention right now.
+      </p>
+    </div>
+
+    <div class="signal-marquee" aria-hidden="true">
+      <div class="signal-track">
+        <span *ngFor="let item of signalItems">
+          {{ item }} <b>✦</b>
+        </span>
+        <span *ngFor="let item of signalItems">
+          {{ item }} <b>✦</b>
+        </span>
+      </div>
+    </div>
+
+    <div class="container signal-grid">
+      <div class="signal-card signal-card-large">
+        <span class="signal-card-label">WHY IT FEELS DIFFERENT</span>
+        <strong>Every screen has<br />a point.</strong>
+        <p>
+          Search goes to products. Products go to detail. Detail goes to cart.
+          No unnecessary detours.
+        </p>
+        <a routerLink="/shop">
+          See how the shop flows
+          <i class="bi bi-arrow-up-right"></i>
+        </a>
+      </div>
+
+      <div class="signal-stat-list">
+        <div class="signal-stat" *ngFor="let item of signalStats">
+          <span>{{ item.label }}</span>
+          <strong>{{ item.value }}</strong>
+          <p>{{ item.text }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 / PRODUCT RUNWAY -->
+  <section class="runway-section">
+    <div class="container">
+      <div class="runway-head">
+        <div>
+          <span class="section-index">04 / RUNWAY</span>
+          <h2>Current favorites.<br /><em>Fresh from the catalog.</em></h2>
+        </div>
+        <a routerLink="/shop" class="text-link">
+          <span>View all products</span>
+          <i class="bi bi-arrow-up-right"></i>
+        </a>
+      </div>
+
+      <div class="runway-loading" *ngIf="loadingOffers">
+        <div class="runway-feature-skeleton"></div>
+        <div class="runway-list-skeleton">
+          <span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <div class="runway-error" *ngIf="!loadingOffers && offersError">
+        <div>
+          <strong>The drop could not load.</strong>
+          <p>{{ offersError }}</p>
+        </div>
+        <button type="button" (click)="loadSpecialOffers()">
+          Retry <i class="bi bi-arrow-repeat"></i>
+        </button>
+      </div>
+
+      <div
+        class="runway-layout"
+        *ngIf="!loadingOffers && !offersError && specialOffers.length"
+      >
+        <article class="runway-feature">
           <button
             type="button"
-            class="product-media"
-            (click)="openQuickView(product)"
+            class="runway-feature-image"
+            (click)="openQuickView(specialOffers[0])"
           >
-
             <img
-              [src]="imageUrl(product)"
-              [alt]="product.name"
+              [src]="imageUrl(specialOffers[0])"
+              [alt]="specialOffers[0].name"
               loading="lazy"
               decoding="async"
             />
-
-            <span
-              class="product-badge"
-              *ngIf="product.discount"
-            >
-              OFFER
-            </span>
-
-            <span class="product-hover">
-              Quick view
-              <i class="bi bi-arrow-up-right"></i>
-            </span>
-
+            <span>QUICK VIEW</span>
           </button>
 
-          <div class="product-body">
+          <div class="runway-feature-info">
+            <div>
+              <span>{{ specialOffers[0].category?.name || 'Collection' }}</span>
+              <h3>{{ specialOffers[0].name }}</h3>
+            </div>
 
-            <div class="product-top">
-
-              <div class="product-heading">
-
-                <span class="product-category">
-                  {{
-                    product.category?.name ||
-                    'Collection'
-                  }}
-                </span>
-
-                <h3>
-                  {{ product.name }}
-                </h3>
-
+            <div class="runway-feature-bottom">
+              <div>
+                <strong>{{ finalPrice(specialOffers[0]) | currency }}</strong>
+                <del *ngIf="oldPrice(specialOffers[0]) as oldPrice">{{ oldPrice | currency }}</del>
               </div>
 
               <button
                 type="button"
-                class="wishlist-button"
-                [class.active]="ifInWishlist(product)"
-                (click)="
-                  addToFavorites(product);
-                  $event.stopPropagation()
-                "
-                [attr.aria-label]="
-                  ifInWishlist(product)
-                    ? 'Remove from wishlist'
-                    : 'Add to wishlist'
-                "
+                class="round-action"
+                (click)="addToCart(specialOffers[0])"
+                aria-label="Add featured product to cart"
               >
-                <i
-                  class="bi"
-                  [class.bi-heart]="!ifInWishlist(product)"
-                  [class.bi-heart-fill]="ifInWishlist(product)"
-                ></i>
+                <i class="bi bi-bag-plus"></i>
               </button>
-
             </div>
+          </div>
+        </article>
 
-            <div class="product-price">
+        <div class="runway-list">
+          <article
+            class="runway-item"
+            *ngFor="let product of specialOffers.slice(1, 6); let i = index; trackBy: trackByProductId"
+          >
+            <button
+              type="button"
+              class="runway-item-image"
+              (click)="openQuickView(product)"
+            >
+              <img
+                [src]="imageUrl(product)"
+                [alt]="product.name"
+                loading="lazy"
+                decoding="async"
+              />
+            </button>
 
-              <strong>
-                {{ finalPrice(product) | currency }}
-              </strong>
+            <span class="runway-item-number">0{{ i + 2 }}</span>
 
-              <del
-                *ngIf="oldPrice(product) as oldPrice"
-              >
-                {{ oldPrice | currency }}
-              </del>
-
+            <div class="runway-item-info">
+              <span>{{ product.category?.name || 'Collection' }}</span>
+              <h3>{{ product.name }}</h3>
+              <div>
+                <strong>{{ finalPrice(product) | currency }}</strong>
+                <del *ngIf="oldPrice(product) as oldPrice">{{ oldPrice | currency }}</del>
+              </div>
             </div>
 
             <button
               type="button"
-              class="add-to-cart-button"
-              (click)="addToCart(product)"
+              class="runway-item-action"
+              (click)="addToFavorites(product)"
+              [attr.aria-label]="ifInWishlist(product) ? 'Remove from wishlist' : 'Save product'"
             >
-              <span>Add to cart</span>
-              <i class="bi bi-arrow-right"></i>
+              <i
+                class="bi"
+                [class.bi-heart-fill]="ifInWishlist(product)"
+                [class.bi-heart]="!ifInWishlist(product)"
+              ></i>
             </button>
-
-          </div>
-
-        </article>
-
+          </article>
+        </div>
       </div>
 
-      <!-- Empty -->
-      <div
-        class="empty-products"
-        *ngIf="
-          !loadingOffers &&
-          !offersError &&
-          !specialOffers.length
-        "
-      >
-
-        <div class="empty-products-icon">
-          <i class="bi bi-bag"></i>
-        </div>
-
-        <div>
-          <strong>
-            No active offers right now
-          </strong>
-
-          <p>
-            Explore all available products instead.
-          </p>
-        </div>
-
-        <a routerLink="/shop">
-          Browse products
-          <i class="bi bi-arrow-right"></i>
-        </a>
-
+      <div class="runway-empty" *ngIf="!loadingOffers && !offersError && !specialOffers.length">
+        <span>No current offers</span>
+        <a routerLink="/shop">Browse the full catalog <i class="bi bi-arrow-right"></i></a>
       </div>
-
     </div>
-
   </section>
 
-  <!-- =========================
-       RECENTLY VIEWED
-  ========================== -->
+  <!-- 05 / BUILD THE LOOK -->
+  <section class="look-section">
+    <div class="container look-grid">
+      <div class="look-copy">
+        <span class="section-index">05 / BUILD THE LOOK</span>
+        <h2>One piece is easy.<br /><em>The right three are better.</em></h2>
+        <p>
+          Use the three boards below as a visual shortcut. Each one points you toward a different
+          kind of wardrobe decision.
+        </p>
 
-  <section
-    class="home-section recent-section"
-    *ngIf="recentlyViewed.length"
-  >
-
-    <div class="container">
-
-      <div class="section-header">
-
-        <div>
-          <span class="section-eyebrow">
-            YOUR JOURNEY
-          </span>
-
-          <h2>
-            Recently viewed
-          </h2>
-
-          <p>
-            Pick up where you left off.
-          </p>
+        <div class="look-board-list">
+          <button
+            *ngFor="let board of lookBoards; let i = index"
+            type="button"
+            class="look-board-button"
+            (click)="shopCollection(board.query)"
+          >
+            <span>0{{ i + 1 }}</span>
+            <div>
+              <strong>{{ board.title }}</strong>
+              <small>{{ board.description }}</small>
+            </div>
+            <i class="bi bi-arrow-up-right"></i>
+          </button>
         </div>
-
-        <a
-          routerLink="/shop"
-          class="section-link"
-        >
-          <span>Keep shopping</span>
-          <i class="bi bi-arrow-up-right"></i>
-        </a>
-
       </div>
 
-      <div class="product-grid recently-viewed-grid">
+      <div class="look-collage">
+        <div class="look-collage-main">
+          <img [src]="lookBoards[0].image" [alt]="lookBoards[0].title" loading="lazy" />
+        </div>
+        <div class="look-collage-small look-collage-small-a">
+          <img [src]="lookBoards[1].image" [alt]="lookBoards[1].title" loading="lazy" />
+        </div>
+        <div class="look-collage-small look-collage-small-b">
+          <img [src]="lookBoards[2].image" [alt]="lookBoards[2].title" loading="lazy" />
+        </div>
+        <div class="look-collage-label">
+          <span>EDIT 01</span>
+          <strong>MAKE<br />IT<br />YOURS</strong>
+        </div>
+      </div>
+    </div>
+  </section>
 
+  <!-- 06 / YOUR TRAIL -->
+  <section class="trail-section" *ngIf="recentlyViewed.length">
+    <div class="container">
+      <div class="trail-head">
+        <div>
+          <span class="section-index">06 / YOUR TRAIL</span>
+          <h2>You were onto something.</h2>
+        </div>
+        <a routerLink="/shop" class="text-link">
+          Back to shopping
+          <i class="bi bi-arrow-up-right"></i>
+        </a>
+      </div>
+
+      <div class="trail-grid">
         <article
-          class="product-card"
-          *ngFor="
-            let product of recentlyViewed;
-            trackBy: trackByProductId
-          "
+          class="trail-card"
+          *ngFor="let product of recentlyViewed.slice(0, 4); trackBy: trackByProductId"
         >
-
           <button
             type="button"
-            class="product-media"
+            class="trail-media"
             (click)="viewProduct(product)"
           >
-
             <img
               [src]="imageUrl(product)"
               [alt]="product.name"
               loading="lazy"
               decoding="async"
             />
-
-            <span class="product-hover">
-              Open product
-              <i class="bi bi-arrow-up-right"></i>
-            </span>
-
+            <span>Continue <i class="bi bi-arrow-up-right"></i></span>
           </button>
-
-          <div class="product-body">
-
-            <div class="product-top">
-
-              <div class="product-heading">
-
-                <span class="product-category">
-                  {{
-                    product.category?.name ||
-                    'Collection'
-                  }}
-                </span>
-
-                <h3>
-                  {{ product.name }}
-                </h3>
-
-              </div>
-
-            </div>
-
-            <div class="product-price">
-
-              <strong>
-                {{ finalPrice(product) | currency }}
-              </strong>
-
-              <del
-                *ngIf="oldPrice(product) as oldPrice"
-              >
-                {{ oldPrice | currency }}
-              </del>
-
-            </div>
-
-            <button
-              type="button"
-              class="add-to-cart-button secondary-product-button"
-              (click)="viewProduct(product)"
-            >
-              <span>View product</span>
-              <i class="bi bi-arrow-right"></i>
-            </button>
-
+          <div class="trail-info">
+            <span>{{ product.category?.name || 'Collection' }}</span>
+            <h3>{{ product.name }}</h3>
+            <strong>{{ finalPrice(product) | currency }}</strong>
           </div>
-
         </article>
-
       </div>
-
     </div>
-
   </section>
 
-  <!-- =========================
-       BRAND / CTA
-  ========================== -->
+  <!-- 07 / FINAL CALL -->
+  <section class="final-section">
+    <div class="container final-card">
+      <div class="final-orbit final-orbit-one"></div>
+      <div class="final-orbit final-orbit-two"></div>
 
-  <section class="home-section brand-section">
-
-    <div class="container">
-
-      <div class="brand-banner">
-
-        <div class="brand-banner-content">
-
-          <span class="section-eyebrow light">
-            BUILT FOR BETTER SHOPPING
-          </span>
-
-          <h2>
-            Less friction.
-            <br />
-            More discovery.
-          </h2>
-
-          <p>
-            Search faster, discover clearly and move from
-            product to checkout with a smoother shopping journey.
-          </p>
-
-          <a
-            routerLink="/shop"
-            class="brand-button"
-          >
-            Start exploring
-            <i class="bi bi-arrow-up-right"></i>
-          </a>
-
-        </div>
-
-        <div class="brand-stat">
-
-          <strong>
-            04
-          </strong>
-
-          <span>
-            CORE SHOPPING FLOWS
-          </span>
-
-        </div>
-
+      <div class="final-content">
+        <span class="section-index section-index-light">07 / YOUR NEXT MOVE</span>
+        <h2>Don't overthink it.<br /><em>Go see what is new.</em></h2>
+        <p>
+          The catalog is the starting point. Your next favorite piece is somewhere inside it.
+        </p>
+        <a routerLink="/shop" class="final-button">
+          Open the shop
+          <i class="bi bi-arrow-up-right"></i>
+        </a>
       </div>
 
+      <div class="final-mark">
+        <span>Z</span>
+        <strong>STORE</strong>
+        <small>EST. 2026</small>
+      </div>
     </div>
-
   </section>
 
-  <!-- =========================
-       QUICK VIEW
-  ========================== -->
-
+  <!-- QUICK VIEW -->
   <div
     class="quick-view-backdrop"
     *ngIf="openProductDetails"
     (click)="closeQuickView()"
   >
-
     <div
       class="quick-view-dialog"
       (click)="$event.stopPropagation()"
     >
-
       <button
         type="button"
         class="quick-close"
@@ -714,17 +448,12 @@
 
       <app-products-details
         [productDetails]="productDetails"
-      >
-      </app-products-details>
-
+      ></app-products-details>
     </div>
-
   </div>
-
 </main>
 
 <app-login-first
   *ngIf="loginFirst"
   (closeL)="loginFirst = $event"
->
-</app-login-first>
+></app-login-first>

@@ -11,7 +11,7 @@ body {
 
 
 .maincolor {
-  color: #dc3545;
+  color: #ff5c35;
 }
 
 .faceBookBg {
@@ -31,7 +31,7 @@ body {
 }
 
 .bg-orange {
-  background-color: #dc3545;
+  background-color: #ff5c35;
 }
 
 input:focus,
@@ -39,7 +39,7 @@ textarea:focus,
 select:focus {
   outline: none !important;
   box-shadow: none !important;
-  /* border-left: 3px solid #dc3545!important; */
+  /* border-left: 3px solid #ff5c35!important; */
 }
 
 button:focus {
@@ -47,7 +47,7 @@ button:focus {
 }
 
 /* .btn:hover i {
-  color: #dc3545;
+  color: #ff5c35;
 } */
 
 .cursorPointer {
@@ -92,7 +92,7 @@ button:focus {
 }
 
 .scrollStyle::-webkit-scrollbar-thumb {
-  background-color: #dc3545;
+  background-color: #ff5c35;
   border-radius: 20px;
   transition: 1s !important;
   margin-right: 20px !important;
@@ -182,7 +182,7 @@ button{
     bottom: 0;
     width: 150%;
     height: 160%;
-    background-color: #dc3545;
+    background-color: #ff5c35;
     z-index: 1;
     transform-origin: bottom left;
     transform: skew(40deg) translateX(-92%) translateY(40%);

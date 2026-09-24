@@ -111,7 +111,7 @@
 }
 
 .mobile-brand span {
-  color: #dc3545;
+  color: #ff5c35;
 }
 
 .mobile-brand:hover {
@@ -320,7 +320,7 @@
 /* Active accent */
 
 .mobile-links a.active {
-  background: #dc3545;
+  background: #ff5c35;
 }
 
 .mobile-links a.active .mobile-link-left > i,
@@ -390,8 +390,8 @@
 }
 
 .login-action:hover {
-  border-color: #dc3545;
-  background: #dc3545;
+  border-color: #ff5c35;
+  background: #ff5c35;
 }
 
 .logout-action {

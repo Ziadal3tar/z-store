@@ -11,6 +11,8 @@ import { CartComponent } from './component/cart/cart.component';
 import { UserinfoComponent } from './component/userinfo/userinfo.component';
 import { ProductsDetailsComponent } from './component/products-details/products-details.component';
 import { CheckoutComponent } from './component/checkout/checkout.component';
+import { BlogComponent } from './component/blog/blog.component';
+import { ContactComponent } from './component/contact/contact.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -18,6 +20,16 @@ const routes: Routes = [
     path: 'home',
     component: HomeComponent,
     data: { title: 'Home', description: 'Discover featured products, new arrivals and offers on Z-Store.' },
+  },
+  {
+    path: 'Blog',
+    component: BlogComponent,
+
+  },
+  {
+    path: 'Contact',
+    component: ContactComponent,
+
   },
   { path: 'login', canActivate: [LogoutGuard], component: LoginComponent, data: { title: 'Login' } },
   {
