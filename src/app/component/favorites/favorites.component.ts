@@ -11,7 +11,7 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 
-import { CartService } from 'src/app/services/cart.service';
+import { CartService } from 'src/app/core/services/cart.service';
 import { WishListService } from 'src/app/services/wish-list.service';
 import { Product, ProductImageValue } from 'src/app/core/models/product.model';
 import { User } from 'src/app/core/models/user.model';
@@ -62,7 +62,7 @@ export class FavoritesComponent implements OnChanges, OnDestroy {
       .addToCart({
         productId: id,
         quantity: 1,
-      })
+      }, this.favoriteProducts.find(product => product._id === id))
       .pipe(
         finalize(() => {
           this.addingToCartId = null;
@@ -71,7 +71,7 @@ export class FavoritesComponent implements OnChanges, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe({
-        next: () => this.userState.refresh(),
+        next: () => this.userState.updateCart(this.userState.snapshot?.cartId),
         error: error => console.error('add to cart failed', error),
       });
   }

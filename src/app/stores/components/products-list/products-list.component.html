@@ -47,7 +47,7 @@
             <tr *ngFor="let product of response.products; trackBy: trackById">
               <td>
                 <div class="product-cell">
-                  <img [src]="productImage(product)" [alt]="product.name" loading="lazy" />
+                  <img [src]="product.displayImageUrl || 'assets/placeholder.png'" [alt]="product.name" loading="lazy" />
                   <div>
                     <strong>{{ product.name }}</strong>
                     <span>#{{ product._id }}</span>

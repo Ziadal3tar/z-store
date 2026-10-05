@@ -6,9 +6,7 @@ import { StorefrontComponent } from './pages/storefront/storefront.component';
 import { StoreDashboardComponent } from './pages/store-dashboard/store-dashboard.component';
 import { ProductFormComponent } from './components/product-form/product-form.component';
 import { ProductsListComponent } from './components/products-list/products-list.component';
-import { ProductCardComponent } from './components/product-card/product-card.component';
-import { ImageUploaderComponent } from './components/image-uploader/image-uploader.component';
-import { OrdersListComponent } from './components/orders-list/orders-list.component';
+import { StoreOrdersComponent } from './components/store-orders/store-orders.component';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 
@@ -18,9 +16,7 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
     StoreDashboardComponent,
     ProductFormComponent,
     ProductsListComponent,
-    ProductCardComponent,
-    ImageUploaderComponent,
-    OrdersListComponent
+    StoreOrdersComponent
   ],
   imports: [
     CommonModule,

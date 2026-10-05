@@ -9,7 +9,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, catchError, throwError } from 'rxjs';
 
-import { clearAuthToken } from '../auth-token.util';
+import { clearAuthToken } from 'src/app/core/auth-token.util';
 
 @Injectable()
 export class ApiErrorInterceptor implements HttpInterceptor {

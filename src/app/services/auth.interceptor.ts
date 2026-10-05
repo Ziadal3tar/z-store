@@ -7,7 +7,7 @@ import {
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { getAuthToken } from '../auth-token.util';
+import { getAuthToken } from 'src/app/core/auth-token.util';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {

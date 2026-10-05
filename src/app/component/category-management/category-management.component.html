@@ -1,0 +1,432 @@
+<app-loading-spinner *ngIf="loading"></app-loading-spinner>
+
+<main class="category-page">
+  <header class="category-header">
+    <div>
+      <span class="eyebrow">ADMIN / CATALOG</span>
+
+
+  <h2>Categories</h2>
+
+  <p>
+    Organize the product catalog, upload category artwork and keep
+    customer navigation structured.
+  </p>
+</div>
+
+<div class="category-stat">
+  <span>ALL CATEGORIES</span>
+  <strong>{{ allCategories.length }}</strong>
+</div>
+
+
+  </header>
+
+  <section class="category-layout">
+    <!-- ADD CATEGORY -->
+    <article class="category-card add-card">
+      <header class="card-header">
+        <div>
+          <span class="card-kicker">CATALOG SETUP</span>
+          <h3>Add category</h3>
+          <p>Create a new category with an optional image.</p>
+        </div>
+
+
+    <div class="card-icon">
+      <i class="bi bi-folder-plus"></i>
+    </div>
+  </header>
+
+  <form
+    class="category-form"
+    (ngSubmit)="addCategory()"
+    novalidate
+  >
+    <label class="field">
+      <span>Category name</span>
+
+      <input
+        type="text"
+        [(ngModel)]="categoryName"
+        name="categoryName"
+        placeholder="e.g. Men's Fashion"
+        autocomplete="off"
+      />
+    </label>
+
+    <div class="upload-box">
+      <label
+        for="categoryImgAdd"
+        class="upload-trigger"
+        [class.has-file]="categoryImg"
+      >
+        <div class="upload-icon">
+          <i
+            class="bi"
+            [class.bi-image]="!categoryImg"
+            [class.bi-check-lg]="categoryImg"
+          ></i>
+        </div>
+
+        <div>
+          <strong>
+            {{ categoryImg ? categoryImg.name : 'Choose category image' }}
+          </strong>
+
+          <span>
+            {{ categoryImg ? 'Image selected' : 'JPG, PNG or WEBP' }}
+          </span>
+        </div>
+
+        <i class="bi bi-arrow-up-right upload-arrow"></i>
+      </label>
+
+      <input
+        id="categoryImgAdd"
+        type="file"
+        class="file-input"
+        accept=".png,.jpg,.jpeg,.webp"
+        (change)="upload($event, 'add')"
+      />
+    </div>
+
+    <button
+      type="submit"
+      class="primary-button"
+      [disabled]="!categoryName?.trim() || loading"
+    >
+      <span>Create category</span>
+      <i class="bi bi-arrow-right"></i>
+    </button>
+  </form>
+
+  <div class="form-hint">
+    <i class="bi bi-info-circle"></i>
+    <span>
+      A category can be created without an image and updated later.
+    </span>
+  </div>
+</article>
+
+<!-- CATEGORY LIST -->
+<article class="category-card list-card">
+  <header class="card-header list-card-header">
+    <div>
+      <span class="card-kicker">CATALOG</span>
+      <h3>All categories</h3>
+      <p>Review and manage the categories currently in your store.</p>
+    </div>
+
+    <div class="results-count">
+      {{ allCategories.length }}
+      {{ allCategories.length === 1 ? 'category' : 'categories' }}
+    </div>
+  </header>
+
+  <div
+    class="category-table-wrap"
+    *ngIf="allCategories.length"
+  >
+    <table class="category-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Category</th>
+          <th>Created by</th>
+          <th>Image</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr
+          *ngFor="
+            let item of pagedCategories;
+            let i = index;
+            trackBy: trackByCategory
+          "
+        >
+          <td class="index-cell">
+            {{ currentPageStart + i + 1 }}
+          </td>
+
+          <td>
+            <div class="category-name">
+              <strong>{{ item.name }}</strong>
+              <span>Catalog category</span>
+            </div>
+          </td>
+
+          <td>
+            <span class="created-by">
+              {{ item.createdBy?.userName || '—' }}
+            </span>
+          </td>
+
+          <td>
+            <div
+              class="category-image"
+              [style.backgroundImage]="
+                'url(' + (item.image || placeholderImg) + ')'
+              "
+            ></div>
+          </td>
+
+          <td>
+            <span class="status-pill">
+              <span class="status-dot"></span>
+              Active
+            </span>
+          </td>
+
+          <td>
+            <div class="table-actions">
+              <button
+                type="button"
+                class="table-action"
+                (click)="openEditModal(item)"
+                aria-label="Edit category"
+                title="Edit category"
+              >
+                <i class="bi bi-pencil"></i>
+              </button>
+
+              <button
+                type="button"
+                class="table-action danger"
+                (click)="removeCategory(item._id)"
+                aria-label="Delete category"
+                title="Delete category"
+              >
+                <i class="bi bi-trash3"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div
+    class="empty-state"
+    *ngIf="!allCategories.length"
+  >
+    <div class="empty-icon">
+      <i class="bi bi-folder2-open"></i>
+    </div>
+
+    <span class="empty-kicker">EMPTY CATALOG</span>
+
+    <h4>No categories yet</h4>
+
+    <p>
+      Create your first category from the panel on the left.
+    </p>
+  </div>
+
+  <footer
+    class="table-footer"
+    *ngIf="allCategories.length"
+  >
+    <span>
+      Showing
+      <strong>
+        {{ currentPageStart + 1 }}
+        -
+        {{ currentPageEnd }}
+      </strong>
+      of
+      <strong>{{ allCategories.length }}</strong>
+    </span>
+
+    <nav
+      class="pagination"
+      *ngIf="totalPages > 1"
+      aria-label="Category pages"
+    >
+      <button
+        type="button"
+        class="page-button"
+        [disabled]="currentPage === 1"
+        (click)="goToPage(1)"
+        aria-label="First page"
+      >
+        <i class="bi bi-chevron-double-left"></i>
+      </button>
+
+      <button
+        type="button"
+        class="page-button"
+        [disabled]="currentPage === 1"
+        (click)="prevPage()"
+        aria-label="Previous page"
+      >
+        <i class="bi bi-chevron-left"></i>
+      </button>
+
+      <button
+        *ngFor="let page of visiblePages"
+        type="button"
+        class="page-button page-number"
+        [class.active]="page === currentPage"
+        [attr.aria-current]="page === currentPage ? 'page' : null"
+        (click)="goToPage(page)"
+      >
+        {{ page }}
+      </button>
+
+      <button
+        type="button"
+        class="page-button"
+        [disabled]="currentPage === totalPages"
+        (click)="nextPage()"
+        aria-label="Next page"
+      >
+        <i class="bi bi-chevron-right"></i>
+      </button>
+
+      <button
+        type="button"
+        class="page-button"
+        [disabled]="currentPage === totalPages"
+        (click)="goToPage(totalPages)"
+        aria-label="Last page"
+      >
+        <i class="bi bi-chevron-double-right"></i>
+      </button>
+    </nav>
+  </footer>
+</article>
+
+
+  </section>
+</main>
+
+<!-- EDIT MODAL -->
+
+<div
+  class="edit-overlay"
+  *ngIf="openEdit"
+  (click)="closeEditModal()"
+>
+  <section
+    class="edit-card"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="edit-header">
+      <div>
+        <span class="modal-kicker">CATEGORY MANAGEMENT</span>
+        <h3>Edit category</h3>
+      </div>
+
+
+  <button
+    type="button"
+    class="modal-close"
+    (click)="closeEditModal()"
+    aria-label="Close"
+  >
+    <i class="bi bi-x-lg"></i>
+  </button>
+</header>
+
+<form
+  class="edit-form"
+  (ngSubmit)="editCategory()"
+  novalidate
+>
+  <label class="field">
+    <span>Category name</span>
+
+    <input
+      type="text"
+      [(ngModel)]="newCategoryName"
+      name="newCategoryName"
+      placeholder="Category name"
+      required
+    />
+  </label>
+
+  <div class="current-image" *ngIf="selectedCategoryImage">
+    <div
+      class="current-image-preview"
+      [style.backgroundImage]="
+        'url(' + selectedCategoryImage + ')'
+      "
+    ></div>
+
+    <div>
+      <span>Current image</span>
+      <strong>Category artwork</strong>
+    </div>
+  </div>
+
+  <div class="upload-box edit-upload">
+    <label
+      for="categoryImgEdit"
+      class="upload-trigger"
+      [class.has-file]="categoryImg"
+    >
+      <div class="upload-icon">
+        <i
+          class="bi"
+          [class.bi-image]="!categoryImg"
+          [class.bi-check-lg]="categoryImg"
+        ></i>
+      </div>
+
+      <div>
+        <strong>
+          {{
+            categoryImg
+              ? categoryImg.name
+              : 'Replace category image'
+          }}
+        </strong>
+
+        <span>
+          {{
+            categoryImg
+              ? 'New image selected'
+              : 'Optional'
+          }}
+        </span>
+      </div>
+
+      <i class="bi bi-arrow-up-right upload-arrow"></i>
+    </label>
+
+    <input
+      id="categoryImgEdit"
+      type="file"
+      class="file-input"
+      accept="image/*"
+      (change)="upload($event, 'edit')"
+    />
+  </div>
+
+  <div class="edit-actions">
+    <button
+      type="button"
+      class="secondary-button"
+      (click)="closeEditModal()"
+    >
+      Cancel
+    </button>
+
+    <button
+      type="submit"
+      class="primary-button"
+      [disabled]="!newCategoryName?.trim() || loading"
+    >
+      <i class="bi bi-check-lg"></i>
+      <span>Save changes</span>
+    </button>
+  </div>
+</form>
+
+
+  </section>
+</div>

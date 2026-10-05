@@ -10,6 +10,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { CheckoutService } from '../../core/services/checkout.service';
+import { OrderService } from '../../core/services/order.service';
+import { CartService } from '../../core/services/cart.service';
 import {
   CheckoutAddress,
   PaymentMethod,
@@ -26,8 +28,16 @@ interface CheckoutItem {
     finalPrice: number;
     images?: Array<string | { url: string }>;
   };
+  lineTotal: number;
+  displayImageUrl: string;
 }
 
+type CheckoutField =
+  | 'firstName'
+  | 'lastName'
+  | 'phone'
+  | 'city'
+  | 'street';
 @Component({
   selector: 'app-checkout',
   templateUrl: './checkout.component.html',
@@ -47,12 +57,22 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   selectedShipping: ShippingMethod = 'standard';
   selectedPayment: PaymentMethod = 'cash-on-delivery';
   coupon = '';
-  showApiNotice = false;
-
+  submitting = false;
+  submitError = '';
+  successOrderNumber = '';
+ readonly invalidFields: Record<CheckoutField, boolean> = {
+  firstName: false,
+  lastName: false,
+  phone: false,
+  city: false,
+  street: false,
+};
   constructor(
     private readonly fb: FormBuilder,
     private readonly userStateService: UserStateService,
     private readonly checkoutService: CheckoutService,
+    private readonly orderService: OrderService,
+    private readonly cartService: CartService,
     private readonly router: Router,
     private readonly cdr: ChangeDetectorRef,
   ) {}
@@ -70,6 +90,23 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       apartment: ['', [Validators.maxLength(30)]],
       note: ['', [Validators.maxLength(500)]],
     });
+const trackedFields: CheckoutField[] = [
+  'firstName',
+  'lastName',
+  'phone',
+  'city',
+  'street',
+];
+
+    const updateInvalidFields = () => {
+      trackedFields.forEach(field => {
+        const control = this.checkoutForm.get(field);
+        this.invalidFields[field] = !!control && control.invalid && (control.dirty || control.touched);
+      });
+      this.cdr.markForCheck();
+    };
+    this.subscriptions.add(this.checkoutForm.valueChanges.subscribe(updateInvalidFields));
+    this.subscriptions.add(this.checkoutForm.statusChanges.subscribe(updateInvalidFields));
 
     this.subscriptions.add(
       this.userStateService.user$.subscribe((user) => {
@@ -88,8 +125,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.userStateService.refresh();
-
     const cartContext = this.checkoutService.getCartContext();
     if (cartContext) {
       this.discount = Number(cartContext.discount || 0);
@@ -103,15 +138,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  imageUrl(item: CheckoutItem): string {
-    const image = item.productId?.images?.[0];
-    if (typeof image === 'string') return image;
-    return image?.url || 'assets/placeholder.png';
-  }
-
-  lineTotal(item: CheckoutItem): number {
-    return Number(item.productId?.finalPrice || 0) * Number(item.quantity || 0);
-  }
 
   selectShipping(method: ShippingMethod): void {
     this.selectedShipping = method;
@@ -119,47 +145,58 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   selectPayment(method: PaymentMethod): void {
+    if (method === 'card') {
+      this.submitError = 'Card payment will be available after the payment gateway is connected.';
+      this.cdr.markForCheck();
+      return;
+    }
+    this.submitError = '';
     this.selectedPayment = method;
   }
 
   recalculate(): void {
-    this.subtotal = this.items.reduce((sum, item) => sum + this.lineTotal(item), 0);
+    this.subtotal = this.items.reduce((sum, item) => sum + item.lineTotal, 0);
     this.shippingFee = this.selectedShipping === 'express' ? 120 : (this.subtotal > 1500 ? 0 : 60);
     this.total = Math.max(0, this.subtotal - this.discount + this.shippingFee);
   }
 
   submit(): void {
     this.checkoutForm.markAllAsTouched();
-    if (this.checkoutForm.invalid || !this.items.length) {
+    if (this.checkoutForm.invalid || !this.items.length || this.submitting || this.selectedPayment === 'card') {
+      if (this.selectedPayment === 'card') this.submitError = 'Card payment is not available yet. Please choose cash on delivery.';
       this.cdr.markForCheck();
       return;
     }
 
+    this.submitting = true;
+    this.submitError = '';
     const address = this.checkoutForm.value as CheckoutAddress;
 
-    this.checkoutService.saveDraft({
+    this.orderService.createOrder({
       address,
       shippingMethod: this.selectedShipping,
       paymentMethod: this.selectedPayment,
-      subtotal: this.subtotal,
-      discount: this.discount,
-      shippingFee: this.shippingFee,
-      total: this.total,
       coupon: this.coupon || undefined,
-      createdAt: new Date().toISOString(),
+    }).subscribe({
+      next: response => {
+        this.successOrderNumber = response.order.orderNumber;
+        this.submitting = false;
+        this.checkoutService.clearDraft();
+        this.cartService.clear();
+        this.userStateService.updateCart({ products: [] });
+        this.cdr.markForCheck();
+        setTimeout(() => this.router.navigate(['/orders', response.order._id]), 700);
+      },
+      error: (error) => {
+        this.submitting = false;
+        this.submitError = error?.error?.message || 'We could not place your order. Please try again.';
+        this.cdr.markForCheck();
+      },
     });
-
-    this.showApiNotice = true;
-    this.cdr.markForCheck();
   }
 
   backToCart(): void {
     this.router.navigate(['/cart']);
-  }
-
-  isInvalid(controlName: string): boolean {
-    const control = this.checkoutForm.get(controlName);
-    return !!control && control.invalid && (control.dirty || control.touched);
   }
 
   trackByProduct(index: number, item: CheckoutItem): string | number {
@@ -196,6 +233,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
           finalPrice: Number(item.productId?.finalPrice ?? item.productId?.price ?? 0),
           images: item.productId?.images,
         },
+        lineTotal: Number(item.productId?.finalPrice ?? item.productId?.price ?? 0) * Number(item.quantity ?? 0),
+        displayImageUrl: (() => { const image = item.productId?.images?.[0]; return typeof image === 'string' ? image : image?.url ?? 'assets/placeholder.png'; })(),
       }));
   }
 }

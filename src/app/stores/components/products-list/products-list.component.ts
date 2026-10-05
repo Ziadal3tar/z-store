@@ -17,8 +17,8 @@ import {
   takeUntil,
   tap,
 } from 'rxjs/operators';
-import { Product, PagedProductsResponse } from '../../services/products.service';
-import { ProductsService } from '../../services/products.service';
+import { Product, PagedProductsResponse } from '../../../core/models/product.model';
+import { StoreProductsService } from '../../services/store-products.service';
 
 @Component({
   selector: 'app-products-list',
@@ -85,7 +85,7 @@ export class ProductsListComponent implements OnDestroy {
   );
 
   constructor(
-    private readonly productsService: ProductsService,
+    private readonly productsService: StoreProductsService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
   ) {}
@@ -139,12 +139,6 @@ export class ProductsListComponent implements OnDestroy {
     return item._id ?? index;
   }
 
-  productImage(product: Product): string {
-    const image = product.images?.[0];
-    if (typeof image === 'string') return image;
-    if (image?.url) return image.url;
-    return 'assets/images/product-placeholder.png';
-  }
 
   ngOnDestroy(): void {
     this.destroy$.next();

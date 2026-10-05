@@ -400,7 +400,7 @@
 
                 <span
                   class="order-status"
-                  [ngClass]="getStatusClass(order.status)"
+                  [ngClass]="order.displayStatusClass"
                 >
                   {{ order.status || 'Pending' }}
                 </span>

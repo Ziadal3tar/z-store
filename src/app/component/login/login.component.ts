@@ -11,7 +11,7 @@ import { finalize, takeUntil } from 'rxjs/operators';
 
 import { setAuthToken } from 'src/app/core/auth-token.util';
 import { UserStateService } from 'src/app/core/state/user-state.service';
-import { UserService } from './../../services/user.service';
+import { UserService } from './../../core/services/user.service';
 
 interface LoginErrors {
   emailErr: string;
@@ -89,12 +89,16 @@ export class LoginComponent implements OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe({
-        next: (response: any) => {
+        next: (response) => {
           if (response?.message === 'welcome' && response?.token) {
             setAuthToken(response.token);
-            this.userStateService.refresh();
 
-            this.router.navigate(['/home']);
+            if (response.user) {
+              this.userStateService.setUserData(response.user);
+            }
+
+            this.userStateService.refresh().subscribe();
+            void this.router.navigate(['/home']);
             return;
           }
 

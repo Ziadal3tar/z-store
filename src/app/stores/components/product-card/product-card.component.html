@@ -5,7 +5,7 @@
   </button>
 
   <div class="product-body">
-    <span class="category">{{ $any(product).category?.name || product.categoryId || 'Collection' }}</span>
+    <span class="category">{{ product.category?.name || product.categoryId || 'Collection' }}</span>
     <h3>{{ product.name }}</h3>
     <p>{{ product.description || 'Premium selection from this store.' }}</p>
 

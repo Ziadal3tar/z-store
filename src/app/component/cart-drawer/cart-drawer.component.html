@@ -1,0 +1,154 @@
+<div
+  class="cart-drawer"
+  [class.is-open]="sideCart === 'open'"
+  [class.is-closed]="sideCart !== 'open'"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Shopping cart"
+>
+  <button
+    type="button"
+    class="cart-backdrop"
+    aria-label="Close cart"
+    (click)="backCart()"
+  ></button>
+
+  <aside class="cart-panel">
+    <header class="cart-header">
+      <div class="cart-heading">
+        <span class="cart-kicker">YOUR BAG</span>
+        <h2>Shopping Cart</h2>
+        <span class="cart-count" *ngIf="displayItems.length">
+          {{ displayItems.length }} {{ displayItems.length === 1 ? 'item' : 'items' }}
+        </span>
+      </div>
+
+
+  <button
+    type="button"
+    class="close-button"
+    aria-label="Close shopping cart"
+    (click)="backCart()"
+  >
+    <i class="fa-solid fa-xmark"></i>
+  </button>
+</header>
+
+<div class="cart-content">
+  <ng-container *ngIf="displayItems.length; else emptyCart">
+    <div class="cart-items">
+      <article
+        class="cart-item"
+        *ngFor="let item of displayItems; trackBy: trackByProduct"
+      >
+        <div class="product-image-wrap">
+          <img
+            class="product-image"
+            [src]="item.displayImageUrl"
+            [alt]="item?.productId?.name || 'Product image'"
+            loading="lazy"
+          />
+        </div>
+
+        <div class="product-content">
+          <span class="product-category">
+            {{ item?.productId?.category || 'Product' }}
+          </span>
+
+          <a
+            class="product-title"
+            [routerLink]="['/product', item?.productId?._id]"
+            (click)="backCart()"
+          >
+            {{ item?.productId?.name || 'Unnamed product' }}
+          </a>
+
+          <div class="product-meta">
+            <span class="product-price">
+              ${{ item?.productId?.finalPrice || 0 }}
+            </span>
+
+            <span class="product-quantity">
+              Qty {{ item?.quantity || 0 }}
+            </span>
+          </div>
+
+          <div class="product-total">
+            ${{ item.lineTotal }}
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="remove-button"
+          aria-label="Remove product from cart"
+          (click)="deleteFromCart(item?.productId?._id)"
+        >
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+      </article>
+    </div>
+
+    <div class="cart-summary">
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <strong>${{ displaySubtotal }}</strong>
+      </div>
+
+      <p class="summary-note">
+        Shipping and taxes are calculated at checkout.
+      </p>
+    </div>
+  </ng-container>
+
+  <ng-template #emptyCart>
+    <div class="empty-cart">
+      <div class="empty-icon">
+        <i class="fa-solid fa-bag-shopping"></i>
+      </div>
+
+      <span class="empty-kicker">YOUR BAG IS EMPTY</span>
+      <h3>Nothing here yet</h3>
+
+      <p>
+        Discover our latest products and add something you love to your
+        cart.
+      </p>
+
+      <button
+        type="button"
+        class="shop-button"
+        routerLink="/shop"
+        (click)="backCart()"
+      >
+        <span>Continue Shopping</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+  </ng-template>
+</div>
+
+<footer class="cart-footer" *ngIf="displayItems.length">
+  <button
+    type="button"
+    class="secondary-action"
+    routerLink="/cart"
+    (click)="backCart()"
+  >
+    View Cart
+  </button>
+
+  <button
+    type="button"
+    class="primary-action"
+    routerLink="/checkout"
+    (click)="backCart()"
+  >
+    <span>Checkout</span>
+    <i class="fa-solid fa-arrow-right"></i>
+  </button>
+</footer>
+
+
+  </aside>
+</div>

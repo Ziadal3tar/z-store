@@ -157,13 +157,13 @@
       <tbody>
         <tr
           *ngFor="
-            let item of allBrands;
+            let item of paginatedBrands;
             let i = index;
             trackBy: trackByBrand
           "
         >
           <td class="index-cell">
-            {{ i + 1 }}
+            {{ (currentPage - 1) * itemsPerPage + i + 1 }}
           </td>
 
           <td>
@@ -234,8 +234,49 @@
       Create your first brand from the panel on the left.
     </p>
   </div>
+  ssssssssssssssssssssssssssssssssssssssss
+ <footer class="admin-pagination" *ngIf="totalPages > 1">
+      <button type="button" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1" aria-label="Previous page"><i class="bi bi-chevron-left"></i></button>
+      <button type="button" *ngFor="let page of pageNumbers" [class.active]="currentPage === page" (click)="goToPage(page)">{{ page }}</button>
+      <button type="button" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages" aria-label="Next page"><i class="bi bi-chevron-right"></i></button>
+    </footer>
+  <div
+    class="admin-pagination"
+    *ngIf="totalPages > 1"
+    aria-label="Brands pagination"
+  >
+    <button
+      type="button"
+      class="pagination-button"
+      [disabled]="currentPage === 1"
+      (click)="previousPage()"
+      aria-label="Previous page"
+    >
+      <i class="bi bi-chevron-left"></i>
+    </button>
 
-  
+    <button
+      *ngFor="let page of paginationPages"
+      type="button"
+      class="pagination-page"
+      [class.active]="page === currentPage"
+      [attr.aria-current]="page === currentPage ? 'page' : null"
+      (click)="goToPage(page)"
+    >
+      {{ page }}
+    </button>
+
+    <button
+      type="button"
+      class="pagination-button"
+      [disabled]="currentPage === totalPages"
+      (click)="nextPage()"
+      aria-label="Next page"
+    >
+      <i class="bi bi-chevron-right"></i>
+    </button>
+  </div>
+
 </article>
 
 

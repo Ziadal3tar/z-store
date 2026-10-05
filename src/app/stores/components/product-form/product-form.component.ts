@@ -8,10 +8,10 @@ import {
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, Subscription } from 'rxjs';
-import { BrandsService } from '../../../services/brands.service';
-import { CategoryService } from '../../../services/category.service';
-import { SubCategoriesService } from '../../../services/sub-categories.service';
-import { ProductsService } from '../../services/products.service';
+import { BrandsService } from '../../../core/services/brands.service';
+import { CategoryService } from '../../../core/services/category.service';
+import { SubCategoriesService } from '../../../core/services/sub-categories.service';
+import { StoreProductsService } from '../../services/store-products.service';
 
 interface SelectOption {
   id: string;
@@ -34,6 +34,8 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   loading = false;
   loadingOptions = true;
   error = '';
+  descriptionLength = 0;
+  nameInvalid = false;
   uploadError = '';
   isEditMode = false;
   productId: string | null = null;
@@ -49,7 +51,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly fb: FormBuilder,
-    private readonly productsSvc: ProductsService,
+    private readonly productsSvc: StoreProductsService,
     private readonly categorySvc: CategoryService,
     private readonly subCategorySvc: SubCategoriesService,
     private readonly brandSvc: BrandsService,
@@ -77,6 +79,14 @@ export class ProductFormComponent implements OnInit, OnDestroy {
     this.productId = this.route.snapshot.paramMap.get('productId');
     this.isEditMode = !!this.productId;
 
+    this.subs.add(this.form.get('name')!.valueChanges.subscribe(value => {
+      this.nameInvalid = !!this.form.get('name')?.invalid && !!this.form.get('name')?.touched;
+      this.cdr.markForCheck();
+    }));
+    this.subs.add(this.form.get('description')!.valueChanges.subscribe(value => {
+      this.descriptionLength = String(value ?? '').length;
+      this.cdr.markForCheck();
+    }));
     this.loadSelectOptions();
   }
 
@@ -297,7 +307,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
 
     const request$ = this.isEditMode && this.productId
       ? this.productsSvc.editProduct(this.productId, fd)
-      : this.productsSvc.addProduct(fd);
+      : this.productsSvc.addProduct(fd, String(value.categoryId));
 
     this.subs.add(
       request$.subscribe({

@@ -1,4 +1,3 @@
-import { getAuthToken } from 'src/app/core/auth-token.util';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -12,9 +11,14 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Cart, CartItem } from 'src/app/core/models/cart.model';
 import { User } from 'src/app/core/models/user.model';
 import { UserStateService } from 'src/app/core/state/user-state.service';
-import { CartService } from 'src/app/services/cart.service';
-import { CouponService } from 'src/app/services/coupon.service';
+import { CartService } from 'src/app/core/services/cart.service';
+import { CouponService } from 'src/app/core/services/coupon.service';
 import { CheckoutService } from 'src/app/core/services/checkout.service';
+
+interface CartViewItem extends CartItem {
+  displayImageUrl: string;
+  lineTotal: number;
+}
 
 interface CouponResponse {
   message?: string;
@@ -34,6 +38,7 @@ export class CartComponent implements OnInit, OnDestroy {
 
   userData: User | undefined;
   cart: Cart = { products: [] };
+  items: CartViewItem[] = [];
 
   subtotal = 0;
   discountAmount = 0;
@@ -63,41 +68,25 @@ export class CartComponent implements OnInit, OnDestroy {
         this.cart = user?.cartId
           ? { ...user.cartId, products: user.cartId.products ?? [] }
           : { products: [] };
+        this.items = this.toViewItems(this.cart.products ?? []);
         this.recalculateTotals();
         this.loading = false;
         this.cdr.markForCheck();
       }),
     );
 
-    if (!this.userStateService.snapshot && getAuthToken()) {
-      this.userStateService.refresh();
-    }
   }
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
   }
 
-  get items(): CartItem[] {
-    return Array.isArray(this.cart?.products) ? this.cart.products : [];
-  }
-
   get cartCount(): number {
     return this.items.reduce((total, item) => total + Number(item.quantity || 0), 0);
   }
 
-  imageUrl(item: CartItem): string {
-    const image = item.productId?.images?.[0];
-    if (typeof image === 'string') return image;
-    return image?.url ?? 'assets/placeholder.png';
-  }
-
-  lineTotal(item: CartItem): number {
-    return Number(item.productId?.finalPrice ?? 0) * Number(item.quantity ?? 0);
-  }
-
   recalculateTotals(): void {
-    this.subtotal = this.items.reduce((sum, item) => sum + this.lineTotal(item), 0);
+    this.subtotal = this.items.reduce((sum, item) => sum + item.lineTotal, 0);
     this.discountAmount = Math.min(this.discountAmount, this.subtotal);
     this.total = Math.max(0, this.subtotal - this.discountAmount);
   }
@@ -129,23 +118,21 @@ export class CartComponent implements OnInit, OnDestroy {
 
   private updateQuantity(index: number, quantity: number): void {
     const item = this.items[index];
-    const token = getAuthToken();
-    if (!token || !item?.productId?._id) return;
+    if (!item?.productId?._id) return;
 
     const previousQuantity = item.quantity;
     item.quantity = quantity;
+    item.lineTotal = Number(item.quantity) * Number(item.productId?.finalPrice ?? 0);
     this.busyProductId = item.productId._id;
     this.recalculateTotals();
     this.cdr.markForCheck();
 
-    this.cartService.updateQuantity(token, {
-      index,
-      productId: item.productId._id,
-      quantity,
-    }).subscribe({
-      next: () => {
+    this.cartService.updateQuantity(item.productId._id, quantity).subscribe({
+      next: (response:any) => {
         this.busyProductId = '';
-        this.userStateService.refresh();
+        this.cart = response.cart ?? { products: [] };
+        this.items = this.toViewItems(this.cart.products ?? []);
+        this.userStateService.updateCart(this.cart);
         this.cdr.markForCheck();
       },
       error: () => {
@@ -161,17 +148,27 @@ export class CartComponent implements OnInit, OnDestroy {
   deleteFromCart(productId: string): void {
     if (!productId || this.busyProductId) return;
 
+    const previousProducts = [...this.items];
+    this.cart.products = previousProducts.filter(item => item.productId?._id !== productId);
+    this.items = this.toViewItems(this.cart.products);
     this.busyProductId = productId;
+    this.recalculateTotals();
+    this.cdr.markForCheck();
+
     this.cartService.removeFromCart(productId).subscribe({
       next: () => {
         this.busyProductId = '';
         this.appliedCoupon = '';
         this.discountAmount = 0;
-        this.userStateService.refresh();
+        this.recalculateTotals();
+        this.userStateService.updateCart(this.cart);
         this.cdr.markForCheck();
       },
       error: () => {
+        this.cart.products = previousProducts;
+        this.items = this.toViewItems(previousProducts);
         this.busyProductId = '';
+        this.recalculateTotals();
         this.cdr.markForCheck();
       },
     });
@@ -228,6 +225,19 @@ export class CartComponent implements OnInit, OnDestroy {
 
   trackByProduct(index: number, item: CartItem): string | number {
     return item.productId?._id ?? index;
+  }
+
+  private toViewItems(items: CartItem[]): CartViewItem[] {
+    return items.map(item => {
+      const image = item.productId?.images?.[0];
+      const price = Number(item.productId?.finalPrice ?? item.productId?.price ?? 0);
+      const quantity = Number(item.quantity ?? 0);
+      return {
+        ...item,
+        displayImageUrl: typeof image === 'string' ? image : image?.url ?? 'assets/placeholder.png',
+        lineTotal: price * quantity,
+      };
+    });
   }
 
   private showQuantityError(index: number, message: string): void {

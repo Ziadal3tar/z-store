@@ -4,25 +4,21 @@ import { StoreDashboardComponent } from './pages/store-dashboard/store-dashboard
 import { StorefrontComponent } from './pages/storefront/storefront.component';
 import { ProductFormComponent } from './components/product-form/product-form.component';
 import { ProductsListComponent } from './components/products-list/products-list.component';
-import { OrdersListComponent } from './components/orders-list/orders-list.component';
-import { LogingurdGuard } from '../services/logingurd.guard';
+import { StoreOrdersComponent } from './components/store-orders/store-orders.component';
+import { AuthGuard } from '../core/guards/auth.guard';
+import { StoreOwnerGuard } from '../core/guards/store-owner.guard';
 
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'create',
+    redirectTo: '/shop',
     pathMatch: 'full',
-  },
-  {
-    path: 'create',
-    component: StorefrontComponent,
-    data: { title: 'Create your store' },
   },
   {
     path: ':id/admin',
     component: StoreDashboardComponent,
-    canActivate: [LogingurdGuard],
-    canActivateChild: [LogingurdGuard],
+    canActivate: [AuthGuard, StoreOwnerGuard],
+    canActivateChild: [AuthGuard],
     data: { title: 'Store dashboard' },
     children: [
       {
@@ -42,7 +38,7 @@ const routes: Routes = [
       },
       {
         path: 'orders',
-        component: OrdersListComponent,
+        component: StoreOrdersComponent,
         data: { title: 'Orders management' },
       },
     ],

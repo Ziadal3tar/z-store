@@ -1,0 +1,694 @@
+<ng-container *ngIf="routeMode">
+  </ng-container>
+
+<main
+  class="product-page"
+  [class.embedded]="!routeMode"
+>
+  <!-- =========================
+       LOADING STATE
+  ========================== -->
+
+  <section
+    class="product-loading"
+    *ngIf="isLoading"
+    aria-live="polite"
+  >
+    <div class="container">
+
+      <div class="product-loading-layout">
+
+        <div class="loading-gallery">
+          <div class="skeleton skeleton-main"></div>
+
+          <div class="loading-thumbnails">
+            <div
+              class="skeleton skeleton-thumb"
+              *ngFor="let item of [1, 2, 3, 4]"
+            ></div>
+          </div>
+        </div>
+
+        <div class="loading-details">
+          <div class="skeleton skeleton-small"></div>
+          <div class="skeleton skeleton-title"></div>
+          <div class="skeleton skeleton-title short"></div>
+          <div class="skeleton skeleton-description"></div>
+          <div class="skeleton skeleton-description"></div>
+          <div class="skeleton skeleton-price"></div>
+          <div class="skeleton skeleton-actions"></div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================
+       ERROR STATE
+  ========================== -->
+
+  <section
+    class="product-state"
+    *ngIf="!isLoading && errorMessage"
+  >
+    <div class="state-card">
+
+      <div class="state-icon error-icon">
+        <i class="bi bi-exclamation-triangle"></i>
+      </div>
+
+      <span class="state-eyebrow">
+        PRODUCT UNAVAILABLE
+      </span>
+
+      <h1>
+        We couldn't load this product
+      </h1>
+
+      <p>
+        {{ errorMessage }}
+      </p>
+
+      <button
+        type="button"
+        class="state-button"
+        (click)="continueShopping()"
+      >
+        <i class="bi bi-arrow-left"></i>
+        Back to shop
+      </button>
+
+    </div>
+  </section>
+
+  <!-- =========================
+       PRODUCT CONTENT
+  ========================== -->
+
+  <div
+    class="container product-container"
+    *ngIf="!isLoading && productDetails && !errorMessage"
+  >
+
+    <!-- Breadcrumb -->
+    <nav
+      class="product-breadcrumb"
+      *ngIf="routeMode"
+      aria-label="Breadcrumb"
+    >
+      <button
+        type="button"
+        (click)="continueShopping()"
+      >
+        Shop
+      </button>
+
+      <i class="bi bi-chevron-right"></i>
+
+      <span>
+        {{ productDetails.category?.name || 'Collection' }}
+      </span>
+
+      <i class="bi bi-chevron-right"></i>
+
+      <strong>
+        {{ productDetails.name }}
+      </strong>
+    </nav>
+
+    <!-- Product shell -->
+    <section class="product-shell">
+
+      <!-- =========================
+           GALLERY
+      ========================== -->
+
+      <section
+        class="gallery-section"
+        aria-label="Product gallery"
+      >
+
+        <!-- Gallery top controls -->
+        <div class="gallery-toolbar">
+
+          <span
+            class="discount-badge"
+            *ngIf="savingPercent > 0"
+          >
+            <i class="bi bi-lightning-fill"></i>
+            {{ displayDiscount }}% OFF
+          </span>
+
+          <div class="gallery-toolbar-actions">
+
+            <!-- Admin delete button -->
+            <button
+              *ngIf="isAdminUser"
+              type="button"
+              class="btn btn-outline-danger"
+              [disabled]="isDeleting"
+              (click)="deleteProduct()"
+              aria-label="Delete product"
+            >
+              <span *ngIf="!isDeleting">
+                <i class="bi bi-trash3"></i>
+              </span>
+
+              <span *ngIf="isDeleting">
+                <i class="bi bi-arrow-repeat spin"></i>
+              </span>
+            </button>
+
+            <!-- Wishlist -->
+            <button
+              type="button"
+              class="wishlist-button"
+              [class.active]="isFavoriteValue"
+              [class.loading]="wishlistBusy"
+              [disabled]="wishlistBusy"
+              (click)="toggleFavorite()"
+              [attr.aria-label]="
+                isFavoriteValue
+                  ? 'Remove product from wishlist'
+                  : 'Add product to wishlist'
+              "
+            >
+              <i
+                class="bi"
+                [class.bi-heart]="!isFavoriteValue"
+                [class.bi-heart-fill]="isFavoriteValue"
+              ></i>
+            </button>
+
+          </div>
+
+        </div>
+
+        <!-- Main gallery -->
+        <div class="gallery-stage">
+
+          <!-- Previous -->
+          <button
+            type="button"
+            class="gallery-arrow gallery-prev"
+            *ngIf="hasMultipleImages"
+            (click)="previousImage()"
+            aria-label="Previous image"
+          >
+            <i class="bi bi-chevron-left"></i>
+          </button>
+
+          <!-- Main image -->
+          <div class="main-image-frame">
+
+            <img
+              class="main-image"
+              [src]="mainImage"
+              [alt]="productDetails.name"
+              fetchpriority="high"
+              decoding="async"
+            />
+
+            <div class="image-counter">
+              {{ indexx + 1 }} / {{ productImages.length || 1 }}
+            </div>
+
+          </div>
+
+          <!-- Next -->
+          <button
+            type="button"
+            class="gallery-arrow gallery-next"
+            *ngIf="hasMultipleImages"
+            (click)="nextImage()"
+            aria-label="Next image"
+          >
+            <i class="bi bi-chevron-right"></i>
+          </button>
+
+        </div>
+
+        <!-- Thumbnails -->
+        <div
+          class="thumbnail-row"
+          *ngIf="hasMultipleImages"
+        >
+
+          <button
+            *ngFor="
+              let image of productImages;
+              let i = index;
+              trackBy: trackByImage
+            "
+            type="button"
+            class="thumbnail-button"
+            [class.active]="indexx === i"
+            [attr.aria-label]="'View product image ' + (i + 1)"
+            [attr.aria-current]="indexx === i ? 'true' : null"
+            (click)="indexx = i"
+          >
+            <img
+              [src]="productImageUrls[i]"
+              [alt]="productDetails.name + ' thumbnail ' + (i + 1)"
+              loading="lazy"
+            />
+          </button>
+
+        </div>
+
+        <!-- Gallery footer -->
+        <div class="gallery-footer">
+
+          <span>
+            <i class="bi bi-images"></i>
+            {{ productImages.length || 1 }}
+            {{ productImages.length === 1 ? 'image' : 'images' }}
+          </span>
+
+          <span>
+            Z-STORE COLLECTION
+          </span>
+
+        </div>
+
+      </section>
+
+      <!-- =========================
+           DETAILS
+      ========================== -->
+
+      <section class="details-section">
+
+        <!-- Brand / Stock -->
+        <div class="details-topline">
+
+          <div class="brand-label">
+            {{ productDetails.brand?.name || productDetails.category?.name || 'Z-STORE COLLECTION' }}
+          </div>
+
+          <div
+            class="stock-status"
+            [class.low-stock]="
+              displayStock != null &&
+              displayStock! > 0 &&
+              displayStock! <= 5
+            "
+            [class.out-of-stock]="displayStock === 0"
+          >
+            <span class="stock-dot"></span>
+
+            <ng-container *ngIf="displayStock == null">
+              Available
+            </ng-container>
+
+            <ng-container
+              *ngIf="
+                displayStock != null &&
+                displayStock > 5
+              "
+            >
+              In stock
+            </ng-container>
+
+            <ng-container
+              *ngIf="
+                displayStock != null &&
+                displayStock > 0 &&
+                displayStock <= 5
+              "
+            >
+              Only {{ displayStock }} left
+            </ng-container>
+
+            <ng-container *ngIf="displayStock === 0">
+              Out of stock
+            </ng-container>
+          </div>
+
+        </div>
+
+        <!-- Title -->
+        <h1 class="product-title">
+          {{ productDetails.name }}
+        </h1>
+
+        <!-- Description -->
+        <p class="product-description">
+          {{
+            productDetails.description ||
+            'A carefully selected product from the Z-Store collection.'
+          }}
+        </p>
+
+        <!-- Rating / metadata -->
+        <div class="product-meta-row">
+
+          <div class="rating-group">
+            <span class="rating-stars">
+              ★★★★★
+            </span>
+
+            <span class="rating-text">
+              Curated collection
+            </span>
+          </div>
+
+          <span class="meta-divider">•</span>
+
+          <span class="category-text">
+            {{
+              productDetails.category?.name ||
+              productDetails.brand?.name ||
+              'Z-Store'
+            }}
+          </span>
+
+        </div>
+
+        <!-- Price -->
+        <div class="price-block">
+
+          <span class="current-price">
+            {{ displayPrice | currency }}
+          </span>
+
+          <del
+            class="old-price"
+            *ngIf="displayOldPrice as oldPrice"
+          >
+            {{ oldPrice | currency }}
+          </del>
+
+          <span
+            class="saving-text"
+            *ngIf="savingPercent > 0"
+          >
+            You save {{ displayDiscount }}%
+          </span>
+
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- =========================
+             COLORS
+        ========================== -->
+
+        <div
+          class="option-section"
+          *ngIf="productDetails.colors?.length"
+        >
+
+          <div class="option-header">
+
+            <div>
+              <strong>Color</strong>
+
+              <small>
+                Select a color
+              </small>
+            </div>
+
+            <span>
+              {{ selectedColor }}
+            </span>
+
+          </div>
+
+          <div class="color-options">
+
+            <button
+              *ngFor="let color of productDetails.colors"
+              type="button"
+              class="color-option"
+              [class.active]="selectedColor === color"
+              [attr.aria-label]="'Select ' + color"
+              [attr.aria-pressed]="selectedColor === color"
+              (click)="selectedColor = color"
+            >
+              <span
+                class="color-preview"
+                [style.backgroundColor]="color"
+              ></span>
+
+              <span class="color-name">
+                {{ color }}
+              </span>
+
+              <i
+                class="bi bi-check2"
+                *ngIf="selectedColor === color"
+              ></i>
+            </button>
+
+          </div>
+
+        </div>
+
+        <!-- =========================
+             SIZES
+        ========================== -->
+
+        <div
+          class="option-section"
+          *ngIf="productDetails.sizes?.length"
+        >
+
+          <div class="option-header">
+
+            <div>
+              <strong>Size</strong>
+
+              <small>
+                Select a size
+              </small>
+            </div>
+
+            <span>
+              {{ selectedSize }}
+            </span>
+
+          </div>
+
+          <div class="size-options">
+
+            <button
+              *ngFor="let size of productDetails.sizes"
+              type="button"
+              class="size-option"
+              [class.active]="selectedSize === size"
+              [attr.aria-pressed]="selectedSize === size"
+              (click)="selectedSize = size"
+            >
+              {{ size }}
+            </button>
+
+          </div>
+
+        </div>
+
+        <!-- =========================
+             PURCHASE
+        ========================== -->
+
+        <div class="purchase-area">
+
+          <div class="quantity-block">
+
+            <span class="purchase-label">
+              Quantity
+            </span>
+
+            <div class="quantity-control">
+
+              <button
+                type="button"
+                (click)="decrement()"
+                [disabled]="quantity <= 1 || isAdding"
+                aria-label="Decrease quantity"
+              >
+                <i class="bi bi-dash"></i>
+              </button>
+
+              <strong>
+                {{ quantity }}
+              </strong>
+
+              <button
+                type="button"
+                (click)="increment()"
+                [disabled]="
+                  isAdding ||
+                  (
+                    displayStock != null &&
+                    quantity >= availableStockValue!
+                  )
+                "
+                aria-label="Increase quantity"
+              >
+                <i class="bi bi-plus"></i>
+              </button>
+
+            </div>
+
+          </div>
+
+          <div class="purchase-actions">
+            <button
+              type="button"
+              class="add-to-cart-button"
+              [disabled]="!canAddToCart || isAdding || isBuyingNow"
+              (click)="addToCart()"
+            >
+
+            <span *ngIf="!isAdding">
+              <i class="bi bi-bag-plus"></i>
+              Add to cart
+            </span>
+
+            <span *ngIf="isAdding">
+              <i class="bi bi-arrow-repeat spin"></i>
+              Adding to cart...
+            </span>
+
+            </button>
+
+            <button
+              type="button"
+              class="buy-now-button"
+              [disabled]="!canAddToCart || isAdding || isBuyingNow"
+              (click)="buyNow()"
+            >
+              <span *ngIf="!isBuyingNow">
+                <i class="bi bi-lightning-charge-fill"></i>
+                Buy now
+              </span>
+              <span *ngIf="isBuyingNow">
+                <i class="bi bi-arrow-repeat spin"></i>
+                Opening checkout...
+              </span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Action message -->
+        <div
+          *ngIf="message"
+          class="action-message"
+          [class.success]="message === 'Added to cart.'"
+        >
+          <i
+            class="bi"
+            [class.bi-check-circle-fill]="message === 'Added to cart.'"
+            [class.bi-info-circle-fill]="message !== 'Added to cart.'"
+          ></i>
+
+          <span>
+            {{ message }}
+          </span>
+        </div>
+
+        <!-- =========================
+             BENEFITS
+        ========================== -->
+
+        <div class="benefits-grid">
+
+          <div class="benefit-card">
+            <div class="benefit-icon">
+              <i class="bi bi-truck"></i>
+            </div>
+
+            <div>
+              <strong>Fast delivery</strong>
+              <small>Clear delivery information</small>
+            </div>
+          </div>
+
+          <div class="benefit-card">
+            <div class="benefit-icon">
+              <i class="bi bi-arrow-counterclockwise"></i>
+            </div>
+
+            <div>
+              <strong>Easy returns</strong>
+              <small>Simple return process</small>
+            </div>
+          </div>
+
+          <div class="benefit-card">
+            <div class="benefit-icon">
+              <i class="bi bi-shield-check"></i>
+            </div>
+
+            <div>
+              <strong>Secure shopping</strong>
+              <small>Protected customer account</small>
+            </div>
+          </div>
+
+          <div class="benefit-card">
+            <div class="benefit-icon">
+              <i class="bi bi-headset"></i>
+            </div>
+
+            <div>
+              <strong>Customer support</strong>
+              <small>Order assistance</small>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Tags -->
+        <div
+          class="product-tags"
+          *ngIf="productDetails.tags?.length"
+        >
+
+          <span
+            *ngFor="let tag of productDetails.tags"
+          >
+            #{{ tag }}
+          </span>
+
+        </div>
+
+      </section>
+
+    </section>
+
+    <section class="product-tools-bar">
+      <div><span>PRODUCT TOOL</span><strong>Compare this product with your shortlist.</strong></div>
+      <button type="button" (click)="toggleCompare()"><i class="bi bi-columns-gap"></i>{{ isCompared ? 'Remove from compare' : 'Add to compare' }}</button>
+      <a routerLink="/compare">Open comparison</a>
+    </section>
+
+    <section class="related-section" *ngIf="recommendations.length">
+      <div class="related-heading"><div><span class="eyebrow">SMART PICK</span><h2>You may also like</h2></div></div>
+      <div class="related-grid">
+        <article class="related-card" *ngFor="let product of recommendations; trackBy: trackByRecommendation" (click)="viewRecommendation(product)">
+          <img [src]="product.displayImageUrl || product.images?.[0] || 'assets/placeholder.png'" [alt]="product.name" loading="lazy" decoding="async">
+          <div><strong>{{ product.name }}</strong><span>{{ (product.finalPrice ?? product.price) | currency }}</span></div>
+        </article>
+      </div>
+    </section>
+
+    <app-product-reviews
+      *ngIf="productDetails?._id"
+      [productId]="productDetails!._id!"
+      [isAuthenticated]="!!userData"
+      [pendingOrderId]="reviewOrderId"
+    ></app-product-reviews>
+
+  </div>
+
+</main>
+
+<!-- Login modal -->
+<app-auth-login-prompt
+  *ngIf="loginFirst"
+  (closeL)="loginFirst = $event"
+></app-auth-login-prompt>

@@ -6,6 +6,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { Router } from '@angular/router';
+import { isAuthTokenValid } from 'src/app/core/auth-token.util';
 import {
   Subject,
   Subscription,
@@ -43,6 +44,7 @@ export class AllproductComponent implements OnInit, OnDestroy {
   private readonly searchInput$ = new Subject<string>();
 
   userData: any;
+  hasActiveFilters = false;
 
   allProducts: Product[] = [];
   filteredProducts: Product[] = [];
@@ -69,6 +71,7 @@ export class AllproductComponent implements OnInit, OnDestroy {
   pageSize = 12;
   totalPages = 0;
   totalProducts = 0;
+  paginationPages: Array<number | string> = [];
 
   readonly skeletonItems = [
     1,
@@ -83,6 +86,9 @@ export class AllproductComponent implements OnInit, OnDestroy {
 
   readonly favoriteBusyIds = new Set<string>();
   readonly cartBusyIds = new Set<string>();
+  favoriteBusy: Record<string, boolean> = {};
+  cartBusy: Record<string, boolean> = {};
+  private wishlistIds = new Set<string>();
 
   readonly colors = [
     'black',
@@ -166,6 +172,12 @@ export class AllproductComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.userState.user$.subscribe((user) => {
         this.userData = user;
+        this.wishlistIds = new Set(
+          (user?.wishlist ?? [])
+            .map((item: Product) => item?._id)
+            .filter((id): id is string => !!id)
+        );
+        this.applyLocalFilters();
         this.cdr.markForCheck();
       })
     );
@@ -173,8 +185,6 @@ export class AllproductComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.catalogState.products$.subscribe(
         (products: Product[]) => {
-          console.log(products);
-
           this.allProducts = Array.isArray(products)
             ? products
             : [];
@@ -195,6 +205,7 @@ export class AllproductComponent implements OnInit, OnDestroy {
           this.pageSize = pagination.limit;
           this.totalPages = pagination.totalPages;
           this.totalProducts = pagination.total;
+          this.updatePaginationPages();
 
           this.cdr.markForCheck();
         }
@@ -236,20 +247,16 @@ export class AllproductComponent implements OnInit, OnDestroy {
   }
 
   private hasAuthToken(): boolean {
-    return !!localStorage.getItem('token');
-  }
-
-  get hasActiveFilters(): boolean {
-    return (
-      !!this.searchTerm.trim() ||
-      !!this.selectedColor ||
-      this.selectedPrice.min != null ||
-      this.selectedPrice.max != null
-    );
+    return isAuthTokenValid();
   }
 
   private applyLocalFilters(): void {
     let result = [...this.allProducts];
+
+    this.hasActiveFilters = !!this.searchTerm.trim()
+      || !!this.selectedColor
+      || this.selectedPrice.min != null
+      || this.selectedPrice.max != null;
 
     const price = this.selectedPrice;
 
@@ -318,7 +325,7 @@ export class AllproductComponent implements OnInit, OnDestroy {
     });
 
     this.filteredProducts = result;
-    this.products = result;
+    this.products = result.map((product) => this.toViewProduct(product));
   }
 
   onSearchChange(value: string): void {
@@ -402,14 +409,13 @@ export class AllproductComponent implements OnInit, OnDestroy {
     });
   }
 
-  get paginationPages(): Array<number | string> {
+  private updatePaginationPages(): void {
     if (this.totalPages <= 7) {
-      return Array.from(
-        {
-          length: this.totalPages,
-        },
+      this.paginationPages = Array.from(
+        { length: this.totalPages },
         (_, index) => index + 1
       );
+      return;
     }
 
     const pages: Array<number | string> = [1];
@@ -418,103 +424,71 @@ export class AllproductComponent implements OnInit, OnDestroy {
       pages.push('…');
     }
 
-    const start = Math.max(
-      2,
-      this.currentPage - 1
-    );
+    const start = Math.max(2, this.currentPage - 1);
+    const end = Math.min(this.totalPages - 1, this.currentPage + 1);
 
-    const end = Math.min(
-      this.totalPages - 1,
-      this.currentPage + 1
-    );
-
-    for (
-      let page = start;
-      page <= end;
-      page++
-    ) {
+    for (let page = start; page <= end; page++) {
       pages.push(page);
     }
 
-    if (
-      this.currentPage <
-      this.totalPages - 3
-    ) {
+    if (this.currentPage < this.totalPages - 3) {
       pages.push('…');
     }
 
     pages.push(this.totalPages);
-
-    return pages;
+    this.paginationPages = pages;
   }
 
-  imageUrl(product: Product): string {
+  private finalPrice(product: Product): number {
+    const price = Number(product.price ?? 0);
+
+    return product.finalPrice != null
+      ? Number(product.finalPrice)
+      : Math.max(0, price - Number(product.discount ?? 0));
+  }
+
+  private toViewProduct(product: Product): Product {
+    const price = Number(product.price ?? 0);
+    const finalPrice = this.finalPrice(product);
+
+    const discountPercent = product.discount != null
+      ? Number(product.discount)
+      : price > 0 && finalPrice < price
+        ? Math.round(((price - finalPrice) / price) * 100)
+        : 0;
+
     const image = product.images?.[0];
+    const rawImageUrl = typeof image === 'string'
+      ? image
+      : image?.url ?? 'assets/placeholder.png';
 
-    if (typeof image === 'string') {
-      return image;
+    const imageUrl = this.optimizeCloudinaryImage(rawImageUrl);
+
+    return {
+      ...product,
+      displayImageUrl: imageUrl,
+      displayFinalPrice: finalPrice,
+      displayOldPrice: finalPrice < price ? price : null,
+      displayDiscountPercent: discountPercent,
+      isWishlisted: !!product._id && this.wishlistIds.has(product._id),
+    };
+  }
+
+  private optimizeCloudinaryImage(url: string): string {
+    if (!url || !url.includes('res.cloudinary.com') || !url.includes('/upload/')) {
+      return url;
     }
 
-    return (
-      image?.url ??
-      'assets/placeholder.png'
-    );
-  }
-
-  finalPrice(product: Product): number {
-    if (product.finalPrice != null) {
-      return Number(product.finalPrice);
+    if (url.includes('/f_auto,q_auto') || url.includes('/q_auto,f_auto')) {
+      return url;
     }
 
-    return Math.max(
-      0,
-      Number(product.price ?? 0) -
-        Number(product.discount ?? 0)
+    return url.replace(
+      '/upload/',
+      '/upload/f_auto,q_auto,w_600,c_limit/'
     );
   }
 
-  oldPrice(product: Product): number | null {
-    const price = Number(
-      product.price ?? 0
-    );
-
-    const finalPrice =
-      this.finalPrice(product);
-
-    return finalPrice < price
-      ? price
-      : null;
-  }
-
-  discountPercent(product: Product): number {
-    if (product.discount != null) {
-      return Number(product.discount);
-    }
-
-    const oldPrice = Number(
-      product.price ?? 0
-    );
-
-    const current =
-      this.finalPrice(product);
-
-    if (!oldPrice || current >= oldPrice) {
-      return 0;
-    }
-
-    return Math.round(
-      ((oldPrice - current) /
-        oldPrice) *
-        100
-    );
-  }
-
-  ifInWishlist(product: Product): boolean {
-    return !!this.userData?.wishlist?.some(
-      (item: any) =>
-        item?._id === product?._id
-    );
-  }
 
   addToCart(product: Product): void {
     if (!this.userData) {
@@ -525,14 +499,13 @@ export class AllproductComponent implements OnInit, OnDestroy {
 
     if (
       !product._id ||
-      this.isCartBusy(product)
+      this.cartBusy[product._id]
     ) {
       return;
     }
 
-    this.cartBusyIds.add(
-      product._id
-    );
+    this.cartBusyIds.add(product._id);
+    this.cartBusy = { ...this.cartBusy, [product._id]: true };
 
     this.cdr.markForCheck();
 
@@ -540,15 +513,37 @@ export class AllproductComponent implements OnInit, OnDestroy {
       .addToCart({
         productId: product._id,
         quantity: 1,
-      })
+      }, product)
       .subscribe({
         next: () => {
-          this.userState.refresh();
+          const currentUser = this.userData;
 
-          this.cartBusyIds.delete(
-            product._id as string
-          );
+          if (currentUser) {
+            const currentCart = currentUser.cartId ?? { products: [] };
+            const currentProducts = currentCart.products ?? [];
+            const existing = currentProducts.find(
+              (item:any) => item.productId?._id === product._id
+            );
 
+            const nextProducts = existing
+              ? currentProducts.map((item:any) =>
+                  item.productId?._id === product._id
+                    ? { ...item, quantity: 1 }
+                    : item
+                )
+              : [
+                  ...currentProducts,
+                  { productId: product, quantity: 1 },
+                ];
+
+            this.userState.setUserData({
+              ...currentUser,
+              cartId: { ...currentCart, products: nextProducts },
+            });
+          }
+
+          this.cartBusyIds.delete(product._id as string);
+          this.cartBusy = { ...this.cartBusy, [product._id as string]: false };
           this.cdr.markForCheck();
         },
 
@@ -558,21 +553,13 @@ export class AllproductComponent implements OnInit, OnDestroy {
             error
           );
 
-          this.cartBusyIds.delete(
-            product._id as string
-          );
-
+          this.cartBusyIds.delete(product._id as string);
+          this.cartBusy = { ...this.cartBusy, [product._id as string]: false };
           this.cdr.markForCheck();
         },
       });
   }
 
-  isCartBusy(product: Product): boolean {
-    return (
-      !!product._id &&
-      this.cartBusyIds.has(product._id)
-    );
-  }
 
   addToFavorites(product: Product): void {
     if (!this.userData) {
@@ -583,37 +570,35 @@ export class AllproductComponent implements OnInit, OnDestroy {
 
     if (
       !product._id ||
-      this.isFavoriteBusy(product)
+      this.favoriteBusy[product._id]
     ) {
       return;
     }
 
-    this.favoriteBusyIds.add(
-      product._id
-    );
+    this.favoriteBusyIds.add(product._id);
+    this.favoriteBusy = { ...this.favoriteBusy, [product._id]: true };
 
     this.cdr.markForCheck();
 
-    const request = this.ifInWishlist(
-      product
-    )
-      ? this.wishListService.removeToFavorites(
-          product._id
-        )
-      : this.wishListService.addToFavorites({
-          productId: product._id,
-        });
+    const request = product.isWishlisted
+      ? this.wishListService.removeToFavorites(product._id)
+      : this.wishListService.addToFavorites({ productId: product._id });
 
     request.subscribe({
       next: (response: any) => {
         if (response?.message === 'Done') {
-          this.userState.refresh();
+          const id = product._id as string;
+          this.wishlistIds = new Set(this.wishlistIds);
+          if (product.isWishlisted) {
+            this.wishlistIds.delete(id);
+          } else {
+            this.wishlistIds.add(id);
+          }
+          this.applyLocalFilters();
         }
 
-        this.favoriteBusyIds.delete(
-          product._id as string
-        );
-
+        this.favoriteBusyIds.delete(product._id as string);
+        this.favoriteBusy = { ...this.favoriteBusy, [product._id as string]: false };
         this.cdr.markForCheck();
       },
 
@@ -623,23 +608,13 @@ export class AllproductComponent implements OnInit, OnDestroy {
           error
         );
 
-        this.favoriteBusyIds.delete(
-          product._id as string
-        );
-
+        this.favoriteBusyIds.delete(product._id as string);
+        this.favoriteBusy = { ...this.favoriteBusy, [product._id as string]: false };
         this.cdr.markForCheck();
       },
     });
   }
 
-  isFavoriteBusy(product: Product): boolean {
-    return (
-      !!product._id &&
-      this.favoriteBusyIds.has(
-        product._id
-      )
-    );
-  }
 
   openQuickView(product: Product): void {
     this.productDetails = product;

@@ -1,0 +1,380 @@
+<app-loading-spinner *ngIf="loading"></app-loading-spinner>
+
+<main class="brand-page">
+  <header class="brand-header">
+    <div>
+      <span class="eyebrow">ADMIN / CATALOG</span>
+
+
+  <h2>Brands</h2>
+
+  <p>
+    Manage the brands available across your product catalog and keep
+    storefront branding consistent.
+  </p>
+</div>
+
+<div class="brand-stat">
+  <span>ALL BRANDS</span>
+  <strong>{{ allBrands.length }}</strong>
+</div>
+
+
+  </header>
+
+  <section class="brand-layout">
+
+
+<!-- ADD BRAND -->
+<article class="brand-card add-card">
+  <header class="card-header">
+    <div>
+      <span class="card-kicker">CATALOG SETUP</span>
+      <h3>Add brand</h3>
+      <p>
+        Create a brand with a name and optional visual identity.
+      </p>
+    </div>
+
+    <div class="card-icon">
+      <i class="bi bi-award"></i>
+    </div>
+  </header>
+
+  <form
+    class="brand-form"
+    (ngSubmit)="addBrand()"
+    novalidate
+  >
+    <label class="field">
+      <span>Brand name</span>
+
+      <input
+        type="text"
+        [(ngModel)]="brandName"
+        name="brandName"
+        placeholder="e.g. Nike"
+        autocomplete="off"
+      />
+    </label>
+
+    <div class="upload-box">
+      <label
+        for="brandImgAdd"
+        class="upload-trigger"
+        [class.has-file]="brandImg"
+      >
+        <div class="upload-icon">
+          <i
+            class="bi"
+            [class.bi-image]="!brandImg"
+            [class.bi-check-lg]="brandImg"
+          ></i>
+        </div>
+
+        <div>
+          <strong>
+            {{
+              brandImg
+                ? brandImg.name
+                : 'Choose brand image'
+            }}
+          </strong>
+
+          <span>
+            {{
+              brandImg
+                ? 'Image selected'
+                : 'JPG, PNG or WEBP'
+            }}
+          </span>
+        </div>
+
+        <i class="bi bi-arrow-up-right upload-arrow"></i>
+      </label>
+
+      <input
+        id="brandImgAdd"
+        type="file"
+        class="file-input"
+        accept="image/*"
+        (change)="upload($event)"
+      />
+    </div>
+
+    <button
+      type="submit"
+      class="primary-button"
+      [disabled]="!brandName?.trim() || loading"
+    >
+      <span>Create brand</span>
+      <i class="bi bi-arrow-right"></i>
+    </button>
+  </form>
+
+  <div class="form-hint">
+    <i class="bi bi-info-circle"></i>
+
+    <span>
+      Uploading a brand image makes the brand easier to recognize across
+      the store.
+    </span>
+  </div>
+</article>
+
+<!-- BRAND LIST -->
+<article class="brand-card list-card">
+  <header class="card-header list-card-header">
+    <div>
+      <span class="card-kicker">CATALOG</span>
+      <h3>All brands</h3>
+      <p>
+        Review brand information and update or remove entries.
+      </p>
+    </div>
+
+    <div class="results-count">
+      {{ allBrands.length }}
+      {{ allBrands.length === 1 ? 'brand' : 'brands' }}
+    </div>
+  </header>
+
+  <div
+    class="brand-table-wrap"
+    *ngIf="allBrands.length"
+  >
+    <table class="brand-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Brand</th>
+          <th>Created by</th>
+          <th>Image</th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr
+          *ngFor="
+            let item of paginatedBrands;
+            let i = index;
+            trackBy: trackByBrand
+          "
+        >
+          <td class="index-cell">
+            {{ (currentPage - 1) * itemsPerPage + i + 1 }}
+          </td>
+
+          <td>
+            <div class="brand-name">
+              <strong>{{ item.name }}</strong>
+              <span>Catalog brand</span>
+            </div>
+          </td>
+
+          <td>
+            <span class="created-by">
+              {{ item.createdBy?.userName || '—' }}
+            </span>
+          </td>
+
+          <td>
+            <div
+              class="brand-image"
+              [style.backgroundImage]="
+                'url(' +
+                (item.image || placeholderImg) +
+                ')'
+              "
+            ></div>
+          </td>
+
+          <td>
+            <div class="table-actions">
+              <button
+                type="button"
+                class="table-action"
+                (click)="openEditModal(item)"
+                aria-label="Edit brand"
+                title="Edit brand"
+              >
+                <i class="bi bi-pencil"></i>
+              </button>
+
+              <button
+                type="button"
+                class="table-action danger"
+                (click)="removeBrand(item._id)"
+                aria-label="Delete brand"
+                title="Delete brand"
+              >
+                <i class="bi bi-trash3"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div
+    class="empty-state"
+    *ngIf="!allBrands.length"
+  >
+    <div class="empty-icon">
+      <i class="bi bi-award"></i>
+    </div>
+
+    <span class="empty-kicker">EMPTY CATALOG</span>
+
+    <h4>No brands yet</h4>
+
+    <p>
+      Create your first brand from the panel on the left.
+    </p>
+  </div>
+
+ <footer class="admin-pagination" *ngIf="totalPages > 1">
+      <button type="button" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1" aria-label="Previous page"><i class="bi bi-chevron-left"></i></button>
+      <button type="button" *ngFor="let page of pageNumbers" [class.active]="currentPage === page" (click)="goToPage(page)">{{ page }}</button>
+      <button type="button" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages" aria-label="Next page"><i class="bi bi-chevron-right"></i></button>
+    </footer>
+</article>
+
+
+  </section>
+</main>
+
+<!-- EDIT MODAL -->
+
+<div
+  class="edit-overlay"
+  *ngIf="openEdit"
+  (click)="closeEditModal()"
+>
+  <section
+    class="edit-card"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="edit-header">
+      <div>
+        <span class="modal-kicker">BRAND MANAGEMENT</span>
+
+
+    <h3>Edit brand</h3>
+  </div>
+
+  <button
+    type="button"
+    class="modal-close"
+    (click)="closeEditModal()"
+    aria-label="Close"
+  >
+    <i class="bi bi-x-lg"></i>
+  </button>
+</header>
+
+<form
+  class="edit-form"
+  (ngSubmit)="editBrand()"
+  novalidate
+>
+  <label class="field">
+    <span>Brand name</span>
+
+    <input
+      type="text"
+      [(ngModel)]="newBrandName"
+      name="newBrandName"
+      placeholder="Brand name"
+      required
+    />
+  </label>
+
+  <div
+    class="current-image"
+    *ngIf="editingBrand?.image"
+  >
+    <div
+      class="current-image-preview"
+      [style.backgroundImage]="
+        'url(' + editingBrand?.image + ')'
+      "
+    ></div>
+
+    <div>
+      <span>Current image</span>
+      <strong>Brand artwork</strong>
+    </div>
+  </div>
+
+  <div class="upload-box edit-upload">
+    <label
+      for="brandImgEdit"
+      class="upload-trigger"
+      [class.has-file]="brandImg"
+    >
+      <div class="upload-icon">
+        <i
+          class="bi"
+          [class.bi-image]="!brandImg"
+          [class.bi-check-lg]="brandImg"
+        ></i>
+      </div>
+
+      <div>
+        <strong>
+          {{
+            brandImg
+              ? brandImg.name
+              : 'Replace brand image'
+          }}
+        </strong>
+
+        <span>
+          {{
+            brandImg
+              ? 'New image selected'
+              : 'Optional'
+          }}
+        </span>
+      </div>
+
+      <i class="bi bi-arrow-up-right upload-arrow"></i>
+    </label>
+
+    <input
+      id="brandImgEdit"
+      type="file"
+      class="file-input"
+      accept="image/*"
+      (change)="upload($event)"
+    />
+  </div>
+
+  <div class="edit-actions">
+    <button
+      type="button"
+      class="secondary-button"
+      (click)="closeEditModal()"
+    >
+      Cancel
+    </button>
+
+    <button
+      type="submit"
+      class="primary-button"
+      [disabled]="!newBrandName?.trim() || loading"
+    >
+      <i class="bi bi-check-lg"></i>
+      <span>Save changes</span>
+    </button>
+  </div>
+</form>
+
+
+
+
+  </section>
+</div>

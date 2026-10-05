@@ -587,7 +587,7 @@ export class ProductsDetailsComponent
         .addToCart({
           productId: id,
           quantity: this.quantity,
-        })
+        }, this.productDetails)
         .subscribe({
           next: () => {
             this.isAdding = false;

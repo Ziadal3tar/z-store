@@ -1,1 +1,7 @@
-<router-outlet></router-outlet>
+<app-site-header *ngIf="showSiteHeader"></app-site-header>
+
+<div class="app-shell" [class.with-site-header]="showSiteHeader">
+  <router-outlet></router-outlet>
+</div>
+
+<app-site-footer *ngIf="showSiteFooter"></app-site-footer>

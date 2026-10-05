@@ -27,13 +27,13 @@
           <label class="field full">
             <span>Product name <b>*</b></span>
             <input formControlName="name" type="text" maxlength="120" placeholder="e.g. Premium Leather Backpack" />
-            <small *ngIf="form.get('name')?.touched && form.get('name')?.invalid">Enter a name between 2 and 120 characters.</small>
+            <small *ngIf="nameInvalid">Enter a name between 2 and 120 characters.</small>
           </label>
 
           <label class="field full">
             <span>Description</span>
             <textarea formControlName="description" rows="5" maxlength="2000" placeholder="Describe the product, materials, fit, or use cases..."></textarea>
-            <small class="helper">{{ form.get('description')?.value?.length || 0 }}/2000</small>
+            <small class="helper">{{ descriptionLength }}/2000</small>
           </label>
         </div>
       </section>

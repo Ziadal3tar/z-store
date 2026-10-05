@@ -1,0 +1,412 @@
+
+<div class="account-page">
+  
+  <app-loading-spinner *ngIf="loading"></app-loading-spinner>
+
+  <!-- Store Modal -->
+  <div
+    *ngIf="storDetails"
+    class="modal-backdrop"
+    (click)="storeBtn()"
+  >
+    <div
+      class="store-modal"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-icon">
+        <i class="fa-solid fa-store"></i>
+      </div>
+
+      <div class="modal-content">
+        <span class="modal-eyebrow">SELL WITH Z-STORE</span>
+
+        <h2>Create your store</h2>
+
+        <p>
+          Add your store information and start managing your products.
+        </p>
+
+        <div class="store-fields">
+
+          <div class="field-group">
+            <label for="store-name">Store name</label>
+
+            <input
+              id="store-name"
+              type="text"
+              [(ngModel)]="storeName"
+              placeholder="Enter your store name"
+            />
+          </div>
+
+          <div class="field-group">
+            <label for="store-image">Store image</label>
+
+            <label
+              for="store-image"
+              class="file-picker"
+            >
+              <i class="fa-regular fa-image"></i>
+
+              <span>
+                {{ image?.name || 'Choose store image' }}
+              </span>
+
+              <input
+                id="store-image"
+                type="file"
+                accept="image/*"
+                (change)="upload($event)"
+              />
+            </label>
+          </div>
+
+        </div>
+
+        <div
+          *ngIf="errMessage"
+          class="modal-error"
+        >
+          <i class="fa-solid fa-circle-exclamation"></i>
+          {{ errMessage }}
+        </div>
+
+        <div class="modal-actions">
+          <button
+            type="button"
+            class="secondary-button"
+            (click)="storeBtn()"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            class="primary-button"
+            [disabled]="loading"
+            (click)="addStore()"
+          >
+            <span *ngIf="!loading">
+              Create store
+              <i class="fa-solid fa-arrow-right"></i>
+            </span>
+
+            <span
+              *ngIf="loading"
+              class="loading-content"
+            >
+              <span class="spinner"></span>
+              Creating...
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="account-container">
+
+    <!-- Page Header -->
+    <header class="account-header">
+      <div>
+        <span class="section-eyebrow">MY ACCOUNT</span>
+
+        <h1>Account dashboard</h1>
+
+        <p>
+          Manage your profile, orders, favorites and account settings.
+        </p>
+      </div>
+
+      <div class="account-status">
+        <span class="status-dot"></span>
+        Account active
+      </div>
+    </header>
+
+    <div class="account-layout">
+
+      <!-- Sidebar -->
+      <aside class="account-sidebar">
+
+        <!-- Profile Card -->
+        <section class="profile-card">
+
+          <div class="profile-image-wrapper">
+            <img
+              [src]="url || 'assets/placeholder.png'"
+              [alt]="userData?.userName || 'Profile image'"
+              class="profile-image"
+            />
+
+            <div class="profile-image-overlay">
+
+              <label
+                *ngIf="!updatedImg"
+                for="user-profile-image"
+                class="image-action"
+                title="Change profile picture"
+              >
+                <i class="fa-solid fa-camera"></i>
+              </label>
+
+              <button
+                *ngIf="updatedImg"
+                type="button"
+                class="image-action success"
+                title="Save profile picture"
+                (click)="save()"
+              >
+                <i class="fa-solid fa-check"></i>
+              </button>
+
+              <button
+                *ngIf="updatedImg"
+                type="button"
+                class="image-action cancel"
+                title="Cancel"
+                (click)="cancel()"
+              >
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+
+              <input
+                id="user-profile-image"
+                class="visually-hidden"
+                type="file"
+                accept="image/*"
+                (change)="updateUserImg($event)"
+              />
+            </div>
+          </div>
+
+          <div class="profile-info">
+            <h2>
+              {{ userData?.userName || 'User' }}
+            </h2>
+
+            <p>
+              {{ userData?.email || 'No email available' }}
+            </p>
+
+            <span class="member-since">
+              Member since
+              {{ userData?.createdAt | date:'MMM yyyy' }}
+            </span>
+          </div>
+
+          <div class="profile-stats">
+            <div class="profile-stat">
+              <strong>
+                {{ userData?.wishlist?.length || 0 }}
+              </strong>
+              <span>Favorites</span>
+            </div>
+
+            <div class="stat-divider"></div>
+
+            <div class="profile-stat">
+              <strong>
+                {{ ordersCount || 0 }}
+              </strong>
+              <span>Orders</span>
+            </div>
+
+            <div class="stat-divider"></div>
+
+            <div class="profile-stat">
+              <strong>{{ userData?.loyaltyPoints || 0 }}</strong>
+              <span>Loyalty points</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Navigation -->
+        <nav class="account-nav">
+
+          <button
+            type="button"
+            class="nav-item"
+            [class.active]="activeSection === 'orders'"
+            (click)="selectSection('orders')"
+          >
+            <span class="nav-icon">
+              <i class="fa-solid fa-box"></i>
+            </span>
+
+            <span class="nav-copy">
+              <strong>Orders</strong>
+              <small>Track your purchases</small>
+            </span>
+
+            <span
+              *ngIf="ordersCount"
+              class="nav-count"
+            >
+              {{ ordersCount }}
+            </span>
+
+            <i class="fa-solid fa-chevron-right nav-arrow"></i>
+          </button>
+
+          <button
+            type="button"
+            class="nav-item"
+            [class.active]="activeSection === 'favorites'"
+            (click)="selectSection('favorites')"
+          >
+            <span class="nav-icon">
+              <i class="fa-solid fa-heart"></i>
+            </span>
+
+            <span class="nav-copy">
+              <strong>Favorites</strong>
+              <small>Products you saved</small>
+            </span>
+
+            <span
+              *ngIf="userData?.wishlist?.length"
+              class="nav-count"
+            >
+              {{ userData.wishlist.length }}
+            </span>
+
+            <i class="fa-solid fa-chevron-right nav-arrow"></i>
+          </button>
+
+          <button
+            type="button"
+            class="nav-item"
+            [class.active]="activeSection === 'personal'"
+            (click)="selectSection('personal')"
+          >
+            <span class="nav-icon">
+              <i class="fa-regular fa-user"></i>
+            </span>
+
+            <span class="nav-copy">
+              <strong>Personal info</strong>
+              <small>Manage your information</small>
+            </span>
+
+            <i class="fa-solid fa-chevron-right nav-arrow"></i>
+          </button>
+
+          <button
+            type="button"
+            class="nav-item"
+            [class.active]="activeSection === 'settings'"
+            (click)="selectSection('settings')"
+          >
+            <span class="nav-icon">
+              <i class="fa-solid fa-sliders"></i>
+            </span>
+
+            <span class="nav-copy">
+              <strong>Settings</strong>
+              <small>Security and preferences</small>
+            </span>
+
+            <i class="fa-solid fa-chevron-right nav-arrow"></i>
+          </button>
+
+        </nav>
+
+        <!-- Store -->
+
+      </aside>
+
+      <!-- Main Content -->
+      <main class="account-content">
+
+        <div class="content-header">
+          <div>
+            <span class="content-eyebrow">
+              {{
+                activeSection === 'orders'
+                  ? 'PURCHASE HISTORY'
+                  : activeSection === 'favorites'
+                  ? 'SAVED PRODUCTS'
+                  : activeSection === 'personal'
+                  ? 'PROFILE INFORMATION'
+                  : 'ACCOUNT PREFERENCES'
+              }}
+            </span>
+
+            <h2>
+              {{
+                activeSection === 'orders'
+                  ? 'Your orders'
+                  : activeSection === 'favorites'
+                  ? 'Your favorites'
+                  : activeSection === 'personal'
+                  ? 'Personal information'
+                  : 'Settings'
+              }}
+            </h2>
+          </div>
+
+          <div class="content-indicator">
+            <span></span>
+            {{
+              activeSection === 'orders'
+                ? 'Orders'
+                : activeSection === 'favorites'
+                ? 'Favorites'
+                : activeSection === 'personal'
+                ? 'Personal'
+                : 'Settings'
+            }}
+          </div>
+        </div>
+
+        <div class="content-body">
+
+          <!-- Orders -->
+          <div
+            *ngIf="activeSection === 'orders'"
+            class="content-panel"
+          >
+            <app-order-history
+              [userData]="userData"
+            ></app-order-history>
+          </div>
+
+          <!-- Favorites -->
+          <div
+            *ngIf="activeSection === 'favorites'"
+            class="content-panel"
+          >
+            <app-wishlist
+              [userData]="userData"
+            ></app-wishlist>
+          </div>
+
+          <!-- Personal -->
+          <div
+            *ngIf="activeSection === 'personal'"
+            class="content-panel"
+          >
+            <app-account-profile
+              [userData]="userData"
+            ></app-account-profile>
+          </div>
+
+          <!-- Settings -->
+          <div
+            *ngIf="activeSection === 'settings'"
+            class="content-panel"
+          >
+            <app-account-settings
+              [userData]="userData"
+            ></app-account-settings>
+          </div>
+
+        </div>
+
+      </main>
+
+    </div>
+  </div>
+</div>
+

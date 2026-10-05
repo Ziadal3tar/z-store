@@ -1,0 +1,557 @@
+<app-loading-spinner *ngIf="loading"></app-loading-spinner>
+
+<main class="add-product-page">
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">ADMIN / CATALOG</span>
+
+
+  <h2>Add product</h2>
+
+  <p>
+    Create a complete product with catalog relationships, pricing,
+    inventory and multiple product images.
+  </p>
+</div>
+
+<div class="header-status">
+  <span class="status-dot"></span>
+  <span>Product builder</span>
+</div>
+
+
+  </header>
+
+  <form
+    class="product-builder"
+    (ngSubmit)="addProduct()"
+    novalidate
+  >
+    <!-- LEFT: PRODUCT PREVIEW -->
+    <section class="preview-card">
+      <header class="section-header">
+        <div>
+          <span class="section-kicker">LIVE PREVIEW</span>
+          <h3>Product preview</h3>
+        </div>
+
+
+    <span class="preview-state">
+      {{ productImg.length ? productImg.length : 0 }}
+      {{ productImg.length === 1 ? 'image' : 'images' }}
+    </span>
+  </header>
+
+  <div class="main-preview-wrap">
+    <ng-container *ngIf="mainimg; else noPreview">
+      <img
+        [src]="mainimg"
+        [alt]="name || 'Product preview'"
+        class="main-preview"
+      />
+
+      <span
+        class="preview-discount"
+        *ngIf="previewDiscount > 0"
+      >
+        -{{ previewDiscount }}%
+      </span>
+
+      <span
+        class="preview-stock"
+        *ngIf="quantity !== null && quantity !== undefined"
+      >
+        {{ quantity || 0 }} in stock
+      </span>
+    </ng-container>
+
+    <ng-template #noPreview>
+      <div class="preview-placeholder">
+        <div class="placeholder-icon">
+          <i class="bi bi-box-seam"></i>
+        </div>
+
+        <strong>Product image</strong>
+
+        <span>
+          Upload images to see the storefront preview.
+        </span>
+      </div>
+    </ng-template>
+  </div>
+
+  <div
+    class="preview-thumbs"
+    *ngIf="productImg.length"
+  >
+    <button
+      *ngFor="
+        let image of productImg;
+        let i = index;
+        trackBy: trackByImage
+      "
+      type="button"
+      class="thumb-button"
+      [class.active]="mainimg === image"
+      (click)="selectPreview(image)"
+      [attr.aria-label]="'Preview image ' + (i + 1)"
+    >
+      <img
+        [src]="image"
+        [alt]="'Product image ' + (i + 1)"
+      />
+
+      <span
+        class="main-label"
+        *ngIf="i === 0"
+      >
+        Main
+      </span>
+    </button>
+  </div>
+
+  <div class="preview-details">
+    <div class="preview-brand">
+      <span>
+        {{ selectedBrandName || 'BRAND' }}
+      </span>
+
+      <span>
+        {{ selectedCategoryName || 'CATEGORY' }}
+      </span>
+    </div>
+
+    <h4>
+      {{ previewName }}
+    </h4>
+
+    <p>
+      {{ description || 'Your product description will appear here.' }}
+    </p>
+
+    <div class="preview-price">
+      <strong>
+        {{ finalPreviewPrice | currency }}
+      </strong>
+
+      <del
+        *ngIf="
+          price !== null &&
+          price !== undefined &&
+          hasPreviewPrice &&
+          previewDiscount > 0
+        "
+      >
+        {{ price | currency }}
+      </del>
+
+      <span
+        class="discount-pill"
+        *ngIf="previewDiscount > 0"
+      >
+        {{ previewDiscount }}% OFF
+      </span>
+    </div>
+  </div>
+
+  <div class="preview-meta">
+    <div>
+      <span>Category</span>
+      <strong>
+        {{ selectedCategoryName || 'Not selected' }}
+      </strong>
+    </div>
+
+    <div>
+      <span>Subcategory</span>
+      <strong>
+        {{ selectedSubCategoryName || 'Not selected' }}
+      </strong>
+    </div>
+
+    <div>
+      <span>Gender</span>
+      <strong>
+        {{ gender || 'Not selected' }}
+      </strong>
+    </div>
+
+    <div>
+      <span>Brand</span>
+      <strong>
+        {{ selectedBrandName || 'Not selected' }}
+      </strong>
+    </div>
+  </div>
+</section>
+
+<!-- RIGHT: FORM -->
+<section class="form-card">
+  <header class="section-header">
+    <div>
+      <span class="section-kicker">PRODUCT INFORMATION</span>
+      <h3>Product details</h3>
+    </div>
+
+    <span class="required-note">
+      * Required
+    </span>
+  </header>
+
+  <!-- CATALOG -->
+  <div class="form-section">
+    <div class="section-title">
+      <div class="section-number">01</div>
+
+      <div>
+        <strong>Catalog placement</strong>
+        <span>
+          Define where the product belongs.
+        </span>
+      </div>
+    </div>
+
+    <div class="field-grid two-columns">
+      <label class="field">
+        <span>
+          Category
+          <b>*</b>
+        </span>
+
+        <div class="select-wrapper">
+          <select
+            [(ngModel)]="categoryId"
+            name="categoryId"
+            (ngModelChange)="onCategoryChange($event)"
+            required
+          >
+            <option value="">
+              Select category
+            </option>
+
+            <option
+              *ngFor="
+                let item of allCategories;
+                trackBy: trackById
+              "
+              [value]="item._id"
+            >
+              {{ item.name }}
+            </option>
+          </select>
+
+          <i class="bi bi-chevron-down"></i>
+        </div>
+      </label>
+
+      <label class="field">
+        <span>Subcategory</span>
+
+        <div class="select-wrapper">
+          <select
+            [(ngModel)]="subCategoryId"
+            name="subCategoryId"
+            [disabled]="!categoryId"
+          >
+            <option value="">
+              {{
+                categoryId
+                  ? 'Select subcategory'
+                  : 'Select category first'
+              }}
+            </option>
+
+            <option
+              *ngFor="
+                let item of filteredSubCategories;
+                trackBy: trackById
+              "
+              [value]="item._id"
+            >
+              {{ item.name }}
+            </option>
+          </select>
+
+          <i class="bi bi-chevron-down"></i>
+        </div>
+      </label>
+
+      <label class="field">
+        <span>Brand</span>
+
+        <div class="select-wrapper">
+          <select
+            [(ngModel)]="brandId"
+            name="brandId"
+          >
+            <option value="">
+              Select brand
+            </option>
+
+            <option
+              *ngFor="
+                let item of allBrands;
+                trackBy: trackById
+              "
+              [value]="item._id"
+            >
+              {{ item.name }}
+            </option>
+          </select>
+
+          <i class="bi bi-chevron-down"></i>
+        </div>
+      </label>
+
+      <label class="field">
+        <span>Gender</span>
+
+        <div class="select-wrapper">
+          <select
+            [(ngModel)]="gender"
+            name="gender"
+          >
+            <option value="">
+              Select gender
+            </option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="All">All</option>
+          </select>
+
+          <i class="bi bi-chevron-down"></i>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <!-- IMAGES -->
+  <div class="form-section">
+    <div class="section-title">
+      <div class="section-number">02</div>
+
+      <div>
+        <strong>Product media</strong>
+        <span>
+          Add the images customers will see.
+        </span>
+      </div>
+    </div>
+
+    <input
+      type="file"
+      id="productImages"
+      name="productImages"
+      multiple
+      accept="image/*"
+      class="file-input"
+      (change)="uploads($event)"
+    />
+
+    <label
+      for="productImages"
+      class="upload-area"
+      [class.has-images]="productImg.length"
+    >
+      <div class="upload-icon">
+        <i
+          class="bi"
+          [class.bi-images]="!productImg.length"
+          [class.bi-check-lg]="productImg.length"
+        ></i>
+      </div>
+
+      <div class="upload-copy">
+        <strong>
+          {{
+            productImg.length
+              ? productImg.length +
+                ' image' +
+                (productImg.length === 1 ? '' : 's') +
+                ' selected'
+              : 'Upload product pictures'
+          }}
+        </strong>
+
+        <span>
+          {{
+            productImg.length
+              ? 'Click to replace the selected images'
+              : 'You can select multiple JPG, PNG or WEBP images'
+          }}
+        </span>
+      </div>
+
+      <i class="bi bi-arrow-up-right upload-arrow"></i>
+    </label>
+
+    <p class="field-note">
+      <i class="bi bi-info-circle"></i>
+      The first image will be used as the main product image.
+    </p>
+  </div>
+
+  <!-- BASIC INFO -->
+  <div class="form-section">
+    <div class="section-title">
+      <div class="section-number">03</div>
+
+      <div>
+        <strong>Basic information</strong>
+        <span>
+          Give the product a clear name and description.
+        </span>
+      </div>
+    </div>
+
+    <label class="field">
+      <span>
+        Product name
+        <b>*</b>
+      </span>
+
+      <input
+        type="text"
+        [(ngModel)]="name"
+        name="productName"
+        placeholder="e.g. Classic Oversized T-Shirt"
+        autocomplete="off"
+      />
+    </label>
+
+    <label class="field">
+      <span>Description</span>
+
+      <textarea
+        [(ngModel)]="description"
+        name="description"
+        rows="5"
+        placeholder="Describe the product, material, fit or important details..."
+      ></textarea>
+    </label>
+  </div>
+
+  <!-- PRICING -->
+  <div class="form-section">
+    <div class="section-title">
+      <div class="section-number">04</div>
+
+      <div>
+        <strong>Pricing & inventory</strong>
+        <span>
+          Configure price, discount and available quantity.
+        </span>
+      </div>
+    </div>
+
+    <div class="field-grid three-columns">
+      <label class="field">
+        <span>
+          Price
+          <b>*</b>
+        </span>
+
+        <div class="input-prefix">
+          <span>$</span>
+
+          <input
+            type="number"
+            [(ngModel)]="price" (ngModelChange)="updatePreviewPrice($event)"
+            name="price"
+            min="0"
+            step="0.01"
+            placeholder="0.00"
+          />
+        </div>
+      </label>
+
+      <label class="field">
+        <span>Sale %</span>
+
+        <div class="input-suffix">
+          <input
+            type="number"
+            [(ngModel)]="sale"
+            name="sale"
+            min="0"
+            max="100"
+            step="1"
+            placeholder="0"
+          />
+
+          <span>%</span>
+        </div>
+      </label>
+
+      <label class="field">
+        <span>
+          Quantity
+          <b>*</b>
+        </span>
+
+        <input
+          type="number"
+          [(ngModel)]="quantity"
+          name="quantity"
+          min="0"
+          step="1"
+          placeholder="0"
+        />
+      </label>
+    </div>
+
+    <div class="price-preview">
+      <div>
+        <span>Customer pays</span>
+        <strong>{{ finalPreviewPrice | currency }}</strong>
+      </div>
+
+      <div>
+        <span>Discount</span>
+        <strong>
+          {{ previewDiscount }}%
+        </strong>
+      </div>
+
+      <div>
+        <span>Inventory</span>
+        <strong>
+          {{ quantity || 0 }}
+        </strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTION -->
+  <div class="form-actions">
+    <div class="action-status">
+      <span
+        class="success-message"
+        *ngIf="add"
+      >
+        <i class="bi bi-check-circle-fill"></i>
+        Product created successfully
+      </span>
+    </div>
+
+    <button
+      type="submit"
+      class="create-button"
+      [disabled]="loading || !canSubmit"
+    >
+      <ng-container *ngIf="!loading">
+        <i class="bi bi-plus-lg"></i>
+        <span>Create product</span>
+      </ng-container>
+
+      <ng-container *ngIf="loading">
+        <span class="button-spinner"></span>
+        <span>Creating...</span>
+      </ng-container>
+    </button>
+  </div>
+</section>
+
+
+  </form>
+</main>

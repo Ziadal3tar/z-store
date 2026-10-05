@@ -1,0 +1,209 @@
+<nav
+  id="nav"
+  [ngClass]="onScroll"
+  class="site-navbar"
+  aria-label="Main navigation"
+>
+  <div class="container">
+    <div class="navbar-shell">
+
+      <!-- Mobile menu -->
+      <button
+        type="button"
+        class="mobile-menu-btn"
+        (click)="showNav()"
+        aria-label="Open menu"
+      >
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+      <!-- Logo -->
+      <a
+        routerLink="/home"
+        class="brand-logo"
+        aria-label="Z-Store Home"
+      >
+        <span>Z</span>-STORE
+      </a>
+
+      <!-- Desktop Navigation -->
+      <div class="desktop-nav">
+        <ul class="nav-links">
+          <li>
+            <a
+              routerLink="/home"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: true }"
+            >
+              HOME
+            </a>
+          </li>
+
+          <li>
+            <a
+              routerLink="/shop"
+              routerLinkActive="active"
+            >
+              SHOP
+            </a>
+          </li>
+
+          <li>
+            <a
+              routerLink="/blog"
+              routerLinkActive="active"
+            >
+              BLOG
+            </a>
+          </li>
+
+          <li *ngIf="userData?.role == 'Admin'">
+            <a
+              routerLink="/admin"
+              routerLinkActive="active"
+            >
+              ADMIN
+            </a>
+          </li>
+
+          <li>
+            <a routerLink="/contact"
+            routerLinkActive="active">
+              CONTACT
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Actions -->
+      <div class="navbar-actions">
+
+        <!-- Search -->
+        <button
+          type="button"
+          class="icon-btn"
+          (click)="openSearch = !openSearch"
+          aria-label="Search"
+        >
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+
+        <!-- Compare -->
+        <a routerLink="/compare" class="icon-btn compare-header-btn" aria-label="Compare products" title="Compare products">
+          <i class="bi bi-columns-gap"></i>
+          <span class="notification-badge compare-badge" *ngIf="compareCount">{{ compareCount }}</span>
+        </a>
+
+        <!-- Notifications -->
+        <button
+          *ngIf="userData"
+          type="button"
+          class="icon-btn notification-btn"
+          (click)="openNotificationCenter()"
+          aria-label="Notifications"
+        >
+          <i class="fa-regular fa-bell"></i>
+          <span *ngIf="notificationUnread" class="notification-badge">{{ notificationUnread > 9 ? '9+' : notificationUnread }}</span>
+        </button>
+
+        <!-- User -->
+        <ng-container *ngIf="userData; else loginLink">
+
+          <a
+            routerLink="/account/settings"
+            class="user-avatar"
+            aria-label="Account settings"
+            [style.background-image]="'url(' + (userData.profilePic || 'assets/placeholder.png') + ')'"
+          >
+          </a>
+
+          <!-- Cart -->
+          <button
+            type="button"
+            class="cart-btn"
+            (click)="sideCart = 'open'"
+            aria-label="Shopping cart"
+          >
+            <i class="fa-solid fa-bag-shopping"></i>
+
+            <span
+              *ngIf="cartCount"
+              class="cart-badge"
+            >
+             {{ cartCount > 99 ? '99+' : cartCount }}
+            </span>
+          </button>
+
+        </ng-container>
+
+        <!-- Login -->
+        <ng-template #loginLink>
+          <a
+            routerLink="/login"
+            class="login-btn"
+          >
+            SIGN IN
+          </a>
+        </ng-template>
+
+      </div>
+
+    </div>
+  </div>
+</nav>
+
+<!-- Search Backdrop -->
+<div
+  *ngIf="openSearch"
+  class="search-backdrop"
+  (click)="openSearch = false"
+></div>
+
+<!-- Search Panel -->
+<div *ngIf="openSearch" class="search-panel">
+  <div class="container">
+    <div class="search-box">
+      <div class="search-input-wrapper">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input [(ngModel)]="nameSearch" (ngModelChange)="search()" type="search" placeholder="Search products…" autocomplete="off" />
+        <button type="button" class="search-close" (click)="openSearch = false" aria-label="Close search"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div *ngIf="searchedProducts.length" class="search-results">
+        <button type="button" *ngFor="let item of searchedProducts; trackBy: trackBySearchProduct" class="product-search-item" (click)="viewSearchProduct(item._id)">
+          <img [src]="item.displayImageUrl || 'assets/placeholder.png'" [alt]="item.name" loading="lazy" decoding="async" />
+          <span><strong>{{ item.name }}</strong><small>{{ item.displayFinalPrice | currency }}</small></span>
+          <i class="bi bi-arrow-up-right"></i>
+        </button>
+      </div>
+      <div *ngIf="nameSearch && !searchedProducts.length" class="search-empty"><i class="fa-solid fa-box-open"></i><h6>No products found</h6><p>Try another product name.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- Notifications -->
+<div *ngIf="openNotifications" class="notifications-panel">
+  <div class="notifications-header"><div><span>YOUR UPDATES</span><strong>Notifications</strong></div><button type="button" (click)="openNotifications=false"><i class="bi bi-x"></i></button></div>
+  <div *ngIf="notifications.length; else noNotifications" class="notifications-list">
+    <button type="button" *ngFor="let item of notifications; trackBy: trackByNotification" class="notification-item" [class.unread]="!item.isRead" (click)="openNotification(item)">
+      <span class="notification-icon"><i class="bi bi-bell"></i></span><span><strong>{{ item.title }}</strong><small>{{ item.message }}</small><time>{{ item.createdAt | date:'MMM d, h:mm a' }}</time></span>
+    </button>
+  </div>
+  <ng-template #noNotifications><div class="notifications-empty"><i class="bi bi-check2-circle"></i><strong>You are all caught up.</strong><span>No new notifications.</span></div></ng-template>
+  <button *ngIf="notificationUnread" type="button" class="mark-read" (click)="markAllNotificationsRead()">Mark all as read</button>
+</div>
+
+<!-- Cart -->
+<app-cart-drawer
+  *ngIf="sideCart === 'open'"
+  [sideCart]="sideCart"
+  [userData]="userData"
+  (closeCart)="sideCart = $event"
+>
+</app-cart-drawer>
+
+<!-- Responsive Navigation -->
+<app-responsive-navbar
+  [sideNav]="sideNav"
+  (backNav)="sideNav = $event"
+>
+</app-responsive-navbar>

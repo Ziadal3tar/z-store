@@ -39,7 +39,6 @@ export class RecentlyViewedService {
 
   try {
     const parsed: Product[] = JSON.parse(raw);
-console.log(parsed);
 
     const updatedProducts = parsed.filter(
       product => product._id !== id

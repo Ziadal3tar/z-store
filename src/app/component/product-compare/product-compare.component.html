@@ -1,0 +1,46 @@
+<main class="compare-page">
+  <section class="compare-container">
+    <header class="compare-header">
+      <div>
+        <span class="eyebrow">PRODUCT TOOLS</span>
+        <h1>Compare products</h1>
+        <p>Put up to four products side by side before you decide.</p>
+      </div>
+      <button type="button" class="clear-button" *ngIf="products.length" (click)="clear()">Clear all</button>
+    </header>
+
+    <div *ngIf="!products.length" class="compare-empty">
+      <div class="empty-icon"><i class="bi bi-columns-gap"></i></div>
+      <h2>Nothing to compare yet</h2>
+      <p>Add products from the Shop page and compare their price, rating, stock and specifications here.</p>
+      <a routerLink="/shop" class="primary-button">Browse products <i class="bi bi-arrow-right"></i></a>
+    </div>
+
+    <div *ngIf="products.length" class="compare-table-wrap">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th *ngFor="let product of products">
+              <button class="remove" type="button" (click)="remove(product._id)" aria-label="Remove from comparison"><i class="bi bi-x"></i></button>
+              <img [src]="product.imageUrl" [alt]="product.name" loading="lazy" decoding="async">
+              <button class="product-name" type="button" (click)="view(product)">{{ product.name }}</button>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Price</td><td *ngFor="let product of products">{{ product.displayPrice | currency }}</td></tr>
+          <tr><td>Discount</td><td *ngFor="let product of products">{{ product.discount || 0 }}%</td></tr>
+          <tr><td>Rating</td><td *ngFor="let product of products">{{ product.ratingAverage || 0 }}/5 ({{ product.ratingCount || 0 }})</td></tr>
+          <tr><td>Stock</td><td *ngFor="let product of products">{{ product.stock ?? 'Available' }}</td></tr>
+          <tr><td>Brand</td><td *ngFor="let product of products">{{ product.brand?.name || '—' }}</td></tr>
+          <tr><td>Category</td><td *ngFor="let product of products">{{ product.category?.name || '—' }}</td></tr>
+          <tr><td>Colors</td><td *ngFor="let product of products">{{ product.colorsText }}</td></tr>
+          <tr><td>Sizes</td><td *ngFor="let product of products">{{ product.sizesText }}</td></tr>
+          <tr><td>Sold</td><td *ngFor="let product of products">{{ product.soldItems || 0 }}</td></tr>
+          <tr><td></td><td *ngFor="let product of products"><button class="buy-button" type="button" (click)="view(product)">View product</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>

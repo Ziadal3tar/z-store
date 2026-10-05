@@ -1,0 +1,180 @@
+<section class="admin-overview">
+  <ng-container *ngIf="loading; else overviewState">
+    <div class="overview-skeleton hero-skeleton">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="metric-grid">
+      <article class="metric-skeleton" *ngFor="let item of [1,2,3,4,5]">
+        <span></span><span></span><span></span>
+      </article>
+    </div>
+    <div class="overview-grid skeleton-grid">
+      <article class="panel-skeleton"></article>
+      <article class="panel-skeleton"></article>
+    </div>
+  </ng-container>
+
+  <ng-template #overviewState>
+    <div class="error-state" *ngIf="error">
+      <span class="state-icon"><i class="bi bi-exclamation-triangle"></i></span>
+      <div>
+        <strong>Dashboard data is unavailable</strong>
+        <p>{{ error }}</p>
+      </div>
+      <button type="button" (click)="load(true)">Retry</button>
+    </div>
+
+    <ng-container *ngIf="!error && data">
+      <section class="overview-hero">
+        <div class="hero-copy">
+          <span class="eyebrow">CONTROL ROOM / LIVE STORE</span>
+          <h2>Good business starts with a clear view.</h2>
+          <p>
+            Track the signals that matter most, then jump straight into the
+            catalog, orders or customer management when action is needed.
+          </p>
+          <div class="hero-meta">
+            <span><i class="bi bi-shield-check"></i> Admin workspace</span>
+            <span>Updated {{ lastUpdated | date:'MMM d, h:mm a' }}</span>
+          </div>
+        </div>
+        <div class="hero-highlight">
+          <span>STORE REVENUE</span>
+          <strong>{{ data.summary.revenue | currency }}</strong>
+          <small>Non-cancelled and non-refunded orders</small>
+        </div>
+      </section>
+
+      <section class="metric-grid">
+        <article class="metric-card metric-card-primary">
+          <div class="metric-top"><span>Orders</span><i class="bi bi-bag-check"></i></div>
+          <strong>{{ data.summary.orders | number }}</strong>
+          <small>Across every order state</small>
+        </article>
+        <article class="metric-card">
+          <div class="metric-top"><span>Customers</span><i class="bi bi-people"></i></div>
+          <strong>{{ data.summary.customers | number }}</strong>
+          <small>+{{ data.summary.newCustomers }} new in the last 7 days</small>
+        </article>
+        <article class="metric-card">
+          <div class="metric-top"><span>Average order</span><i class="bi bi-graph-up-arrow"></i></div>
+          <strong>{{ data.summary.averageOrderValue | currency }}</strong>
+          <small>Excluding cancelled and refunded orders</small>
+        </article>
+        <article class="metric-card">
+          <div class="metric-top"><span>Catalog</span><i class="bi bi-box-seam"></i></div>
+          <strong>{{ data.summary.products | number }}</strong>
+          <small>{{ data.summary.lowStockProducts }} items need restocking</small>
+        </article>
+        <article class="metric-card metric-card-alert">
+          <div class="metric-top"><span>Attention</span><i class="bi bi-lightning-charge"></i></div>
+          <strong>{{ data.summary.abandonedCarts | number }}</strong>
+          <small>Abandoned carts older than 24 hours</small>
+        </article>
+      </section>
+
+      <section class="overview-grid overview-grid-main">
+        <article class="panel-card sales-panel">
+          <div class="panel-heading">
+            <div>
+              <span class="panel-kicker">LAST 7 DAYS</span>
+              <h3>Revenue pulse</h3>
+            </div>
+            <span class="panel-stat">{{ data.summary.activeCoupons }} active offers</span>
+          </div>
+
+          <div class="sales-chart" aria-label="Revenue for the last seven days">
+            <div class="chart-column" *ngFor="let point of salesChart">
+              <span class="chart-tooltip">{{ point.revenue | currency }} · {{ point.orders }} orders</span>
+              <div class="chart-bar-track">
+                <div class="chart-bar" [style.height.%]="point.height"></div>
+              </div>
+              <small>{{ point.label }}</small>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel-card status-panel">
+          <div class="panel-heading">
+            <div>
+              <span class="panel-kicker">ORDER FLOW</span>
+              <h3>Order health</h3>
+            </div>
+          </div>
+
+          <div class="status-list">
+            <div class="status-row" *ngFor="let item of data.statusBreakdown; trackBy: trackByStatus">
+              <div class="status-copy">
+                <span class="status-dot" [class]="'status-' + item._id"></span>
+                <strong>{{ item._id | titlecase }}</strong>
+              </div>
+              <span class="status-count">{{ item.count }}</span>
+              <div class="status-progress"><span [style.width.%]="item.width"></span></div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="overview-grid overview-grid-secondary">
+        <article class="panel-card">
+          <div class="panel-heading">
+            <div>
+              <span class="panel-kicker">RECENT ACTIVITY</span>
+              <h3>Latest orders</h3>
+            </div>
+            <a routerLink="/admin" [queryParams]="{ tab: 'orders' }">View customer orders <i class="bi bi-arrow-up-right"></i></a>
+          </div>
+          <div class="table-wrap">
+            <div class="orders-table-head"><span>Order</span><span>Customer</span><span>Status</span><span>Total</span></div>
+            <div class="order-row" *ngFor="let order of data.recentOrders; trackBy: trackByOrder">
+              <span class="order-number">{{ order.orderNumber }}</span>
+              <span class="order-customer">{{ order.userId?.userName || 'Customer' }}</span>
+              <span class="order-status" [class]="'order-' + order.status">{{ order.status | titlecase }}</span>
+              <strong>{{ order.total | currency }}</strong>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel-card category-panel">
+          <div class="panel-heading">
+            <div>
+              <span class="panel-kicker">CATALOG MIX</span>
+              <h3>Top categories</h3>
+            </div>
+          </div>
+          <div class="category-list">
+            <div class="category-row" *ngFor="let category of data.topCategories; trackBy: trackByCategory">
+              <div class="category-row-top"><strong>{{ category.name || 'Unassigned' }}</strong><span>{{ category.sold }} sold</span></div>
+              <div class="category-progress"><span [style.width.%]="category.width"></span></div>
+              <small>{{ category.revenue | currency }} generated</small>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel-card products-panel">
+        <div class="panel-heading">
+          <div>
+            <span class="panel-kicker">CATALOG</span>
+            <h3>Best sellers</h3>
+          </div>
+          <div class="panel-actions">
+            <span>{{ data.summary.lowStockProducts }} low stock</span>
+            <a routerLink="/shop">Open storefront <i class="bi bi-arrow-up-right"></i></a>
+          </div>
+        </div>
+
+        <div class="best-sellers">
+          <article class="best-seller" *ngFor="let product of data.topProducts; trackBy: trackByProduct">
+            <img [src]="product.images?.[0] || 'assets/placeholder.png'" [alt]="product.name" loading="lazy" decoding="async" />
+            <div class="product-copy">
+              <strong>{{ product.name }}</strong>
+              <span>{{ product.soldItems || 0 }} sold · {{ product.ratingAverage || 0 }} ★ · {{ product.stock || 0 }} in stock</span>
+            </div>
+            <b>{{ product.finalPrice | currency }}</b>
+          </article>
+        </div>
+      </section>
+    </ng-container>
+  </ng-template>
+</section>

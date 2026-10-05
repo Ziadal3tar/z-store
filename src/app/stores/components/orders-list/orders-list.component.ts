@@ -4,8 +4,14 @@ import { BehaviorSubject, Subject, combineLatest, of } from 'rxjs';
 import { catchError, map, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
 import { OrdersService, StoreOrder } from '../../services/orders.service';
 
+interface StoreOrderView extends StoreOrder {
+  displayCustomerName: string;
+  displayItemCount: number;
+  displayStatusClass: string;
+}
+
 @Component({
-  selector: 'app-orders-list',
+  selector: 'app-order-history-list',
   templateUrl: './orders-list.component.html',
   styleUrls: ['./orders-list.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -41,6 +47,10 @@ export class OrdersListComponent implements OnDestroy {
           )
         : of({ orders: [], total: 0 }),
     ),
+    map(response => ({
+      ...response,
+      orders: response.orders.map((order: StoreOrder) => this.toViewOrder(order)),
+    })),
     tap(response => {
       this.total = response.total ?? response.orders.length;
       this.loading = false;
@@ -65,16 +75,13 @@ export class OrdersListComponent implements OnDestroy {
     if (this.page$.value > 1) this.page$.next(this.page$.value - 1);
   }
 
-  customerName(order: StoreOrder): string {
-    return order.user?.userName || order.customer?.userName || order.user?.email || order.customer?.email || 'Customer';
-  }
-
-  itemCount(order: StoreOrder): number {
-    return (order.items ?? []).reduce((sum, item) => sum + Number(item.quantity ?? 1), 0);
-  }
-
-  statusClass(status?: string): string {
-    return (status ?? 'pending').toLowerCase().replace(/\s+/g, '-');
+  private toViewOrder(order: StoreOrder): StoreOrderView {
+    return {
+      ...order,
+      displayCustomerName: order.user?.userName || order.customer?.userName || order.user?.email || order.customer?.email || 'Customer',
+      displayItemCount: (order.items ?? []).reduce((sum, item) => sum + Number(item.quantity ?? 1), 0),
+      displayStatusClass: (order.status ?? 'pending').toLowerCase().replace(/\s+/g, '-'),
+    };
   }
 
   trackById(index: number, order: StoreOrder): string | number {

@@ -1,17 +1,9 @@
-.maincolor{color: hsl(26, 100%, 55%);;}
-.maincolorbg{background-color: hsla(26, 100%, 55% ,0.3);;}
-.bg-orange{background-color:  hsl(26, 100%, 55%);}
+.app-shell {
+  min-height: 1px;
+}
 
-
-/* input:focus {
-  outline: none !important;
-  box-shadow:none;
-  border: 0;
-  border-left: 3px solid #ff5c35;
-  border-radius: 0;}
-  textarea:focus {
-    outline: none !important;
-    box-shadow:none;
-    border: 0;
-    border-left: 3px solid #ff5c35;
-    border-radius: 0;} */
+@media (prefers-reduced-motion: reduce) {
+  .app-shell {
+    scroll-behavior: auto;
+  }
+}

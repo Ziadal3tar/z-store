@@ -740,6 +740,69 @@ background: #f1eee9;
 }
 
 /* =========================================
+PAGINATION
+========================================= */
+
+.admin-pagination {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 6px;
+margin-top: 18px;
+padding-top: 16px;
+border-top: 1px solid var(--line);
+}
+
+.pagination-button,
+.pagination-page {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+min-width: 36px;
+height: 36px;
+padding: 0 10px;
+border: 1px solid var(--line);
+border-radius: 10px;
+background: var(--surface);
+color: var(--text);
+font-size: 10px;
+font-weight: 700;
+line-height: 1;
+cursor: pointer;
+transition:
+background 0.18s ease,
+border-color 0.18s ease,
+color 0.18s ease,
+transform 0.18s ease;
+}
+
+.pagination-button:hover:not(:disabled),
+.pagination-page:hover {
+border-color: var(--text);
+background: var(--text);
+color: #fff;
+transform: translateY(-1px);
+}
+
+.pagination-page.active {
+border-color: var(--text);
+background: var(--text);
+color: #fff;
+}
+
+.pagination-button:disabled {
+opacity: 0.35;
+cursor: not-allowed;
+transform: none;
+}
+
+.pagination-button:focus-visible,
+.pagination-page:focus-visible {
+outline: 2px solid var(--accent);
+outline-offset: 2px;
+}
+
+/* =========================================
 RESPONSIVE
 ========================================= */
 
@@ -786,6 +849,19 @@ height: 38px;
 .edit-card {
 padding: 21px 17px;
 border-radius: 18px;
+}
+
+.admin-pagination {
+gap: 4px;
+margin-top: 14px;
+padding-top: 14px;
+}
+
+.pagination-button,
+.pagination-page {
+min-width: 32px;
+height: 32px;
+padding: 0 8px;
 }
 
 .edit-actions {

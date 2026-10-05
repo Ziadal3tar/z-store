@@ -1,5 +1,4 @@
 
-<app-navbar></app-navbar>
 
 <main class="cart-page">
   <div class="container">
@@ -99,7 +98,7 @@
               class="item-image"
             >
               <img
-                [src]="imageUrl(item)"
+                [src]="item.displayImageUrl"
                 [alt]="item.productId.name"
                 loading="lazy"
               />
@@ -243,7 +242,7 @@
             </span>
 
             <strong>
-              {{ lineTotal(item) | currency }}
+              {{ item.lineTotal | currency }}
             </strong>
 
           </div>

@@ -1,7 +1,3 @@
-<app-navbar
-  [cartlength]="cartlength"
-  class="site-header"
-></app-navbar>
 
 <main class="creative-home">
 
@@ -21,7 +17,7 @@
 
         <div class="cover-index">
           <strong>{{ heroSlides[currentHero].accent }}</strong>
-          <span>/ {{ heroSlides.length.toString().padStart(2, '0') }}</span>
+          <span>/ {{ heroTotalLabel }}</span>
         </div>
 
         <h1 id="cover-title">
@@ -73,6 +69,9 @@
             <img [ngClass]="currentHero === 0 ? 'img1' : currentHero === 1 ? 'img2' : 'img3'"
               [src]="heroSlides[currentHero].image"
               [alt]="heroSlides[currentHero].title"
+              width="760" height="920"
+              fetchpriority="high"
+              decoding="async"
             />
           </div>
 
@@ -84,7 +83,7 @@
 
           <div class="cover-art-caption">
             <span>{{ heroSlides[currentHero].eyebrow }}</span>
-            <strong>{{ heroSlides[currentHero].accent }} / {{ heroSlides.length }}</strong>
+            <strong>{{ heroSlides[currentHero].accent }} / {{ heroTotalLabel }}</strong>
           </div>
         </div>
 
@@ -229,7 +228,7 @@
             (click)="openQuickView(specialOffers[0])"
           >
             <img
-              [src]="imageUrl(specialOffers[0])"
+              [src]="specialOffers[0].displayImageUrl"
               [alt]="specialOffers[0].name"
               loading="lazy"
               decoding="async"
@@ -245,8 +244,8 @@
 
             <div class="runway-feature-bottom">
               <div>
-                <strong>{{ finalPrice(specialOffers[0]) | currency }}</strong>
-                <del *ngIf="oldPrice(specialOffers[0]) as oldPrice">{{ oldPrice | currency }}</del>
+                <strong>{{ specialOffers[0].displayFinalPrice | currency }}</strong>
+                <del *ngIf="specialOffers[0].displayOldPrice as oldPrice">{{ oldPrice | currency }}</del>
               </div>
 
               <button
@@ -264,7 +263,7 @@
         <div class="runway-list">
           <article
             class="runway-item"
-            *ngFor="let product of specialOffers.slice(1, 6); let i = index; trackBy: trackByProductId"
+            *ngFor="let product of specialOfferPreview; let i = index; trackBy: trackByProductId"
           >
             <button
               type="button"
@@ -272,7 +271,7 @@
               (click)="openQuickView(product)"
             >
               <img
-                [src]="imageUrl(product)"
+                [src]="product.displayImageUrl"
                 [alt]="product.name"
                 loading="lazy"
                 decoding="async"
@@ -285,8 +284,8 @@
               <span>{{ product.category?.name || 'Collection' }}</span>
               <h3>{{ product.name }}</h3>
               <div>
-                <strong>{{ finalPrice(product) | currency }}</strong>
-                <del *ngIf="oldPrice(product) as oldPrice">{{ oldPrice | currency }}</del>
+                <strong>{{ product.displayFinalPrice | currency }}</strong>
+                <del *ngIf="product.displayOldPrice as oldPrice">{{ oldPrice | currency }}</del>
               </div>
             </div>
 
@@ -294,12 +293,12 @@
               type="button"
               class="runway-item-action"
               (click)="addToFavorites(product)"
-              [attr.aria-label]="ifInWishlist(product) ? 'Remove from wishlist' : 'Save product'"
+              [attr.aria-label]="product.isWishlisted ? 'Remove from wishlist' : 'Save product'"
             >
               <i
                 class="bi"
-                [class.bi-heart-fill]="ifInWishlist(product)"
-                [class.bi-heart]="!ifInWishlist(product)"
+                [class.bi-heart-fill]="product.isWishlisted"
+                [class.bi-heart]="!product.isWishlisted"
               ></i>
             </button>
           </article>
@@ -313,7 +312,56 @@
     </div>
   </section>
 
-  <!-- 05 / BUILD THE LOOK -->
+  <!-- 05 / FLASH SALE -->
+  <section class="flash-sale-section">
+    <div class="container flash-sale-card">
+      <div>
+        <span class="section-index">05 / FLASH SALE</span>
+        <h2>Good picks.<br /><em>Less waiting.</em></h2>
+        <p>Selected Z-Store offers are moving quickly. Prices and stock are verified again at checkout.</p>
+      </div>
+      <div class="flash-clock" aria-label="Flash sale countdown">
+        <div><strong>{{ flashHoursLabel }}</strong><span>HOURS</span></div><b>:</b><div><strong>{{ flashMinutesLabel }}</strong><span>MIN</span></div><b>:</b><div><strong>{{ flashSecondsLabel }}</strong><span>SEC</span></div>
+      </div>
+      <a routerLink="/shop" class="flash-button">Shop offers <i class="bi bi-arrow-up-right"></i></a>
+    </div>
+  </section>
+
+  <!-- 06 / CATEGORY SIGNAL -->
+  <section class="category-signal-section" *ngIf="categories.length">
+    <div class="container">
+      <div class="section-head creative-head"><div><span class="section-index">06 / CATEGORIES</span><h2>Start where<br /><em>you need to.</em></h2></div><a routerLink="/shop" class="text-link">Browse all <i class="bi bi-arrow-up-right"></i></a></div>
+      <div class="category-strip"><button type="button" *ngFor="let category of categories; trackBy: trackByCategory" (click)="shopCollection(category.name)"><img *ngIf="category.image" [src]="category.image" [alt]="category.name" loading="lazy" decoding="async" /><span>{{ category.name }}</span><i class="bi bi-arrow-up-right"></i></button></div>
+    </div>
+  </section>
+
+  <!-- 07 / BEST SELLERS + NEW ARRIVALS -->
+  <section class="catalog-highlights-section" *ngIf="bestSelling.length || newArrivals.length">
+    <div class="container highlights-grid">
+      <div class="highlight-column" *ngIf="bestSelling.length"><div class="section-head compact"><div><span class="section-index">07 / BEST SELLERS</span><h2>What people<br /><em>keep choosing.</em></h2></div></div><div class="highlight-list"><button type="button" *ngFor="let product of bestSellingPreview; trackBy: trackByProductId" (click)="viewProduct(product)"><img [src]="product.displayImageUrl" [alt]="product.name" loading="lazy" decoding="async" /><span><strong>{{ product.name }}</strong><small>{{ product.ratingAverage || 0 }} ★ · {{ product.soldItems || 0 }} sold</small></span><b>{{ product.displayFinalPrice | currency }}</b></button></div></div>
+      <div class="highlight-column" *ngIf="newArrivals.length"><div class="section-head compact"><div><span class="section-index">08 / NEW ARRIVALS</span><h2>Fresh enough<br /><em>to notice.</em></h2></div></div><div class="highlight-list"><button type="button" *ngFor="let product of newArrivalsPreview; trackBy: trackByProductId" (click)="viewProduct(product)"><img [src]="product.displayImageUrl" [alt]="product.name" loading="lazy" decoding="async" /><span><strong>{{ product.name }}</strong><small>{{ product.category?.name || 'New collection' }}</small></span><b>{{ product.displayFinalPrice | currency }}</b></button></div></div>
+    </div>
+  </section>
+
+  <!-- 09 / WHY Z-STORE -->
+  <section class="trust-section">
+    <div class="container trust-grid">
+      <div><span class="section-index">09 / WHY Z-STORE</span><h2>Useful by design.<br /><em>Fast by default.</em></h2><p>Every important action is connected: discovery, product details, cart, checkout, delivery and reviews.</p></div>
+      <div class="trust-items"><article><i class="bi bi-truck"></i><strong>Fast delivery</strong><span>Clear shipping choices before payment.</span></article><article><i class="bi bi-shield-check"></i><strong>Secure checkout</strong><span>Server verifies price, stock and coupon.</span></article><article><i class="bi bi-arrow-counterclockwise"></i><strong>Simple returns</strong><span>Order history keeps every purchase in one place.</span></article><article><i class="bi bi-headset"></i><strong>Seller support</strong><span>Get help throughout your shopping journey.</span></article></div>
+    </div>
+  </section>
+
+  <!-- 10 / BRANDS -->
+  <section class="brands-section" *ngIf="brands.length">
+    <div class="container"><div class="section-head compact"><div><span class="section-index">10 / BRANDS</span><h2>Recognizable<br /><em>starts here.</em></h2></div></div><div class="brand-strip"><button type="button" *ngFor="let brand of brands; trackBy: trackByBrand" (click)="shopCollection(brand.name)"><img *ngIf="brand.image" [src]="brand.image" [alt]="brand.name" loading="lazy" /><span>{{ brand.name }}</span></button></div></div>
+  </section>
+
+  <!-- 11 / CUSTOMER NOTES -->
+  <section class="testimonials-section">
+    <div class="container"><div class="section-head compact"><div><span class="section-index">11 / CUSTOMER NOTES</span><h2>Real purchases.<br /><em>Real feedback.</em></h2></div></div><div class="testimonial-grid"><article><div>★★★★★</div><p>“The product details made it easy to choose without opening five pages.”</p><strong>Verified customer</strong></article><article><div>★★★★★</div><p>“Clean checkout, clear order tracking and the wishlist actually stays useful.”</p><strong>Verified customer</strong></article><article><div>★★★★★</div><p>“Finding the right product took seconds, not endless scrolling.”</p><strong>Verified customer</strong></article></div></div>
+  </section>
+
+  <!-- 12 / BUILD THE LOOK -->
   <section class="look-section">
     <div class="container look-grid">
       <div class="look-copy">
@@ -376,7 +424,7 @@
       <div class="trail-grid">
         <article
           class="trail-card"
-          *ngFor="let product of recentlyViewed.slice(0, 4); trackBy: trackByProductId"
+          *ngFor="let product of recentlyViewedPreview; trackBy: trackByProductId"
         >
           <button
             type="button"
@@ -384,7 +432,7 @@
             (click)="viewProduct(product)"
           >
             <img
-              [src]="imageUrl(product)"
+              [src]="product.displayImageUrl"
               [alt]="product.name"
               loading="lazy"
               decoding="async"
@@ -394,7 +442,7 @@
           <div class="trail-info">
             <span>{{ product.category?.name || 'Collection' }}</span>
             <h3>{{ product.name }}</h3>
-            <strong>{{ finalPrice(product) | currency }}</strong>
+            <strong>{{ product.displayFinalPrice | currency }}</strong>
           </div>
         </article>
       </div>
@@ -446,14 +494,14 @@
         <i class="bi bi-x-lg"></i>
       </button>
 
-      <app-products-details
+      <app-product-details
         [productDetails]="productDetails"
-      ></app-products-details>
+      ></app-product-details>
     </div>
   </div>
 </main>
 
-<app-login-first
+<app-auth-login-prompt
   *ngIf="loginFirst"
   (closeL)="loginFirst = $event"
-></app-login-first>
+></app-auth-login-prompt>

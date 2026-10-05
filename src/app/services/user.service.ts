@@ -53,7 +53,7 @@ export class UserService {
   }
 
   updateUser(user: any, id: any): any {
-    return this.http.put(`${this.baseUrl}/updateUser/${id}`, user);
+    return this.http.put(`${this.baseUrl}/updateUser/${id}`, user, { headers: { authorization: `Bearer__${getAuthToken()}` } });
   }
 
   login(user: any): any {
@@ -61,7 +61,7 @@ export class UserService {
   }
 
   addpic(img: any) {
-    return this.http.post(`${this.baseUrl}/addProfilePic`, img);
+    return this.http.patch(`${this.baseUrl}/editProfilePic`, img, { headers: { authorization: `Bearer__${getAuthToken()}` } });
   }
 
   // addToFavorites(product: any, token:any) {
@@ -71,17 +71,6 @@ export class UserService {
   // deleteFromCart(token:any, product:any) {
   //   return this.http.patch(`${this.baseUrl}/deleteFromCart/${token}`, product);
   // }
-
-  deleteFromFavorites(token: any, product: any) {
-    return this.http.patch(
-      `${this.baseUrl}/deleteFromFavorites/${token}`,
-      product
-    );
-  }
-
-  saveAfterDrag(token: any, data: any) {
-    return this.http.patch(`${this.baseUrl}/saveAfterDrag/${token}`, data);
-  }
 
   updateProduct() {
     const token = getAuthToken();
@@ -99,7 +88,7 @@ export class UserService {
   }
 
   editProfilePic(formdata: any) {
-    return this.http.patch(`${this.baseUrl}/editProfilePic`, formdata);
+    return this.http.patch(`${this.baseUrl}/editProfilePic`, formdata, { headers: { authorization: `Bearer__${getAuthToken()}` } });
   }
 
   searchUser(data: any) {
@@ -111,10 +100,10 @@ export class UserService {
   }
 
   addAdmin(id: any) {
-    return this.http.put(`${this.baseUrl}/addAdmin/${id}`, {});
+    return this.http.put(`${this.baseUrl}/addAdmin/${id}`, {}, { headers: { authorization: `Bearer__${getAuthToken()}` } });
   }
 
   block(id: any) {
-    return this.http.put(`${this.baseUrl}/block/${id}`, {});
+    return this.http.put(`${this.baseUrl}/block/${id}`, {}, { headers: { authorization: `Bearer__${getAuthToken()}` } });
   }
 }

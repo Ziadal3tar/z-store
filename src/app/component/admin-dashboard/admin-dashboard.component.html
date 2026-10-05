@@ -1,0 +1,81 @@
+
+<main class="admin-page">
+  <div class="admin-shell">
+    <header class="admin-topbar">
+      <div>
+        <span class="eyebrow">Z-STORE / CONTROL CENTER</span>
+        <h1>Store management</h1>
+        <p>Run the catalog, promotions and customers from one focused workspace.</p>
+      </div>
+      <div class="topbar-actions">
+        <a class="ghost-action" routerLink="/shop"><i class="bi bi-shop"></i> View storefront</a>
+        <div class="admin-badge"><span></span><strong>Admin</strong><small>Secure workspace</small></div>
+      </div>
+    </header>
+
+    <div class="admin-layout">
+      <aside class="admin-sidebar">
+        <div class="sidebar-caption">WORKSPACE</div>
+        <nav class="admin-navigation" aria-label="Admin sections" role="tablist">
+          <button
+            *ngFor="let tab of tabs"
+            type="button"
+            class="admin-tab"
+            [class.active]="activeTab === tab.id"
+            [attr.aria-selected]="activeTab === tab.id"
+            [attr.aria-controls]="tab.id + '-panel'"
+            [id]="tab.id + '-tab'"
+            role="tab"
+            (click)="selectTab(tab.id)"
+          >
+            <span class="tab-icon"><i [class]="tab.icon"></i></span>
+            <span class="tab-copy"><strong>{{ tab.label }}</strong><small>{{ tab.description }}</small></span>
+            <i class="bi bi-arrow-right tab-arrow"></i>
+          </button>
+        </nav>
+
+        <div class="sidebar-note">
+          <i class="bi bi-lightning-charge"></i>
+          <div>
+            <strong>Keep it lean.</strong>
+            <p>Only the tools needed for day-to-day store operations live here.</p>
+          </div>
+        </div>
+      </aside>
+
+      <section class="admin-content">
+        <div
+          *ngIf="activeTab === 'dashboard'"
+          id="dashboard-panel"
+          class="admin-panel"
+          role="tabpanel"
+          aria-labelledby="dashboard-tab"
+        >
+          <app-admin-overview></app-admin-overview>
+        </div>
+
+        <div *ngIf="activeTab === 'coupons'" id="coupons-panel" class="admin-panel" role="tabpanel" aria-labelledby="coupons-tab">
+          <app-coupon-management></app-coupon-management>
+        </div>
+        <div *ngIf="activeTab === 'categories'" id="categories-panel" class="admin-panel" role="tabpanel" aria-labelledby="categories-tab">
+          <app-category-management></app-category-management>
+        </div>
+        <div *ngIf="activeTab === 'subcategories'" id="subcategories-panel" class="admin-panel" role="tabpanel" aria-labelledby="subcategories-tab">
+          <app-subcategory-management></app-subcategory-management>
+        </div>
+        <div *ngIf="activeTab === 'brands'" id="brands-panel" class="admin-panel" role="tabpanel" aria-labelledby="brands-tab">
+          <app-brand-management></app-brand-management>
+        </div>
+        <div *ngIf="activeTab === 'products'" id="products-panel" class="admin-panel" role="tabpanel" aria-labelledby="products-tab">
+          <app-product-form></app-product-form>
+        </div>
+        <div *ngIf="activeTab === 'users'" id="users-panel" class="admin-panel" role="tabpanel" aria-labelledby="users-tab">
+          <app-user-management></app-user-management>
+        </div>
+        <div *ngIf="activeTab === 'orders'" id="orders-panel" class="admin-panel" role="tabpanel" aria-labelledby="orders-tab">
+          <app-admin-orders></app-admin-orders>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>

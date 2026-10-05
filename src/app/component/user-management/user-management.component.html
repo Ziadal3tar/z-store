@@ -1,0 +1,379 @@
+<app-loading-spinner [ngClass]="loading"></app-loading-spinner>
+
+<main class="admins-page">
+  <header class="admins-header">
+    <div>
+      <span class="eyebrow">ADMIN / ACCESS CONTROL</span>
+      <h2>Administrators</h2>
+      <p>
+        Manage administrator access, user status and account permissions.
+      </p>
+    </div>
+
+
+<div class="admin-counter">
+  <span class="counter-label">ACTIVE ADMINS</span>
+  <strong>{{ allAdmins.length }}</strong>
+</div>
+
+
+  </header>
+
+  <section class="admins-grid">
+
+
+<!-- SEARCH USERS -->
+<article class="admin-card users-card">
+  <header class="card-header">
+    <div>
+      <span class="card-kicker">USER MANAGEMENT</span>
+      <h3>Add administrator</h3>
+      <p>Search for a user and manage their access.</p>
+    </div>
+
+    <div class="card-icon">
+      <i class="bi bi-person-plus"></i>
+    </div>
+  </header>
+
+  <div class="search-wrapper">
+    <label class="search-field">
+      <i class="bi bi-search"></i>
+
+      <input
+        type="text"
+        [(ngModel)]="name"
+        (ngModelChange)="onSearchChange($event)"
+        placeholder="Search by username..."
+        autocomplete="off"
+        aria-label="Search users"
+      />
+
+      <button
+        *ngIf="name"
+        type="button"
+        class="clear-search"
+        (click)="clearSearch()"
+        aria-label="Clear search"
+      >
+        <i class="bi bi-x"></i>
+      </button>
+    </label>
+
+    <span
+      class="search-spinner"
+      [class.visible]="loaded !== 'd-none'"
+      aria-hidden="true"
+    ></span>
+
+    <span class="search-error" *ngIf="messageErr">
+      {{ messageErr }}
+    </span>
+  </div>
+
+  <div
+    class="search-empty"
+    *ngIf="!name && !allUser.length"
+  >
+    <div class="empty-small-icon">
+      <i class="bi bi-search"></i>
+    </div>
+
+    <strong>Search for a user</strong>
+
+    <span>
+      Enter a username to find accounts that can be managed.
+    </span>
+  </div>
+
+  <div
+    class="users-list"
+    *ngIf="name && allUser.length"
+  >
+    <div
+      *ngFor="let item of paginatedUsers; trackBy: trackByUserId"
+      class="user-row"
+      [class.current-user]="item._id === userData?._id"
+    >
+      <div class="user-profile">
+        <div
+          class="user-avatar"
+          [style.backgroundImage]="
+            item.profilePic
+              ? 'url(' + item.profilePic + ')'
+              : 'none'
+          "
+        >
+          <span *ngIf="!item.profilePic">
+            {{ item.displayInitials }}
+          </span>
+        </div>
+
+        <div class="user-info">
+          <strong>{{ item.userName }}</strong>
+
+          <span>
+            {{ item.role || 'User' }}
+
+            <span
+              class="blocked-label"
+              *ngIf="item.blocked"
+            >
+              · Blocked
+            </span>
+          </span>
+        </div>
+      </div>
+
+      <div
+        class="user-actions"
+        *ngIf="item._id !== userData?._id"
+      >
+        <button
+          type="button"
+          class="action-trigger"
+          [class.active]="activeMenuId === item._id"
+          (click)="toggleMenu(item._id, $event)"
+          aria-label="Open user actions"
+        >
+          <i class="bi bi-three-dots"></i>
+        </button>
+
+        <div
+          class="action-menu"
+          *ngIf="activeMenuId === item._id"
+        >
+          <button
+            *ngIf="item.role !== 'Admin'"
+            type="button"
+            (click)="addAdmin(item._id)"
+          >
+            <i class="bi bi-shield-plus"></i>
+            <span>Make admin</span>
+          </button>
+
+          <button
+            type="button"
+            (click)="block(item._id)"
+          >
+            <i
+              class="bi"
+              [class.bi-lock]="!item.blocked"
+              [class.bi-unlock]="item.blocked"
+            ></i>
+
+            <span>
+              {{ item.blocked ? 'Unblock user' : 'Block user' }}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            class="danger-action"
+            (click)="openRemoveUser(item._id)"
+          >
+            <i class="bi bi-trash3"></i>
+            <span>Remove user</span>
+          </button>
+        </div>
+      </div>
+
+      <span
+        class="current-badge"
+        *ngIf="item._id === userData?._id"
+      >
+        You
+      </span>
+    </div>
+  </div>
+
+  <footer class="admin-pagination" *ngIf="userTotalPages > 1">
+    <button type="button" (click)="goToUserPage(userPage - 1)" [disabled]="userPage === 1" aria-label="Previous page"><i class="bi bi-chevron-left"></i></button>
+    <button type="button" *ngFor="let page of userPageNumbers" [class.active]="userPage === page" (click)="goToUserPage(page)">{{ page }}</button>
+    <button type="button" (click)="goToUserPage(userPage + 1)" [disabled]="userPage === userTotalPages" aria-label="Next page"><i class="bi bi-chevron-right"></i></button>
+  </footer>
+
+  <div
+    class="no-results"
+    *ngIf="name && !allUser.length && !messageErr"
+  >
+    <div class="empty-small-icon">
+      <i class="bi bi-person-x"></i>
+    </div>
+
+    <strong>No users found</strong>
+    <span>Try another username.</span>
+  </div>
+</article>
+
+<!-- ADMINS LIST -->
+<article class="admin-card admins-list-card">
+  <header class="card-header">
+    <div>
+      <span class="card-kicker">ACCESS MANAGEMENT</span>
+      <h3>Current administrators</h3>
+      <p>Review and manage existing administrator accounts.</p>
+    </div>
+
+    <div class="card-icon">
+      <i class="bi bi-shield-check"></i>
+    </div>
+  </header>
+
+  <div
+    class="admins-list"
+    *ngIf="allAdmins.length"
+  >
+    <div
+      *ngFor="let item of paginatedAdmins; trackBy: trackByAdminId"
+      class="admin-row"
+    >
+      <div class="user-profile">
+        <div
+          class="user-avatar admin-avatar"
+          [style.backgroundImage]="
+            item.adminId?.profilePic
+              ? 'url(' + item.adminId?.profilePic + ')'
+              : 'none'
+          "
+        >
+          <span *ngIf="!item.adminId?.profilePic">
+            {{ item.displayInitials }}
+          </span>
+        </div>
+
+        <div class="user-info">
+          <strong>
+            {{ item.adminId?.userName || 'Unknown user' }}
+          </strong>
+
+          <span>
+            Administrator
+
+            <span
+              class="blocked-label"
+              *ngIf="item.blocked"
+            >
+              · Blocked
+            </span>
+          </span>
+        </div>
+      </div>
+
+      <div class="user-actions">
+        <button
+          type="button"
+          class="action-trigger"
+          [class.active]="activeMenuId === 'admin-' + item._id"
+          (click)="toggleMenu('admin-' + item._id, $event)"
+          aria-label="Open administrator actions"
+        >
+          <i class="bi bi-three-dots"></i>
+        </button>
+
+        <div
+          class="action-menu action-menu-right"
+          *ngIf="activeMenuId === 'admin-' + item._id"
+        >
+          <button
+            type="button"
+            (click)="block(item.adminId?._id)"
+          >
+            <i
+              class="bi"
+              [class.bi-lock]="!item.blocked"
+              [class.bi-unlock]="item.blocked"
+            ></i>
+
+            <span>
+              {{ item.blocked ? 'Unblock admin' : 'Block admin' }}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            class="danger-action"
+            (click)="removeAdmin(item.adminId?._id)"
+          >
+            <i class="bi bi-person-dash"></i>
+            <span>Remove admin role</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="admin-pagination" *ngIf="adminTotalPages > 1">
+    <button type="button" (click)="goToAdminPage(adminPage - 1)" [disabled]="adminPage === 1" aria-label="Previous page"><i class="bi bi-chevron-left"></i></button>
+    <button type="button" *ngFor="let page of adminPageNumbers" [class.active]="adminPage === page" (click)="goToAdminPage(page)">{{ page }}</button>
+    <button type="button" (click)="goToAdminPage(adminPage + 1)" [disabled]="adminPage === adminTotalPages" aria-label="Next page"><i class="bi bi-chevron-right"></i></button>
+  </footer>
+
+  <div
+    class="empty-admins"
+    *ngIf="!allAdmins.length"
+  >
+    <div class="empty-large-icon">
+      <i class="bi bi-shield"></i>
+    </div>
+
+    <h4>No administrators yet</h4>
+
+    <p>
+      Search for a user from the left panel and assign administrator
+      access.
+    </p>
+  </div>
+</article>
+
+
+  </section>
+</main>
+
+<!-- REMOVE USER CONFIRMATION -->
+
+<div
+  class="confirm-backdrop"
+  *ngIf="confirmRemoveUser"
+  (click)="closeRemoveUser()"
+>
+  <div
+    class="confirm-dialog"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="confirm-icon danger">
+      <i class="bi bi-trash3"></i>
+    </div>
+
+
+<span class="confirm-kicker">DANGER ZONE</span>
+
+<h3>Remove this user?</h3>
+
+<p>
+  This will remove everything associated with this user, including their
+  cart, store products and related account data.
+</p>
+
+<div class="confirm-actions">
+  <button
+    type="button"
+    class="cancel-button"
+    (click)="closeRemoveUser()"
+  >
+    Cancel
+  </button>
+
+  <button
+    type="button"
+    class="delete-button"
+    (click)="removeUser(deletedUserId)"
+  >
+    <i class="bi bi-trash3"></i>
+    Delete user
+  </button>
+</div>
+
+
+  </div>
+</div>

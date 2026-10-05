@@ -1,7 +1,9 @@
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
-  HostListener,
   Input,
+  NgZone,
   OnDestroy,
   OnInit,
 } from '@angular/core';
@@ -31,6 +33,7 @@ interface StoreSearchResponse {
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavbarComponent implements OnInit, OnDestroy {
   @Input() cartlength:any = 0;
@@ -54,9 +57,14 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private readonly productsService: ProductsService,
     private readonly storesService: StoresService,
     private readonly userState: UserStateService,
+    private readonly zone: NgZone,
+    private readonly cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
+    this.zone.runOutsideAngular(() => {
+      window.addEventListener('scroll', this.handleWindowScroll, { passive: true });
+    });
     this.subscriptionsToUserState();
 
     if (getAuthToken()) {
@@ -73,6 +81,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    window.removeEventListener('scroll', this.handleWindowScroll);
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -91,10 +100,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.sideNav = 'open';
   }
 
-  @HostListener('window:scroll')
-  toKnowHeight(): void {
-    this.onScroll = window.scrollY > 40 ? 'scrolled' : '';
-  }
+  private readonly handleWindowScroll = (): void => {
+    const next = window.scrollY > 40 ? 'scrolled' : '';
+    if (next === this.onScroll) return;
+    this.onScroll = next;
+    this.zone.run(() => this.cdr.markForCheck());
+  };
 
   search(): void {
     this.searchSubject.next(this.nameSearch.trim());

@@ -34,7 +34,7 @@ export interface StoreOrdersResponse {
   providedIn: 'root',
 })
 export class OrdersService {
-  private readonly baseUrl = `${environment.apiUrl}/api/stores`;
+  private readonly baseUrl = `${environment.apiUrl}/store`;
 
   constructor(private readonly http: HttpClient) {}
 

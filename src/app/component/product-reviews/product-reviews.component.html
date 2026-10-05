@@ -1,0 +1,27 @@
+<section class="reviews-section">
+  <div class="reviews-header">
+    <div><span class="eyebrow">CUSTOMER FEEDBACK</span><h2>Reviews</h2></div>
+    <div class="rating-summary"><strong>{{ average || 0 | number:'1.1-1' }}</strong><span class="stars">★★★★★</span><small>{{ total }} reviews</small></div>
+  </div>
+
+  <div class="review-compose">
+    <div class="review-compose-copy"><strong>Share your experience</strong><span>Only verified delivered orders can publish a review.</span></div>
+    <select [(ngModel)]="rating" aria-label="Rating"><option [ngValue]="5">5 stars</option><option [ngValue]="4">4 stars</option><option [ngValue]="3">3 stars</option><option [ngValue]="2">2 stars</option><option [ngValue]="1">1 star</option></select>
+    <textarea [(ngModel)]="comment" rows="3" placeholder="What did you like about it?"></textarea>
+    <button type="button" (click)="submit()" [disabled]="busy">{{ busy ? 'Publishing…' : 'Publish review' }}</button>
+    <p class="review-feedback error" *ngIf="error">{{ error }}</p><p class="review-feedback success" *ngIf="success">{{ success }}</p>
+  </div>
+
+  <div class="review-list" *ngIf="reviews.length; else noReviews">
+    <article class="review-card" *ngFor="let review of reviews; trackBy: trackByReview">
+      <div class="review-avatar">{{ review.avatarLabel }}</div>
+      <div class="review-body">
+        <div class="review-top"><strong>{{ review.userId?.userName || 'Verified buyer' }}</strong><span>{{ review.createdAt | date:'mediumDate' }}</span></div>
+        <div class="review-stars">{{ review.filledStars }}<span>{{ review.emptyStars }}</span></div>
+        <p>{{ review.comment }}</p>
+        <button type="button" (click)="helpful(review)"><i class="bi bi-hand-thumbs-up"></i> Helpful {{ review.helpfulCount || 0 }}</button>
+      </div>
+    </article>
+  </div>
+  <ng-template #noReviews><div class="no-reviews">No reviews yet. Be the first verified buyer to share your experience.</div></ng-template>
+</section>

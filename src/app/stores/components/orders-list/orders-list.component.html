@@ -36,11 +36,11 @@
           <tbody>
             <tr *ngFor="let order of response.orders; trackBy: trackById">
               <td><strong>#{{ order.orderNumber || order._id || '—' }}</strong></td>
-              <td>{{ customerName(order) }}</td>
-              <td>{{ itemCount(order) }}</td>
+              <td>{{ order.displayCustomerName }}</td>
+              <td>{{ order.displayItemCount }}</td>
               <td>{{ (order.total ?? order.subtotal ?? 0) | currency }}</td>
               <td>{{ order.paymentMethod || order.paymentStatus || '—' }}</td>
-              <td><span class="status" [ngClass]="statusClass(order.status)">{{ order.status || 'Pending' }}</span></td>
+              <td><span class="status" [ngClass]="order.displayStatusClass">{{ order.status || 'Pending' }}</span></td>
               <td>{{ order.createdAt ? (order.createdAt | date:'mediumDate') : '—' }}</td>
             </tr>
           </tbody>

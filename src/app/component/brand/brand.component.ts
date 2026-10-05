@@ -37,6 +37,9 @@ export class BrandComponent
 
   allBrands: Brand[] = [];
 
+  currentPage = 1;
+  readonly itemsPerPage = 8;
+
   brandName = '';
   newBrandName = '';
   brandId: string | null = null;
@@ -65,6 +68,10 @@ export class BrandComponent
           ? data
           : [];
 
+        if (this.currentPage > this.totalPages) {
+          this.currentPage = Math.max(1, this.totalPages);
+        }
+
         this.cdr.markForCheck();
       });
 
@@ -74,6 +81,47 @@ export class BrandComponent
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.allBrands.length / this.itemsPerPage);
+  }
+
+  get paginatedBrands(): Brand[] {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+
+    return this.allBrands.slice(
+      start,
+      start + this.itemsPerPage,
+    );
+  }
+
+  get paginationPages(): number[] {
+    return Array.from(
+      { length: this.totalPages },
+      (_, index) => index + 1,
+    );
+  }
+
+  goToPage(page: number): void {
+    if (
+      page < 1 ||
+      page > this.totalPages ||
+      page === this.currentPage
+    ) {
+      return;
+    }
+
+    this.currentPage = page;
+    this.cdr.markForCheck();
+  }
+
+  previousPage(): void {
+    this.goToPage(this.currentPage - 1);
+  }
+
+  nextPage(): void {
+    this.goToPage(this.currentPage + 1);
   }
 
   upload(event: Event): void {
@@ -123,6 +171,7 @@ export class BrandComponent
       .subscribe({
         next: (data: any) => {
           if (data?.message === 'created') {
+            this.currentPage = 1;
             this.catalogState.refreshBrands();
 
             this.brandName = '';
@@ -167,6 +216,7 @@ export class BrandComponent
       .subscribe({
         next: (data: any) => {
           if (data?.message === 'Deleted') {
+            this.currentPage = 1;
             this.catalogState.refreshBrands();
           }
 

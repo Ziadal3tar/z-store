@@ -45,6 +45,10 @@
 /** *************************************************************************************************
  * Zone JS is required by default for Angular itself.
  */
+// Keep high-frequency visual events outside Angular's Zone.
+(window as any).__Zone_disable_requestAnimationFrame = true;
+(window as any).__zone_symbol__UNPATCHED_EVENTS = ['scroll', 'mousemove', 'pointermove'];
+
 import 'zone.js'; // Included with Angular CLI.
 
 /** *************************************************************************************************

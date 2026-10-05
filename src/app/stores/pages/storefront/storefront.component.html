@@ -450,7 +450,7 @@
           <div class="product-media">
 
             <img
-              [src]="imageUrl(product)"
+              [src]="product.displayImageUrl || 'assets/placeholder.png'"
               [alt]="product.name"
               loading="lazy"
               decoding="async"
@@ -497,7 +497,7 @@
 
               <span class="product-category">
                 {{
-                  $any(product).category?.name ||
+                  product.category?.name ||
                   product.categoryId ||
                   'Collection'
                 }}
@@ -528,7 +528,7 @@
               <div class="price-group">
 
                 <strong>
-                  {{ finalPrice(product) | currency }}
+                  {{ (product.displayFinalPrice ?? 0) | currency }}
                 </strong>
 
                 <del *ngIf="product.discount">

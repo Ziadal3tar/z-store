@@ -50,7 +50,7 @@
 
           <li>
             <a
-              routerLink="/Blog"
+              routerLink="/blog"
               routerLinkActive="active"
             >
               BLOG
@@ -67,7 +67,7 @@
           </li>
 
           <li>
-            <a routerLink="/Contact"
+            <a routerLink="/contact"
             routerLinkActive="active">
               CONTACT
             </a>
@@ -235,10 +235,10 @@
 
 <!-- Cart -->
 <app-cart-on-all
+  *ngIf="sideCart === 'open'"
   [sideCart]="sideCart"
   [subtotal]="subtotal"
   [userData]="userData"
-  (getlength)="cartlength = $event"
   (closeCart)="sideCart = $event"
 >
 </app-cart-on-all>

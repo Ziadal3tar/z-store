@@ -1,17 +1,17 @@
-import { getAuthToken } from 'src/app/core/auth-token.util';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  NgZone,
   OnDestroy,
   OnInit,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
-import { CartService } from './../../services/cart.service';
-import { WishListService } from './../../services/wish-list.service';
-import { ProductsService } from '../../services/products.service';
+import { CartService } from './../../core/services/cart.service';
+import { WishListService } from './../../core/services/wish-list.service';
+import { ProductsService } from '../../core/services/products.service';
 import { UserStateService } from 'src/app/core/state/user-state.service';
 import { Product } from 'src/app/core/models/product.model';
 import { RecentlyViewedService } from 'src/app/core/services/recently-viewed.service';
@@ -52,11 +52,26 @@ interface LookBoard {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent implements OnInit, OnDestroy {
-  cartlength = 0;
   currentHero = 0;
 
   specialOffers: Product[] = [];
+  bestSelling: Product[] = [];
+  newArrivals: Product[] = [];
   recentlyViewed: Product[] = [];
+  readonly specialOfferPreview: Product[] = [];
+  readonly bestSellingPreview: Product[] = [];
+  readonly newArrivalsPreview: Product[] = [];
+  readonly recentlyViewedPreview: Product[] = [];
+  categories: Array<{ _id: string; name: string; image?: string }> = [];
+  brands: Array<{ _id: string; name: string; image?: string }> = [];
+  flashHours = 0;
+  flashMinutes = 0;
+  flashSeconds = 0;
+  flashHoursLabel = '00';
+  flashMinutesLabel = '00';
+  flashSecondsLabel = '00';
+  currentHeroLabel = '01';
+  heroTotalLabel = '03';
 
   userData: any;
   loginFirst = false;
@@ -66,6 +81,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   loadingOffers = true;
   offersError = '';
+  private wishlistIds = new Set<string>();
 
   readonly heroSlides: HeroSlide[] = [
     {
@@ -178,6 +194,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private readonly subscriptions = new Subscription();
   private heroTimer?: ReturnType<typeof setInterval>;
+  private flashTimer?: ReturnType<typeof setInterval>;
+  private flashEndsAt = Date.now() + (6 * 60 * 60 * 1000);
 
   constructor(
     private readonly productsService: ProductsService,
@@ -187,45 +205,47 @@ export class HomeComponent implements OnInit, OnDestroy {
     private readonly router: Router,
     private readonly cdr: ChangeDetectorRef,
     private readonly recentlyViewedService: RecentlyViewedService,
+    private readonly zone: NgZone,
   ) {}
 
   ngOnInit(): void {
     this.subscriptions.add(
       this.userState.user$.subscribe(user => {
-        this.userData = user;
 
-        this.cartlength =
-          user?.cartId?.products?.reduce(
-            (count: number, item: any) =>
-              count + Number(item?.quantity ?? 0),
-            0,
-          ) ?? 0;
+        this.userData = user;
+        this.wishlistIds = new Set(
+          (user?.wishlist ?? []).map((item: any) => item?._id).filter(Boolean)
+        );
+
+        this.specialOffers = this.specialOffers.map((product) => this.toViewProduct(product));
+        this.syncPreviewLists();
 
         this.cdr.markForCheck();
       }),
     );
 
-    if (getAuthToken()) {
-      this.userState.refresh();
-    }
-
-    this.recentlyViewed = this.recentlyViewedService.get();
-    this.loadSpecialOffers();
-
-    this.heroTimer = setInterval(() => this.nextHero(), 6500);
+    this.recentlyViewed = this.recentlyViewedService.get().map((product: Product) => this.toViewProduct(product));
+    this.syncPreviewLists();
+    this.loadHomeFeed();
+    this.updateHeroLabels();
+    this.updateFlashCountdown();
+    this.zone.runOutsideAngular(() => {
+      this.heroTimer = setInterval(() => this.zone.run(() => this.nextHero()), 6500);
+      this.flashTimer = setInterval(() => this.zone.run(() => this.updateFlashCountdown()), 1000);
+    });
   }
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
 
-    if (this.heroTimer) {
-      clearInterval(this.heroTimer);
-    }
+    if (this.heroTimer) clearInterval(this.heroTimer);
+    if (this.flashTimer) clearInterval(this.flashTimer);
   }
 
   nextHero(): void {
     this.currentHero =
       (this.currentHero + 1) % this.heroSlides.length;
+    this.updateHeroLabels();
     this.cdr.markForCheck();
   }
 
@@ -233,71 +253,92 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.currentHero =
       (this.currentHero - 1 + this.heroSlides.length) %
       this.heroSlides.length;
+    this.updateHeroLabels();
     this.cdr.markForCheck();
   }
 
   selectHero(index: number): void {
     this.currentHero = index;
+    this.updateHeroLabels();
     this.cdr.markForCheck();
   }
 
-  shopCollection(_query: string): void {
-    this.router.navigate(['/shop']);
+  shopCollection(query: string): void {
+    this.router.navigate(['/shop'], { queryParams: query ? { search: query } : undefined });
   }
 
-  loadSpecialOffers(): void {
+  loadHomeFeed(): void {
     this.loadingOffers = true;
     this.offersError = '';
-
     this.subscriptions.add(
-      this.productsService.getSpecialOffers().subscribe({
-        next: (response: any) => {
-          this.specialOffers = (response?.products ?? []).slice(0, 8);
+      this.productsService.getHomeFeed().subscribe({
+        next: feed => {
+          this.specialOffers = (feed.special ?? []).slice(0, 8).map(product => this.toViewProduct(product));
+          this.bestSelling = (feed.bestSelling ?? []).slice(0, 8).map(product => this.toViewProduct(product));
+          this.newArrivals = (feed.newArrivals ?? []).slice(0, 8).map(product => this.toViewProduct(product));
+          this.syncPreviewLists();
+          this.categories = feed.categories ?? [];
+          this.brands = feed.brands ?? [];
           this.loadingOffers = false;
           this.cdr.markForCheck();
         },
         error: () => {
-          this.specialOffers = [];
-          this.loadingOffers = false;
-          this.offersError = 'We could not load the latest offers.';
+          this.specialOffers = []; this.bestSelling = []; this.newArrivals = []; this.loadingOffers = false;
+          this.offersError = 'We could not load the latest catalog highlights.';
           this.cdr.markForCheck();
         },
       }),
     );
   }
 
-  imageUrl(product: Product): string {
-    const image = product.images?.[0];
+  loadSpecialOffers(): void { this.loadHomeFeed(); }
 
-    if (typeof image === 'string') {
-      return image;
-    }
-
-    return image?.url ?? 'assets/placeholder.png';
+  updateFlashCountdown(): void {
+    const remaining = Math.max(0, this.flashEndsAt - Date.now());
+    const totalSeconds = Math.floor(remaining / 1000);
+    this.flashHours = Math.floor(totalSeconds / 3600);
+    this.flashMinutes = Math.floor((totalSeconds % 3600) / 60);
+    this.flashSeconds = totalSeconds % 60;
+    this.flashHoursLabel = this.formatTime(this.flashHours);
+    this.flashMinutesLabel = this.formatTime(this.flashMinutes);
+    this.flashSecondsLabel = this.formatTime(this.flashSeconds);
+    this.cdr.markForCheck();
   }
 
-  finalPrice(product: Product): number {
-    if (product.finalPrice != null) {
-      return Number(product.finalPrice);
-    }
 
-    return Math.max(
-      0,
-      Number(product.price ?? 0) - Number(product.discount ?? 0),
-    );
+
+  private syncPreviewLists(): void {
+    this.specialOfferPreview.splice(0, this.specialOfferPreview.length, ...this.specialOffers.slice(1, 6));
+    this.bestSellingPreview.splice(0, this.bestSellingPreview.length, ...this.bestSelling.slice(0, 4));
+    this.newArrivalsPreview.splice(0, this.newArrivalsPreview.length, ...this.newArrivals.slice(0, 4));
+    this.recentlyViewedPreview.splice(0, this.recentlyViewedPreview.length, ...this.recentlyViewed.slice(0, 4));
   }
 
-  oldPrice(product: Product): number | null {
+  private updateHeroLabels(): void {
+    this.currentHeroLabel = String(this.currentHero + 1).padStart(2, '0');
+    this.heroTotalLabel = String(this.heroSlides.length).padStart(2, '0');
+  }
+
+  private formatTime(value: number): string {
+    return String(value).padStart(2, '0');
+  }
+
+  private toViewProduct(product: Product): Product {
     const price = Number(product.price ?? 0);
-    const finalPrice = this.finalPrice(product);
+    const finalPrice = product.finalPrice != null
+      ? Number(product.finalPrice)
+      : Math.max(0, price * (1 - Number(product.discount ?? 0) / 100));
 
-    return finalPrice < price ? price : null;
-  }
-
-  ifInWishlist(product: Product): boolean {
-    return !!this.userData?.wishlist?.some(
-      (item: any) => item?._id === product?._id,
-    );
+    return {
+      ...product,
+      displayImageUrl: typeof product.images?.[0] === 'string'
+        ? product.images[0] as string
+        : (product.images?.[0] as any)?.url ?? 'assets/placeholder.png',
+      displayFinalPrice: finalPrice,
+      displayOldPrice: finalPrice < price ? price : null,
+      displayDiscountPercent: Number(product.discount ?? 0),
+      isWishlisted: !!product._id && this.wishlistIds.has(product._id),
+    };
   }
 
   addToFavorites(product: Product): void {
@@ -312,7 +353,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const request = this.ifInWishlist(product)
+    const request = product.isWishlisted
       ? this.wishListService.removeToFavorites(id)
       : this.wishListService.addToFavorites({ productId: id });
 
@@ -320,12 +361,22 @@ export class HomeComponent implements OnInit, OnDestroy {
       request.subscribe({
         next: (response: any) => {
           if (response?.message === 'Done') {
-            this.userState.refresh();
+            this.userState.updateWishlist(id, !product.isWishlisted);
+            this.applyWishlistState(id, !product.isWishlisted);
           }
         },
         error: error => console.error('wishlist update failed', error),
       }),
     );
+  }
+
+  private applyWishlistState(id: string, isWishlisted: boolean): void {
+    const update = (products: Product[]) => products.map(item => item._id === id ? { ...item, isWishlisted } : item);
+    this.specialOffers = update(this.specialOffers);
+    this.bestSelling = update(this.bestSelling);
+    this.newArrivals = update(this.newArrivals);
+    this.syncPreviewLists();
+    this.cdr.markForCheck();
   }
 
   addToCart(product: Product): void {
@@ -341,9 +392,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.subscriptions.add(
       this.cartService
-        .addToCart({ productId: product._id, quantity: 1 })
+        .addToCart({ productId: product._id, quantity: 1 }, product)
         .subscribe({
-          next: () => this.userState.refresh(),
+          next: response => this.userState.updateCart(response?.cart),
           error: error => console.error('add to cart failed', error),
         }),
     );
@@ -371,5 +422,13 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   trackByProductId(index: number, product: Product): string | number {
     return product._id ?? index;
+  }
+
+  trackByCategory(index: number, category: { _id: string }): string | number {
+    return category._id || index;
+  }
+
+  trackByBrand(index: number, brand: { _id: string }): string | number {
+    return brand._id || index;
   }
 }

@@ -25,20 +25,16 @@ import {
 
 import {
   CartService,
-} from '../../../services/cart.service';
+} from '../../../core/services/cart.service';
 
 import {
   UserStateService,
 } from '../../../core/state/user-state.service';
 
-import {
-  Product,
-  ProductsService,
-} from '../../services/products.service';
+import { Product } from '../../../core/models/product.model';
+import { StoreProductsService } from '../../services/store-products.service';
 
-import {
-  StoresService,
-} from '../../services/stores.service';
+import { StoreManagementService } from '../../services/store-management.service';
 
 interface CategoryOption {
   value: string;
@@ -109,8 +105,8 @@ export class StorefrontComponent
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly productsService: ProductsService,
-    private readonly storesService: StoresService,
+    private readonly productsService: StoreProductsService,
+    private readonly storesService: StoreManagementService,
     private readonly cartService: CartService,
     private readonly userStateService: UserStateService,
     private readonly cdr: ChangeDetectorRef
@@ -233,8 +229,7 @@ export class StorefrontComponent
       )
       .subscribe({
         next: (response: any) => {
-          this.products =
-            response?.products ?? [];
+          this.products = (response?.products ?? []).map((product: Product) => this.toViewProduct(product));
 
           this.buildCategories();
           this.applyFilters();
@@ -265,8 +260,7 @@ export class StorefrontComponent
     for (
       const product of this.products
     ) {
-      const category =
-        (product as any).category;
+      const category = product.category;
 
       const value =
         product.categoryId ??
@@ -309,11 +303,7 @@ export class StorefrontComponent
     let result =
       this.products.filter(
         (product) => {
-          const categoryValue =
-            product.categoryId ??
-            (product as any)
-              .category?._id ??
-            '';
+          const categoryValue = product.categoryId ?? product.category?._id ?? '';
 
           const categoryMatch =
             this.selectedCategory ===
@@ -334,8 +324,7 @@ export class StorefrontComponent
             !query ||
             searchable.includes(query);
 
-          const price =
-            this.finalPrice(product);
+          const price = Number(product.displayFinalPrice ?? product.finalPrice ?? product.price ?? 0);
 
           const minMatch =
             this.minPrice == null ||
@@ -375,8 +364,8 @@ export class StorefrontComponent
             .slice()
             .sort(
               (a, b) =>
-                this.finalPrice(a) -
-                this.finalPrice(b)
+                Number(a.displayFinalPrice ?? a.finalPrice ?? a.price ?? 0) -
+                Number(b.displayFinalPrice ?? b.finalPrice ?? b.price ?? 0)
             );
         break;
 
@@ -386,8 +375,8 @@ export class StorefrontComponent
             .slice()
             .sort(
               (a, b) =>
-                this.finalPrice(b) -
-                this.finalPrice(a)
+                Number(b.displayFinalPrice ?? b.finalPrice ?? b.price ?? 0) -
+                Number(a.displayFinalPrice ?? a.finalPrice ?? a.price ?? 0)
             );
         break;
 
@@ -472,32 +461,24 @@ export class StorefrontComponent
     this.cdr.markForCheck();
   }
 
-  finalPrice(
-    product: Product
-  ): number {
-    const discount =
-      Number(
-        product.discount ?? 0
-      );
-
-    return Math.max(
-      0,
-      Number(
-        product.price ?? 0
-      ) - discount
-    );
+  private toViewProduct(product: Product): Product {
+    const price = Number(product.price ?? 0);
+    const finalPrice = Number(product.finalPrice ?? Math.max(0, price * (1 - Number(product.discount ?? 0) / 100)));
+    const image = product.images?.[0];
+    const rawImage = typeof image === 'string' ? image : image?.url ?? 'assets/placeholder.png';
+    return {
+      ...product,
+      displayImageUrl: this.optimizeImage(rawImage),
+      displayFinalPrice: finalPrice,
+      displayOldPrice: finalPrice < price ? price : null,
+      displayDiscountPercent: Number(product.discount ?? 0),
+    };
   }
 
-  imageUrl(
-    product: Product
-  ): string {
-    const image =
-      product.images?.[0];
-
-    return typeof image === 'string'
-      ? image
-      : image?.url ??
-          'assets/placeholder.png';
+  private optimizeImage(url: string): string {
+    if (!url.includes('res.cloudinary.com') || !url.includes('/image/upload/')) return url;
+    if (url.includes('f_auto') || url.includes('q_auto')) return url;
+    return url.replace('/image/upload/', '/image/upload/f_auto,q_auto,w_600,c_limit/');
   }
 
   addToCart(
@@ -538,10 +519,10 @@ export class StorefrontComponent
         productId:
           product._id,
         quantity: 1,
-      })
+      }, product)
       .subscribe({
-        next: () => {
-          this.userStateService.refresh();
+        next: (response) => {
+          this.userStateService.updateCart(response.cart);
 
           this.addingProductId =
             null;

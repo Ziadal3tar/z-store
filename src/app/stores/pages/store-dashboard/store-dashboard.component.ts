@@ -16,9 +16,9 @@ import {
   tap,
 } from 'rxjs/operators';
 
-import { ProductsService } from '../../services/products.service';
+import { StoreProductsService } from '../../services/store-products.service';
 import { OrdersService } from '../../services/orders.service';
-import { StoresService } from '../../services/stores.service';
+import { StoreManagementService } from '../../services/store-management.service';
 
 interface AnalyticsSummary {
   totalRevenue?: number;
@@ -57,8 +57,8 @@ export class StoreDashboardComponent
     new BehaviorSubject<void>(undefined);
 
   constructor(
-    private readonly storesService: StoresService,
-    private readonly productsService: ProductsService,
+    private readonly storesService: StoreManagementService,
+    private readonly productsService: StoreProductsService,
     private readonly ordersService: OrdersService,
     public readonly router: Router,
     private readonly cdr: ChangeDetectorRef,
@@ -79,27 +79,19 @@ export class StoreDashboardComponent
      * underlying HTTP calls can be executed more than once.
      */
 
-    // this.analytics$ = this.refresh$.pipe(
-    //   switchMap(() =>
-    //     this.storesService
-    //       .getAnalytics(this.storeId)
-    //       .pipe(
-    //         catchError((err) => {
-    //           console.error(
-    //             'analytics error',
-    //             err
-    //           );
-
-    //           this.setError(
-    //             'Failed to load store analytics.'
-    //           );
-
-    //           return of(null);
-    //         })
-    //       )
-    //   ),
-    //   shareReplay(1)
-    // );
+    this.analytics$ = this.refresh$.pipe(
+      switchMap(() =>
+        this.storesService.getAnalytics(this.storeId).pipe(
+          map((response: any) => response?.analytics ?? response?.data ?? response ?? null),
+          catchError(err => {
+            console.error('analytics error', err);
+            this.setError('Failed to load store analytics.');
+            return of(null);
+          }),
+        ),
+      ),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
 
     this.recentOrders$ = this.refresh$.pipe(
       switchMap(() =>
@@ -114,7 +106,10 @@ export class StoreDashboardComponent
           .pipe(
             map(
               (response: any) =>
-                response?.orders ?? []
+                (response?.orders ?? []).map((order: any) => ({
+                  ...order,
+                  displayStatusClass: this.statusClass(order.status),
+                }))
             ),
             catchError((err) => {
               console.error(
@@ -315,7 +310,7 @@ export class StoreDashboardComponent
     ]);
   }
 
-  getStatusClass(
+  private statusClass(
     status?: string
   ): string {
     const normalized =

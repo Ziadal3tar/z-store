@@ -1,0 +1,8 @@
+<footer class="site-footer">
+  <div class="footer-main">
+    <div><a class="footer-brand" routerLink="/home">Z-STORE</a><p>Curated products, clearer shopping and a faster way to find what fits.</p></div>
+    <div class="footer-links"><strong>Explore</strong><a routerLink="/shop">Shop</a><a routerLink="/compare">Compare</a><a routerLink="/blog">Journal</a><a routerLink="/contact">Contact</a></div>
+    <div><strong>Stay in the loop</strong><p>Get product drops and private offers.</p><div class="footer-newsletter"><input type="email" [(ngModel)]="email" (keyup.enter)="subscribe()" placeholder="you@example.com" autocomplete="email"><button type="button" [disabled]="subscribing" (click)="subscribe()">{{ subscribing ? "Joining..." : "Subscribe" }}</button></div><p *ngIf="newsletterMessage" class="newsletter-status success">{{ newsletterMessage }}</p><p *ngIf="newsletterError" class="newsletter-status error">{{ newsletterError }}</p></div>
+  </div>
+  <div class="footer-bottom"><span>© {{ currentYear }} Z-Store</span><span>Secure checkout · Easy returns · Support</span></div>
+</footer>

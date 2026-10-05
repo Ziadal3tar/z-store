@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { CartItem } from 'src/app/core/models/cart.model';
@@ -10,6 +10,7 @@ import { CartService } from 'src/app/services/cart.service';
   selector: 'app-cart-on-all',
   templateUrl: './cart-on-all.component.html',
   styleUrls: ['./cart-on-all.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CartOnAllComponent {
   @Input() sideCart = '';
@@ -62,15 +63,24 @@ export class CartOnAllComponent {
       return;
     }
 
-    this.cartService.removeFromCart({
-      productId,
-      userId: this.userData._id,
-    }).subscribe({
-      next: () => {
-        this.userStateService.refresh();
-      },
+    const user = this.userData;
+    const currentItems = user.cartId?.products ?? [];
+    const nextItems = currentItems.filter(
+      item => item.productId?._id !== productId
+    );
+
+    if (user.cartId) {
+      this.userStateService.setUserData({
+        ...user,
+        cartId: { ...user.cartId, products: nextItems },
+      });
+    }
+
+    this.cartService.removeFromCart(productId).subscribe({
+      next: () => undefined,
       error: (error: unknown) => {
         console.error('Failed to remove product from cart:', error);
+        this.userStateService.refresh();
       },
     });
   }

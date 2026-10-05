@@ -38,9 +38,10 @@ export interface User {
 
   wishlist?: Product[];
   cartId?: Cart;
-
+cart:any;
   storeId?: string;
   store?: StoreReference | null;
+  loyaltyPoints?: number;
 
   dateOfBirth?: string;
   birthDate?: string;

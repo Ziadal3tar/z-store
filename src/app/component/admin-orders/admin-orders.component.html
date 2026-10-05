@@ -1,0 +1,63 @@
+<section class="admin-orders">
+  <div class="orders-toolbar">
+    <div>
+      <span class="eyebrow">ORDER CONTROL</span>
+      <h2>Orders</h2>
+      <p>Review orders, search customers and move fulfillment through each state.</p>
+    </div>
+    <button type="button" class="refresh-button" (click)="load()" [disabled]="loading">
+      <i class="bi bi-arrow-clockwise" [class.spin]="loading"></i> Refresh
+    </button>
+  </div>
+
+  <div class="orders-filters">
+    <label class="search-field">
+      <i class="bi bi-search"></i>
+      <input #orderSearch type="search" [value]="search" (input)="onSearch(orderSearch.value)" placeholder="Search order number or customer" />
+    </label>
+    <select #statusSelect [value]="status" (change)="onStatus(statusSelect.value)">
+      <option value="">All statuses</option>
+      <option *ngFor="let item of statuses" [value]="item">{{ item | titlecase }}</option>
+    </select>
+    <span class="orders-count">{{ total | number }} orders</span>
+  </div>
+
+  <div class="error-state" *ngIf="error">
+    <i class="bi bi-exclamation-triangle"></i>
+    <span>{{ error }}</span>
+  </div>
+
+  <div class="orders-table" *ngIf="!loading && !error; else orderState">
+    <div class="order-table-head">
+      <span>Order</span><span>Customer</span><span>Total</span><span>Created</span><span>Status</span><span>Update</span>
+    </div>
+    <article class="order-row" *ngFor="let order of orders; trackBy: trackByOrder">
+      <div><strong>{{ order.orderNumber || order._id }}</strong><small>{{ order.items?.length || 0 }} items</small></div>
+      <div><strong>{{ order.userId?.userName || 'Customer' }}</strong><small>{{ order.userId?.email || '—' }}</small></div>
+      <strong>{{ order.total | currency }}</strong>
+      <span>{{ order.createdAt | date:'mediumDate' }}</span>
+      <span class="status-badge" [class]="'status-' + order.status">{{ order.status | titlecase }}</span>
+      <select #orderStatus [value]="order.status" (change)="updateStatus(order, orderStatus.value)" [disabled]="updatingId === order._id">
+        <option *ngFor="let item of statuses" [value]="item">{{ item | titlecase }}</option>
+      </select>
+    </article>
+
+    <div class="empty-state" *ngIf="!orders.length">
+      <i class="bi bi-inbox"></i>
+      <strong>No orders found</strong>
+      <span>Try a different search or status.</span>
+    </div>
+  </div>
+
+  <ng-template #orderState>
+    <div class="loading-table" *ngIf="loading">
+      <div *ngFor="let item of [1,2,3,4,5,6]"></div>
+    </div>
+  </ng-template>
+
+  <div class="pagination" *ngIf="totalPages > 1">
+    <button type="button" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">Previous</button>
+    <span>Page {{ currentPage }} of {{ totalPages }}</span>
+    <button type="button" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">Next</button>
+  </div>
+</section>

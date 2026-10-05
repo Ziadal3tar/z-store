@@ -1,4 +1,4 @@
-import { getAuthToken } from 'src/app/core/auth-token.util';
+import { clearAuthToken, getAuthToken, isAuthTokenValid } from 'src/app/core/auth-token.util';
 import { Injectable } from '@angular/core';
 import {
   ActivatedRouteSnapshot,
@@ -18,8 +18,12 @@ export class LogoutGuard implements CanActivate {
     _route: ActivatedRouteSnapshot,
     _state: RouterStateSnapshot,
   ): boolean | UrlTree {
-    return getAuthToken()
-      ? this.router.createUrlTree(['/home'])
-      : true;
+    const token = getAuthToken();
+    if (token && isAuthTokenValid(token)) {
+      return this.router.createUrlTree(['/home']);
+    }
+
+    if (token) clearAuthToken();
+    return true;
   }
 }

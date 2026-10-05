@@ -32,6 +32,9 @@ export interface Product {
   totalItems?: number;
   stock?: number;
   soldItems?: number;
+  ratingAverage?: number;
+  ratingCount?: number;
+  viewCount?: number;
 
   categoryId?: string | null;
   subCategoryId?: string | null;
@@ -52,6 +55,13 @@ export interface Product {
 
   createdAt?: string;
   updatedAt?: string;
+
+  // Client-side presentation values are calculated once when catalog data changes.
+  displayImageUrl?: string;
+  displayFinalPrice?: number;
+  displayOldPrice?: number | null;
+  displayDiscountPercent?: number;
+  isWishlisted?: boolean;
 }
 
 export interface PagedProductsResponse {

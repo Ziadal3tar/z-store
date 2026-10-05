@@ -8,7 +8,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 
-import { UserService } from '../../services/user.service';
+import { UserService } from '../../core/services/user.service';
 
 interface SignupErrors {
   userNameErr: string;

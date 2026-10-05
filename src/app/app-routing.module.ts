@@ -1,18 +1,21 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { LogingurdGuard } from './services/logingurd.guard';
-import { LogoutGuard } from './services/logout.guard';
+import { AuthGuard } from './core/guards/auth.guard';
+import { GuestGuard } from './core/guards/guest.guard';
+import { AdminGuard } from './core/guards/admin.guard';
 import { LoginComponent } from './component/login/login.component';
-import { AdminComponent } from './component/admin/admin.component';
+import { AdminDashboardComponent } from './component/admin-dashboard/admin-dashboard.component';
 import { SignupComponent } from './component/signup/signup.component';
 import { HomeComponent } from './component/home/home.component';
-import { AllproductComponent } from './component/allproduct/allproduct.component';
+import { ShopComponent } from './component/shop/shop.component';
 import { CartComponent } from './component/cart/cart.component';
-import { UserinfoComponent } from './component/userinfo/userinfo.component';
-import { ProductsDetailsComponent } from './component/products-details/products-details.component';
+import { AccountComponent } from './component/account/account.component';
+import { ProductDetailsComponent } from './component/product-details/product-details.component';
 import { CheckoutComponent } from './component/checkout/checkout.component';
-import { BlogComponent } from './component/blog/blog.component';
-import { ContactComponent } from './component/contact/contact.component';
+import { BlogPageComponent } from './component/blog-page/blog-page.component';
+import { ContactPageComponent } from './component/contact-page/contact-page.component';
+import { ProductCompareComponent } from './component/product-compare/product-compare.component';
+import { OrderDetailsComponent } from './component/order-details/order-details.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -22,31 +25,41 @@ const routes: Routes = [
     data: { title: 'Home', description: 'Discover featured products, new arrivals and offers on Z-Store.' },
   },
   {
-    path: 'Blog',
-    component: BlogComponent,
+    path: 'blog',
+    component: BlogPageComponent,
 
   },
   {
-    path: 'Contact',
-    component: ContactComponent,
+    path: 'contact',
+    component: ContactPageComponent,
 
   },
-  { path: 'login', canActivate: [LogoutGuard], component: LoginComponent, data: { title: 'Login' } },
+  { path: 'login', canActivate: [GuestGuard], component: LoginComponent, data: { title: 'Login' } },
   {
     path: 'shop',
-    component: AllproductComponent,
+    component: ShopComponent,
     data: { title: 'Shop', description: 'Browse products with search, filtering and sorting on Z-Store.' },
   },
-  { path: 'product/:id', component: ProductsDetailsComponent, data: { title: 'Product' } },
-  { path: 'Shop', redirectTo: 'shop', pathMatch: 'full' },
-  { path: 'userinfo/settings', canActivate: [LogingurdGuard], component: UserinfoComponent, data: { title: 'Settings' } },
-  { path: 'userinfo/orders', canActivate: [LogingurdGuard], component: UserinfoComponent, data: { title: 'Orders' } },
-  { path: 'userinfo/favorites', canActivate: [LogingurdGuard], component: UserinfoComponent, data: { title: 'Favorites' } },
-  { path: 'userinfo/personal', canActivate: [LogingurdGuard], component: UserinfoComponent, data: { title: 'Account' } },
-  { path: 'signup', canActivate: [LogoutGuard], component: SignupComponent, data: { title: 'Create account' } },
-  { path: 'admin', canActivate: [LogingurdGuard], component: AdminComponent, data: { title: 'Admin' } },
-  { path: 'cart', canActivate: [LogingurdGuard], component: CartComponent, data: { title: 'Cart' } },
-  { path: 'checkout', canActivate: [LogingurdGuard], component: CheckoutComponent, data: { title: 'Checkout' } },
+  { path: 'product/:id', component: ProductDetailsComponent, data: { title: 'Product' } },
+  { path: 'orders/:id', canActivate: [AuthGuard], component: OrderDetailsComponent, data: { title: 'Order tracking' } },
+  { path: 'compare', component: ProductCompareComponent, data: { title: 'Compare products' } },
+  { path: 'account', canActivate: [AuthGuard], component: AccountComponent, data: { title: 'Account' } },
+  { path: 'account/settings', canActivate: [AuthGuard], component: AccountComponent, data: { title: 'Settings' } },
+  { path: 'account/orders', canActivate: [AuthGuard], component: AccountComponent, data: { title: 'Orders' } },
+  { path: 'account/wishlist', canActivate: [AuthGuard], component: AccountComponent, data: { title: 'Wishlist' } },
+  { path: 'account/profile', canActivate: [AuthGuard], component: AccountComponent, data: { title: 'Profile' } },
+  { path: 'userinfo/settings', redirectTo: 'account/settings' },
+  { path: 'userinfo/orders', redirectTo: 'account/orders' },
+  { path: 'userinfo/favorites', redirectTo: 'account/wishlist' },
+  { path: 'userinfo/personal', redirectTo: 'account/profile' },
+  { path: 'allproducts', redirectTo: 'shop' },
+  { path: 'Shop', redirectTo: 'shop' },
+  { path: 'Blog', redirectTo: 'blog' },
+  { path: 'Contact', redirectTo: 'contact' },
+  { path: 'signup', canActivate: [GuestGuard], component: SignupComponent, data: { title: 'Create account' } },
+  { path: 'admin', canActivate: [AuthGuard, AdminGuard], component: AdminDashboardComponent, data: { title: 'Admin' } },
+  { path: 'cart', canActivate: [AuthGuard], component: CartComponent, data: { title: 'Cart' } },
+  { path: 'checkout', canActivate: [AuthGuard], component: CheckoutComponent, data: { title: 'Checkout' } },
   {
     path: 'store',
     loadChildren: () => import('./stores/stores.module').then(m => m.StoresModule),

@@ -24,7 +24,7 @@ export class StoresService {
     });
   }
   deleteStore(createdBy: any) {
-    return this.http.get(`${this.baseUrl}/deleteStore/${createdBy}`);
+    return this.http.delete(`${this.baseUrl}/${createdBy}`, { headers: { authorization: `Bearer__${getAuthToken()}` } });
   }
   searchStore(data: any) {
     return this.http.post(`${this.baseUrl}/searchStores`, data, {
@@ -34,10 +34,10 @@ export class StoresService {
     });
   }
   storDeleted(id: any) {
-    return this.http.post(`${this.baseUrl}/storDeleted`, id);
+    return this.http.delete(`${this.baseUrl}/${id}`, { headers: { authorization: `Bearer__${getAuthToken()}` } });
   }
   removeStore(id: any) {
-    return this.http.delete(`${this.baseUrl}/removeStore/${id}`);
+    return this.http.delete(`${this.baseUrl}/${id}`, { headers: { authorization: `Bearer__${getAuthToken()}` } });
   }
   editStoreImg(formdata: any) {
     return this.http.put(`${this.baseUrl}/editStoreImg`, formdata, {
